@@ -137,7 +137,7 @@ To prevent any naming inconsistencies between the Python backend and TypeScript 
    - `is_local_host`: `bool`
    - `discovery_method`: `str` (`"ARP_L2"`, `"ICMP_L3"`, `"TCP_L4"`, `"ARP_CACHE"`, `"SIMULATED"`)
    - `last_rtt_ms`: `float | None`
-   - `open_ports_Summary`: `str` (Comma-separated open ports e.g. `"80, 443"`)
+   - `open_ports_summary`: `str` (Comma-separated open ports e.g. `"80, 443"`)
    - `first_seen`, `last_seen`: `datetime`
 
 3. **`PingSample` & `HostQoSStats` (`models/telemetry.py`)**:

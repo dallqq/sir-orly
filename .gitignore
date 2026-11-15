@@ -39,3 +39,20 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Python & NetPulse Backend
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+backend/.venv/
+.pytest_cache/
+*.db
+*.db-wal
+*.db-shm
+backend/captures/*.pcap
+backend/captures/*.pcapng
+!backend/captures/demo_lan_traffic.pcap
+backend/reports/*.pdf
+backend/reports/*.csv
+backend/reports/*.json
