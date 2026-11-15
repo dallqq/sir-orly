@@ -223,7 +223,7 @@ function ConnectivityWorkspace() {
   return (
     <div className="space-y-6">
       {/* Page Header & Segmented Mode Switcher */}
-      <div className="bg-white rounded-3xl border border-slate-200/90 p-5 sm:p-6 shadow-[0_12px_36px_-8px_rgba(15,23,42,0.06)] flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+      <div className="bg-white rounded-3xl border border-slate-200 p-5 sm:p-6 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-xs font-bold mb-1.5">
             <span>FEATURES 2 &amp; 3 + BONUS PORT SCANNER</span>
@@ -239,8 +239,8 @@ function ConnectivityWorkspace() {
         <SegmentedPillControl
           size="sm"
           options={[
-            { id: "ping", label: "⚡ Ping & QoS Stats", count: qosStats.length },
-            { id: "ports", label: "🔓 Socket Port Scanner", count: portResults.length },
+            { id: "ping", label: "Ping & QoS Stats", count: qosStats.length },
+            { id: "ports", label: "Socket Port Scanner", count: portResults.length },
           ]}
           value={activeTab}
           onChange={(v) => setActiveTab(v)}
@@ -254,7 +254,7 @@ function ConnectivityWorkspace() {
             {/* Left 5 Cols: Ping Target List (Screenshot 1 Right) + Ping Execution Form */}
             <div className="xl:col-span-5 space-y-5">
               {/* Ping Target Search & Signal Strength List Card (Exact Match to Screenshot 1 Right "Ping") */}
-              <div className="bg-white rounded-3xl border border-slate-200/90 p-5 sm:p-6 shadow-[0_12px_36px_-8px_rgba(15,23,42,0.06)] space-y-4">
+              <div className="bg-white rounded-3xl border border-slate-200 p-5 sm:p-6 space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
                     <h2 className="text-lg font-extrabold text-slate-900">
@@ -268,21 +268,21 @@ function ConnectivityWorkspace() {
                     type="button"
                     disabled={isPinging}
                     onClick={() => handleRunPing()}
-                    className="w-9 h-9 rounded-full bg-slate-100 hover:bg-blue-50 text-slate-700 hover:text-blue-600 flex items-center justify-center transition cursor-pointer"
+                    className="w-9 h-9 rounded-full bg-slate-100 hover:bg-blue-50 text-slate-700 hover:text-blue-600 flex items-center justify-center transition-colors duration-200 cursor-pointer"
                     title="Re-run Ping"
                   >
                     ↻
                   </button>
                 </div>
 
-                {/* Pill Search Input matching "🔍 Hyper.net" in Screenshot 1 Right */}
+                {/* Pill Search Input */}
                 <div className="relative">
                   <input
                     type="search"
                     value={pingFilter}
                     onChange={(e) => setPingFilter(e.target.value)}
-                    placeholder="🔍 Hyper.net — Search IP or hostname..."
-                    className="w-full bg-[#F8FAFC] border border-slate-200/90 focus:border-blue-500 focus:bg-white rounded-full px-4 py-2.5 text-xs text-slate-800 outline-none transition shadow-2xs"
+                    placeholder="Search IP or hostname..."
+                    className="w-full bg-[#F8FAFC] border border-slate-200 focus:border-blue-500 focus:bg-white rounded-full px-4 py-2.5 text-xs text-slate-800 outline-none transition-colors duration-200"
                   />
                 </div>
 
@@ -306,7 +306,7 @@ function ConnectivityWorkspace() {
               </div>
 
               {/* Ping Parameters Card */}
-              <div className="bg-white rounded-3xl border border-slate-200/90 p-5 sm:p-6 shadow-[0_12px_36px_-8px_rgba(15,23,42,0.06)] space-y-4">
+              <div className="bg-white rounded-3xl border border-slate-200 p-5 sm:p-6 space-y-4">
                 <div>
                   <h3 className="text-base font-extrabold text-slate-900">
                     Custom Ping Parameters
@@ -384,11 +384,11 @@ function ConnectivityWorkspace() {
                     type="button"
                     disabled={isPinging}
                     onClick={() => handleRunPing()}
-                    className="w-full py-3 rounded-full hyper-hero-gradient hover:brightness-105 disabled:opacity-50 text-white font-bold text-xs shadow-[0_12px_26px_-6px_rgba(30,107,255,0.5)] transition cursor-pointer"
+                    className="w-full py-3 rounded-full hyper-hero-gradient hover:brightness-105 disabled:opacity-50 text-white font-bold text-xs transition-all duration-200 ease-out cursor-pointer"
                   >
                     {isPinging
-                      ? "⚡ Streaming Echo Replies..."
-                      : "⚡ Execute Ping Connectivity Test"}
+                      ? "Streaming Echo Replies..."
+                      : "Execute Ping Connectivity Test"}
                   </button>
                 </div>
               </div>
@@ -397,7 +397,7 @@ function ConnectivityWorkspace() {
             {/* Right 7 Cols: Live Sequence Stream + Latency Comparison Chart */}
             <div className="xl:col-span-7 space-y-5">
               {/* Live Sequence Replies Card */}
-              <div className="bg-white rounded-3xl border border-slate-200/90 p-5 sm:p-6 shadow-[0_12px_36px_-8px_rgba(15,23,42,0.06)] space-y-4">
+              <div className="bg-white rounded-3xl border border-slate-200 p-5 sm:p-6 space-y-4">
                 <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                   <div>
                     <h2 className="text-base font-extrabold text-slate-900">
@@ -478,7 +478,7 @@ function ConnectivityWorkspace() {
               </div>
 
               {/* Per-Host Avg vs Peak Latency Comparison Card */}
-              <div className="bg-white rounded-3xl border border-slate-200/90 p-5 sm:p-6 shadow-[0_12px_36px_-8px_rgba(15,23,42,0.06)] space-y-4">
+              <div className="bg-white rounded-3xl border border-slate-200 p-5 sm:p-6 space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
                     <h2 className="text-base font-extrabold text-slate-900">
@@ -495,7 +495,7 @@ function ConnectivityWorkspace() {
           </div>
 
           {/* Feature 3 Mandatory Full Network Statistics Table */}
-          <div className="bg-white rounded-3xl border border-slate-200/90 p-5 sm:p-6 shadow-[0_12px_36px_-8px_rgba(15,23,42,0.06)] space-y-4">
+          <div className="bg-white rounded-3xl border border-slate-200 p-5 sm:p-6 space-y-4">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div>
                 <h2 className="text-base font-extrabold text-slate-900">
@@ -577,7 +577,7 @@ function ConnectivityWorkspace() {
         </div>
       ) : (
         /* Bonus Feature 5: Async Socket Port Scanner Workspace */
-        <div className="bg-white rounded-3xl border border-slate-200/90 p-5 sm:p-6 shadow-[0_12px_36px_-8px_rgba(15,23,42,0.06)] space-y-5">
+        <div className="bg-white rounded-3xl border border-slate-200 p-5 sm:p-6 space-y-5">
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 border-b border-slate-100 pb-5">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 flex-1">
               <div>
@@ -648,11 +648,11 @@ function ConnectivityWorkspace() {
               type="button"
               disabled={isScanningPorts}
               onClick={() => handleRunPortScan()}
-              className="px-6 py-3 rounded-full hyper-hero-gradient hover:brightness-105 disabled:opacity-50 text-white font-bold text-xs shadow-[0_10px_24px_-6px_rgba(30,107,255,0.5)] cursor-pointer shrink-0"
+              className="px-6 py-3 rounded-full hyper-hero-gradient hover:brightness-105 disabled:opacity-50 text-white font-bold text-xs transition-all duration-200 ease-out cursor-pointer shrink-0"
             >
               {isScanningPorts
-                ? "🔓 Scanning TCP Sockets..."
-                : "🔓 Launch Socket Port Scan"}
+                ? "Scanning TCP Sockets..."
+                : "Launch Socket Port Scan"}
             </button>
           </div>
 

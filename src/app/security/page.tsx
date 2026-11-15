@@ -166,7 +166,7 @@ export default function SecurityAdvisorPage() {
   return (
     <div className="space-y-6">
       {/* Feature 5 Security Posture Banner */}
-      <div className="bg-white border border-slate-200/90 rounded-3xl p-5 sm:p-6 shadow-[0_12px_36px_-8px_rgba(15,23,42,0.06)] flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+      <div className="bg-white border border-slate-200 rounded-3xl p-5 sm:p-6 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-xs font-bold mb-1.5">
             <span>FEATURE 5 + BONUS FEATURES 4 &amp; 8 · SECURITY ADVISOR</span>
@@ -194,9 +194,9 @@ export default function SecurityAdvisorPage() {
             type="button"
             disabled={evaluating}
             onClick={handleReEvaluate}
-            className="px-5 py-3 rounded-full hyper-hero-gradient hover:brightness-105 disabled:opacity-50 text-white font-bold text-xs shadow-[0_10px_24px_-6px_rgba(30,107,255,0.5)] cursor-pointer"
+            className="px-5 py-3 rounded-full hyper-hero-gradient hover:brightness-105 disabled:opacity-50 text-white font-bold text-xs transition-all duration-200 ease-out cursor-pointer"
           >
-            {evaluating ? "Evaluating..." : "🛡️ Re-Evaluate Rules"}
+            {evaluating ? "Evaluating..." : "Re-Evaluate Rules"}
           </button>
         </div>
       </div>
@@ -234,7 +234,7 @@ export default function SecurityAdvisorPage() {
           return (
             <div
               key={key}
-              className="bg-white border border-slate-200/90 rounded-3xl p-5 sm:p-6 shadow-[0_10px_28px_-6px_rgba(15,23,42,0.05)] flex flex-col justify-between space-y-4"
+              className="bg-white border border-slate-200 rounded-3xl p-5 sm:p-6 flex flex-col justify-between space-y-4"
             >
               <div className="space-y-2.5">
                 <div className="flex items-center justify-between gap-2 font-mono text-xs">
@@ -283,9 +283,18 @@ export default function SecurityAdvisorPage() {
                       setCopiedId(key);
                       setTimeout(() => setCopiedId(""), 1800);
                     }}
-                    className="px-3.5 py-1.5 rounded-full bg-[#141B2D] hover:bg-slate-800 text-xs font-bold text-white shrink-0 cursor-pointer"
+                    className="px-3.5 py-1.5 rounded-full bg-[#141B2D] hover:bg-slate-800 text-xs font-bold text-white shrink-0 cursor-pointer inline-flex items-center gap-1.5 transition-colors duration-200"
                   >
-                    {copiedId === key ? "✓ Copied" : "Copy CLI"}
+                    {copiedId === key ? (
+                      <>
+                        <svg className="w-3.5 h-3.5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                        <span>Copied</span>
+                      </>
+                    ) : (
+                      <span>Copy CLI</span>
+                    )}
                   </button>
                 </div>
               )}
@@ -297,7 +306,7 @@ export default function SecurityAdvisorPage() {
       {/* Bottom Split: Bonus Feature 4 (Email Notification + Local Outbox) & Bonus Feature 8 (Cloud DB Mode) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Email Alert Dispatcher & Outbox Preview (8 cols) */}
-        <div className="lg:col-span-8 bg-white border border-slate-200/90 rounded-3xl p-5 sm:p-6 shadow-[0_12px_36px_-8px_rgba(15,23,42,0.06)] space-y-5">
+        <div className="lg:col-span-8 bg-white border border-slate-200 rounded-3xl p-5 sm:p-6 space-y-5">
           <div>
             <div className="text-xs font-bold text-blue-600 uppercase tracking-wider">
               BONUS FEATURE 4 — SMTP EMAIL NOTIFICATION &amp; OUTBOX ARCHIVE
@@ -395,11 +404,11 @@ export default function SecurityAdvisorPage() {
               <button
                 type="submit"
                 disabled={sendingEmail}
-                className="px-6 py-3 rounded-full hyper-hero-gradient hover:brightness-105 text-white font-bold shadow-[0_10px_24px_-6px_rgba(30,107,255,0.5)] cursor-pointer"
+                className="px-6 py-3 rounded-full hyper-hero-gradient hover:brightness-105 text-white font-bold transition-all duration-200 ease-out cursor-pointer"
               >
                 {sendingEmail
                   ? "Sending Alert..."
-                  : "✉️ Dispatch Security & Connectivity Email"}
+                  : "Dispatch Security & Connectivity Email"}
               </button>
               {emailStatus && (
                 <span className="font-mono text-emerald-600 font-bold text-xs">
@@ -439,7 +448,7 @@ export default function SecurityAdvisorPage() {
         </div>
 
         {/* Bonus Feature 8: Hybrid Local SQLite WAL + Cloud PostgreSQL Storage Manager (4 cols) */}
-        <div className="lg:col-span-4 bg-white border border-slate-200/90 rounded-3xl p-5 sm:p-6 shadow-[0_12px_36px_-8px_rgba(15,23,42,0.06)] space-y-4">
+        <div className="lg:col-span-4 bg-white border border-slate-200 rounded-3xl p-5 sm:p-6 space-y-4">
           <div>
             <div className="text-xs font-bold text-blue-600 uppercase tracking-wider">
               BONUS FEATURE 8 — CLOUD DATABASE
@@ -503,9 +512,9 @@ export default function SecurityAdvisorPage() {
             <button
               type="button"
               onClick={handleSwitchDatabase}
-              className="w-full py-3 rounded-full bg-[#141B2D] hover:bg-slate-800 text-white font-bold cursor-pointer transition"
+              className="w-full py-3 rounded-full bg-[#141B2D] hover:bg-slate-800 text-white font-bold cursor-pointer transition-colors duration-200"
             >
-              🔄 Test &amp; Apply Storage Mode
+              Test &amp; Apply Storage Mode
             </button>
 
             {dbMessage && (

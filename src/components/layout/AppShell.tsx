@@ -187,7 +187,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-[#F3F6FB] text-slate-900 flex flex-col">
       {/* Top Global Telemetry Header Bar */}
-      <header className="sticky top-0 z-30 h-16 bg-white/90 backdrop-blur-md border-b border-slate-200/80 px-4 lg:px-6 flex items-center justify-between gap-3 shadow-[0_2px_15px_rgba(15,23,42,0.03)]">
+      <header className="sticky top-0 z-30 h-16 bg-white/95 backdrop-blur-md border-b border-slate-200 px-4 lg:px-6 flex items-center justify-between gap-3">
         {/* Left: Circular Menu Button (matching Screenshot 1 Left) + Brand / Page Title */}
         <div className="flex items-center gap-3 min-w-0">
           <button
@@ -199,7 +199,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 setSidebarCollapsed((c) => !c);
               }
             }}
-            className="w-10 h-10 rounded-full bg-slate-100 hover:bg-blue-50 text-slate-700 hover:text-blue-600 flex items-center justify-center transition border border-slate-200/80 cursor-pointer shrink-0"
+            className="w-10 h-10 rounded-full bg-slate-100 hover:bg-blue-50 text-slate-700 hover:text-blue-600 flex items-center justify-center transition-all duration-200 ease-out border border-slate-200 cursor-pointer shrink-0"
             title="Toggle Navigation"
           >
             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
@@ -208,7 +208,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </button>
 
           <Link href="/" className="flex items-center gap-2.5 min-w-0">
-            <div className="w-9 h-9 rounded-2xl hyper-hero-gradient flex items-center justify-center text-white font-black text-sm shadow-[0_6px_16px_rgba(30,107,255,0.38)] shrink-0">
+            <div className="w-9 h-9 rounded-2xl hyper-hero-gradient flex items-center justify-center text-white font-black text-sm shrink-0">
               H
             </div>
             <div className="min-w-0">
@@ -216,7 +216,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 <span className="font-extrabold tracking-tight text-slate-900 text-sm sm:text-base truncate">
                   HyperPulse <span className="text-blue-600">NOC</span>
                 </span>
-                <span className="hidden sm:inline-block text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 border border-blue-200/80">
+                <span className="hidden sm:inline-block text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 border border-blue-200">
                   CCS 234
                 </span>
               </div>
@@ -228,9 +228,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </div>
 
         {/* Center: Server / NIC & Location Pill Card (matching Screenshot 2 Left "Server: HYPERNET | Location") */}
-        <div className="hidden xl:flex items-center gap-4 bg-[#F8FAFC] border border-slate-200/90 rounded-full px-4 py-1.5 text-xs shadow-2xs">
+        <div className="hidden xl:flex items-center gap-4 bg-[#F8FAFC] border border-slate-200 rounded-full px-4 py-1.5 text-xs">
           <div className="flex items-center gap-2">
-            <span className="w-7 h-7 rounded-full hyper-hero-gradient text-white flex items-center justify-center text-[11px] font-bold shadow-xs">
+            <span className="w-7 h-7 rounded-full hyper-hero-gradient text-white flex items-center justify-center text-[11px] font-bold">
               ⇄
             </span>
             <div>
@@ -256,7 +256,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
           <div className="flex items-center gap-2">
             <span className="w-7 h-7 rounded-full bg-slate-200/80 text-slate-700 flex items-center justify-center text-xs">
-              🌐
+              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="12" cy="12" r="10" />
+                <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+              </svg>
             </span>
             <div>
               <div className="text-[10px] text-slate-400 leading-none">
@@ -274,7 +277,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
         {/* Right: Live Status Pill + Circular Refresh + Pill CTA Buttons */}
         <div className="flex items-center gap-2">
-          <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#F8FAFC] border border-slate-200/90 text-xs font-mono">
+          <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#F8FAFC] border border-slate-200 text-xs font-mono">
             <span
               className={`h-2.5 w-2.5 rounded-full ${
                 wsConnected
@@ -300,7 +303,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <button
             type="button"
             onClick={() => refreshAllNetworkData(activeInterface.interface_name, true)}
-            className="w-9 h-9 rounded-full bg-slate-100 hover:bg-blue-50 text-slate-600 hover:text-blue-600 border border-slate-200/80 flex items-center justify-center transition cursor-pointer"
+            className="w-9 h-9 rounded-full bg-slate-100 hover:bg-blue-50 text-slate-600 hover:text-blue-600 border border-slate-200 flex items-center justify-center transition-all duration-200 ease-out cursor-pointer"
             title="Refresh & Sync Backend Telemetry"
           >
             ↻
@@ -310,19 +313,19 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             type="button"
             disabled={isScanning}
             onClick={() => triggerScan("auto")}
-            className="px-3.5 py-2 rounded-full hyper-hero-gradient hover:brightness-110 disabled:opacity-50 text-white font-bold text-xs shadow-[0_8px_20px_-6px_rgba(30,107,255,0.55)] transition cursor-pointer"
+            className="px-3.5 py-2 rounded-full hyper-hero-gradient hover:brightness-110 disabled:opacity-50 text-white font-bold text-xs transition-all duration-200 ease-out cursor-pointer"
           >
-            {isScanning ? `Scanning ${scanProgressPct}%...` : "⚡ Quick Scan"}
+            {isScanning ? `Scanning ${scanProgressPct}%...` : "Quick Scan"}
           </button>
 
           <button
             type="button"
             disabled={isScanning}
             onClick={() => triggerSeedCampusLab()}
-            className="hidden md:inline-flex px-3.5 py-2 rounded-full bg-[#141B2D] hover:bg-slate-800 text-white font-bold text-xs transition cursor-pointer shadow-xs"
+            className="hidden md:inline-flex px-3.5 py-2 rounded-full bg-[#141B2D] hover:bg-slate-800 text-white font-bold text-xs transition-all duration-200 ease-out cursor-pointer"
             title="Seed realistic Campus Lab routers, servers, IoT hosts, open ports, and alerts"
           >
-            🏫 Campus Lab
+            Campus Lab
           </button>
         </div>
       </header>
@@ -334,7 +337,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           onClick={() => setMobileMenuOpen(false)}
         >
           <div
-            className="w-72 bg-white h-full p-4 flex flex-col justify-between shadow-2xl"
+            className="w-72 bg-white h-full p-4 flex flex-col justify-between border-r border-slate-200"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="space-y-4">
@@ -345,9 +348,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 <button
                   type="button"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="w-8 h-8 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center"
+                  className="w-8 h-8 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center hover:bg-slate-200 transition-colors"
                 >
-                  ✕
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M18 6L6 18M6 6l12 12" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
                 </button>
               </div>
               <div className="space-y-1.5">
@@ -361,9 +366,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                       key={item.href}
                       href={item.href}
                       onClick={() => setMobileMenuOpen(false)}
-                      className={`flex items-center justify-between px-3.5 py-3 rounded-2xl text-xs font-semibold transition ${
+                      className={`flex items-center justify-between px-3.5 py-3 rounded-2xl text-xs font-semibold transition-all duration-200 ease-out ${
                         isActive
-                          ? "hyper-hero-gradient text-white shadow-[0_10px_22px_-6px_rgba(30,107,255,0.45)]"
+                          ? "hyper-hero-gradient text-white"
                           : "text-slate-600 hover:bg-slate-100"
                       }`}
                     >
@@ -395,7 +400,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               </div>
             </div>
 
-            <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2 text-xs">
+            <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-2 text-xs">
               <div className="font-bold text-slate-700">Active Interface</div>
               <div className="font-mono text-blue-600 font-bold">
                 {activeInterface.interface_name} · {activeInterface.local_ip}
@@ -409,9 +414,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   triggerSeedCampusLab();
                   setMobileMenuOpen(false);
                 }}
-                className="w-full py-2 rounded-full bg-[#141B2D] text-white font-bold text-xs cursor-pointer"
+                className="w-full py-2 rounded-full bg-[#141B2D] text-white font-bold text-xs cursor-pointer hover:bg-slate-800 transition-colors"
               >
-                🏫 Seed Campus Lab Data
+                Seed Campus Lab Data
               </button>
             </div>
           </div>
@@ -424,7 +429,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <aside
           className={`hidden lg:flex ${
             sidebarCollapsed ? "w-20" : "w-72"
-          } transition-all duration-300 bg-white border-r border-slate-200/80 flex-col justify-between shrink-0`}
+          } transition-all duration-300 ease-in-out bg-white border-r border-slate-200 flex-col justify-between shrink-0`}
         >
           <div className="p-3.5 space-y-1.5">
             {!sidebarCollapsed && (
@@ -442,9 +447,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   key={item.href}
                   href={item.href}
                   title={item.label}
-                  className={`flex items-center justify-between px-3.5 py-3 rounded-2xl text-xs transition-all duration-200 ${
+                  className={`flex items-center justify-between px-3.5 py-3 rounded-2xl text-xs transition-all duration-200 ease-out ${
                     isActive
-                      ? "hyper-hero-gradient text-white shadow-[0_12px_24px_-8px_rgba(21,94,239,0.5)]"
+                      ? "hyper-hero-gradient text-white"
                       : "text-slate-600 hover:bg-slate-100/80 hover:text-slate-900"
                   }`}
                 >
@@ -489,7 +494,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
           {/* Live Environment & Edge-Case Capability Card (Sidebar Footer) */}
           {!sidebarCollapsed && (
-            <div className="p-4 m-3.5 rounded-3xl bg-[#F8FAFC] border border-slate-200/90 space-y-2.5 text-xs">
+            <div className="p-4 m-3.5 rounded-3xl bg-[#F8FAFC] border border-slate-200 space-y-2.5 text-xs">
               <div className="flex items-center justify-between">
                 <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">
                   System Telemetry
@@ -559,7 +564,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <button
                 type="button"
                 onClick={handleToggleMonitor}
-                className="w-full mt-1 py-2 px-3 rounded-full bg-[#141B2D] hover:bg-slate-800 text-center text-[11px] font-bold text-white transition cursor-pointer"
+                className="w-full mt-1 py-2 px-3 rounded-full bg-[#141B2D] hover:bg-slate-800 text-center text-[11px] font-bold text-white transition-colors duration-200 cursor-pointer"
               >
                 Live Stream: {monitoringEnabled ? "ON (2s Interval)" : "PAUSED"}
               </button>
@@ -593,7 +598,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       {/* Signature Mobile/Tablet Floating Dark Navy Pill Dock (matching Screenshot 1 Bottom Navigation!) */}
       <nav
         aria-label="Mobile Bottom Dock"
-        className="lg:hidden fixed bottom-4 left-1/2 -translate-x-1/2 z-40 bg-[#141B2D]/95 backdrop-blur-md border border-slate-800 rounded-full px-3 py-2 shadow-[0_18px_38px_rgba(15,23,42,0.42)] flex items-center gap-2"
+        className="lg:hidden fixed bottom-4 left-1/2 -translate-x-1/2 z-40 bg-[#141B2D]/95 backdrop-blur-md border border-slate-800 rounded-full px-3 py-2 flex items-center gap-2"
       >
         {NAV_ITEMS.map((item) => {
           const isActive =
@@ -605,9 +610,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               key={item.href}
               href={item.href}
               title={item.label}
-              className={`w-11 h-11 rounded-full flex items-center justify-center transition-all duration-200 ${
+              className={`w-11 h-11 rounded-full flex items-center justify-center transition-all duration-200 ease-out ${
                 isActive
-                  ? "hyper-hero-gradient text-white shadow-[0_6px_16px_rgba(30,107,255,0.65)] scale-105"
+                  ? "hyper-hero-gradient text-white scale-105"
                   : "text-slate-400 hover:text-white bg-white/5"
               }`}
             >

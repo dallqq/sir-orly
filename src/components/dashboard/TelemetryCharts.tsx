@@ -175,7 +175,6 @@ export function LiveLatencyAreaChart({ data }: { data: TelemetryPoint[] }) {
               height="24"
               rx="12"
               fill="#1E6BFF"
-              style={{ filter: "drop-shadow(0 4px 8px rgba(30,107,255,0.35))" }}
             />
             <text
               x={activeUpper.x}
@@ -288,7 +287,7 @@ export function BandwidthThroughputChart({ data }: { data: TelemetryPoint[] }) {
                   {/* Active Blue Gradient Foreground Pill */}
                   <div
                     style={{ height: `${(rxPct / totalPct) * 100}%` }}
-                    className="w-full rounded-full hyper-hero-gradient shadow-[0_6px_16px_rgba(30,107,255,0.35)] transition-all duration-500 group-hover:brightness-110"
+                    className="w-full rounded-full hyper-hero-gradient transition-all duration-500 group-hover:brightness-110"
                   />
                 </div>
               </div>
@@ -397,8 +396,8 @@ export function InteractiveSubnetTopology({
     hostname: "Default-Gateway-Router",
     vendor: "Cisco / Gateway",
     os_guess: "Router OS",
-    interface_name: "Primary",
-    subnet_cidr: "192.168.1.0/24",
+    interface_name: "Wi-Fi",
+    subnet_cidr: "192.168.254.0/24",
     is_online: true,
     is_gateway: true,
     is_local_host: false,
@@ -412,7 +411,7 @@ export function InteractiveSubnetTopology({
   );
 
   return (
-    <div className="relative bg-white rounded-3xl border border-slate-200/90 shadow-[0_10px_30px_-6px_rgba(15,23,42,0.05)] overflow-hidden">
+    <div className="relative bg-white rounded-3xl border border-slate-200 overflow-hidden">
       <div className="px-5 py-3.5 bg-slate-50/90 border-b border-slate-200/80 flex flex-wrap items-center justify-between gap-2 text-xs">
         <div className="flex items-center gap-2.5">
           <span className="w-2.5 h-2.5 rounded-full bg-blue-600" />

@@ -433,7 +433,7 @@ function PacketsWorkspace() {
   return (
     <div className="space-y-6">
       {/* Capture & Wireshark Interoperability Header */}
-      <div className="bg-white border border-slate-200/90 rounded-3xl p-5 sm:p-6 shadow-[0_12px_36px_-8px_rgba(15,23,42,0.06)] space-y-5">
+      <div className="bg-white border border-slate-200 rounded-3xl p-5 sm:p-6 space-y-5">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-xs font-bold mb-1.5">
@@ -454,16 +454,16 @@ function PacketsWorkspace() {
                   href={netpulseApi.getDownloadPcapUrl(activeSession.id)}
                   target="_blank"
                   rel="noreferrer"
-                  className="px-4 py-2 rounded-full bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 text-xs font-bold transition"
+                  className="px-4 py-2 rounded-full bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 text-xs font-bold transition-colors duration-200"
                 >
-                  ⬇️ Download .pcap
+                  Download .pcap
                 </a>
                 <button
                   type="button"
                   onClick={handleOpenWireshark}
-                  className="px-4 py-2 rounded-full bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 text-xs font-bold transition cursor-pointer"
+                  className="px-4 py-2 rounded-full bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 text-xs font-bold transition-colors duration-200 cursor-pointer"
                 >
-                  🦈 Open in Wireshark
+                  Open in Wireshark
                 </button>
               </>
             )}
@@ -471,13 +471,13 @@ function PacketsWorkspace() {
             <button
               type="button"
               onClick={handleLoadDemoPcap}
-              className="px-4 py-2 rounded-full bg-[#141B2D] hover:bg-slate-800 text-white text-xs font-bold transition cursor-pointer"
+              className="px-4 py-2 rounded-full bg-[#141B2D] hover:bg-slate-800 text-white text-xs font-bold transition-colors duration-200 cursor-pointer"
             >
-              🏫 Load Demo PCAP
+              Load Demo PCAP
             </button>
 
-            <label className="px-4 py-2 rounded-full bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 text-xs font-bold transition cursor-pointer">
-              📂 Upload .pcap
+            <label className="px-4 py-2 rounded-full bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 text-xs font-bold transition-colors duration-200 cursor-pointer">
+              Upload .pcap
               <input
                 type="file"
                 accept=".pcap,.pcapng,.cap"
@@ -505,9 +505,9 @@ function PacketsWorkspace() {
                   key={chip}
                   type="button"
                   onClick={() => setBpfFilter(chip)}
-                  className={`px-3 py-1 rounded-full text-[11px] font-mono font-bold transition cursor-pointer ${
+                  className={`px-3 py-1 rounded-full text-[11px] font-mono font-bold transition-colors duration-200 cursor-pointer ${
                     bpfFilter === chip
-                      ? "bg-[#141B2D] text-white shadow-xs"
+                      ? "bg-[#141B2D] text-white"
                       : "bg-slate-100 text-slate-600 hover:bg-slate-200"
                   }`}
                 >
@@ -534,9 +534,9 @@ function PacketsWorkspace() {
               type="button"
               disabled={isCapturing}
               onClick={handleCapture}
-              className="px-5 py-2 rounded-full hyper-hero-gradient hover:brightness-105 disabled:opacity-50 text-white font-bold text-xs shadow-[0_8px_20px_-6px_rgba(30,107,255,0.5)] cursor-pointer"
+              className="px-5 py-2 rounded-full hyper-hero-gradient hover:brightness-105 disabled:opacity-50 text-white font-bold text-xs transition-all duration-200 ease-out cursor-pointer"
             >
-              {isCapturing ? "Sniffing..." : "🦈 Start Capture"}
+              {isCapturing ? "Sniffing..." : "Start Capture"}
             </button>
           </div>
 
@@ -584,7 +584,7 @@ function PacketsWorkspace() {
       </div>
 
       {/* Pane 1 (Top): Color-Coded Packet List Table */}
-      <div className="bg-white border border-slate-200/90 rounded-3xl shadow-[0_12px_36px_-8px_rgba(15,23,42,0.06)] overflow-hidden">
+      <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden">
         <div className="px-5 py-3.5 bg-slate-50/90 border-b border-slate-200/80 flex flex-wrap items-center justify-between gap-2 text-xs">
           <span className="text-slate-900 font-extrabold">
             PANE 1 — Captured Packet Summary Table ({packets.length} frames)
@@ -686,7 +686,7 @@ function PacketsWorkspace() {
       {/* Bottom Split: Pane 2 (OSI Layer 2-7 Dissection Tree) & Pane 3 (Hex/ASCII Byte Dump) */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Pane 2: OSI Layer 2, 3, 4, 7 Dissection Tree */}
-        <div className="bg-white border border-slate-200/90 rounded-3xl shadow-[0_12px_36px_-8px_rgba(15,23,42,0.06)] overflow-hidden">
+        <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden">
           <div className="px-5 py-3.5 bg-slate-50/90 border-b border-slate-200/80 text-xs flex items-center justify-between">
             <span className="text-slate-900 font-extrabold">
               PANE 2 — OSI &amp; TCP/IP Protocol Dissection Tree{" "}
@@ -757,7 +757,7 @@ function PacketsWorkspace() {
         </div>
 
         {/* Pane 3: Hexadecimal & ASCII Byte Viewer */}
-        <div className="bg-white border border-slate-200/90 rounded-3xl shadow-[0_12px_36px_-8px_rgba(15,23,42,0.06)] overflow-hidden flex flex-col">
+        <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden flex flex-col">
           <div className="px-5 py-3.5 bg-slate-50/90 border-b border-slate-200/80 flex justify-between text-xs">
             <span className="text-slate-900 font-extrabold">
               PANE 3 — Raw Hexadecimal &amp; ASCII Frame Bytes

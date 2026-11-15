@@ -258,7 +258,7 @@ export default function DiagnosticReportsPage() {
   return (
     <div className="space-y-6">
       {/* Feature 4 & Bonus Feature 3 Header */}
-      <div className="bg-white border border-slate-200/90 rounded-3xl p-5 sm:p-6 shadow-[0_12px_36px_-8px_rgba(15,23,42,0.06)] space-y-5">
+      <div className="bg-white border border-slate-200 rounded-3xl p-5 sm:p-6 space-y-5">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-xs font-bold mb-1.5">
@@ -277,21 +277,21 @@ export default function DiagnosticReportsPage() {
               <button
                 type="button"
                 onClick={handleDownloadPdf}
-                className="px-4 py-2.5 rounded-full hyper-hero-gradient hover:brightness-105 text-white font-bold text-xs shadow-[0_10px_24px_-6px_rgba(30,107,255,0.5)] cursor-pointer"
+                className="px-4 py-2.5 rounded-full hyper-hero-gradient hover:brightness-105 text-white font-bold text-xs transition-all duration-200 ease-out cursor-pointer"
               >
-                📄 Download Official PDF Report
+                Download Official PDF Report
               </button>
               <button
                 type="button"
                 onClick={handleExportCsvLocal}
-                className="px-4 py-2.5 rounded-full bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 font-bold text-xs cursor-pointer"
+                className="px-4 py-2.5 rounded-full bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 font-bold text-xs transition-colors duration-200 cursor-pointer"
               >
-                📊 Export CSV
+                Export CSV
               </button>
               <button
                 type="button"
                 onClick={handleExportJson}
-                className="px-4 py-2.5 rounded-full bg-[#141B2D] hover:bg-slate-800 text-white font-bold text-xs cursor-pointer"
+                className="px-4 py-2.5 rounded-full bg-[#141B2D] hover:bg-slate-800 text-white font-bold text-xs transition-colors duration-200 cursor-pointer"
               >
                 {`{ } Export JSON`}
               </button>
@@ -315,11 +315,11 @@ export default function DiagnosticReportsPage() {
               type="button"
               disabled={generating}
               onClick={handleGenerateReport}
-              className="px-5 py-2.5 rounded-full bg-[#141B2D] hover:bg-slate-800 disabled:opacity-50 text-white font-bold text-xs shrink-0 cursor-pointer"
+              className="px-5 py-2.5 rounded-full bg-[#141B2D] hover:bg-slate-800 disabled:opacity-50 text-white font-bold text-xs shrink-0 cursor-pointer transition-colors duration-200"
             >
               {generating
                 ? "Generating Snapshot..."
-                : "⚡ Generate New Report Snapshot"}
+                : "Generate New Report Snapshot"}
             </button>
           </div>
 
@@ -346,7 +346,7 @@ export default function DiagnosticReportsPage() {
       {activeReport && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           {/* Left 7 Cols: Overview Pill Bar Chart (Exact match to Screenshot 2 Right) */}
-          <div className="lg:col-span-7 bg-white border border-slate-200/90 rounded-3xl p-5 sm:p-6 shadow-[0_12px_36px_-8px_rgba(15,23,42,0.06)] space-y-4">
+          <div className="lg:col-span-7 bg-white border border-slate-200 rounded-3xl p-5 sm:p-6 space-y-4">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <SegmentedPillControl
                 size="sm"
@@ -373,7 +373,7 @@ export default function DiagnosticReportsPage() {
           </div>
 
           {/* Right 5 Cols: "History" Key-Value Sheet (Exact match to Screenshot 2 Right bottom sheet) */}
-          <div className="lg:col-span-5 bg-white border border-slate-200/90 rounded-3xl p-5 sm:p-6 shadow-[0_12px_36px_-8px_rgba(15,23,42,0.06)] space-y-4">
+          <div className="lg:col-span-5 bg-white border border-slate-200 rounded-3xl p-5 sm:p-6 space-y-4">
             <div className="w-10 h-1 rounded-full bg-slate-300 mx-auto" />
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-extrabold text-slate-900">History</h2>
@@ -429,7 +429,7 @@ export default function DiagnosticReportsPage() {
 
       {/* Full Interactive 4-Section Report Document */}
       {activeReport && (
-        <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 shadow-[0_12px_36px_-8px_rgba(15,23,42,0.06)] space-y-6">
+        <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 space-y-6">
           {/* 1. Date and Time & Interface Metadata */}
           <div className="border-b border-slate-100 pb-5 flex flex-col md:flex-row md:items-center justify-between gap-3">
             <div>

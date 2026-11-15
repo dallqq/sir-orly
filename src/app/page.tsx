@@ -69,8 +69,8 @@ export default function NocOverviewPage() {
         )
       : speedBenchmark.jitterMs;
 
-  const downloadGb = Math.max(40, Math.round(totalMbRecv / 1024));
-  const uploadGb = Math.max(16, Math.round(totalMbSent / 1024));
+  const downloadGb = Number((totalMbRecv / 1024).toFixed(1));
+  const uploadGb = Number((totalMbSent / 1024).toFixed(1));
 
   const handleQuickReport = async () => {
     setGeneratingPdf(true);
@@ -124,7 +124,7 @@ export default function NocOverviewPage() {
         {/* LEFT COLUMN (5 cols on XL): Speed Test Console & 2x2 Metric Wave Cards */}
         <div className="xl:col-span-5 space-y-5">
           {/* Speed Test Main Card (Screenshot 1 Left & Screenshot 2 Left) */}
-          <div className="bg-white rounded-3xl border border-slate-200/90 p-5 sm:p-6 shadow-[0_12px_36px_-8px_rgba(15,23,42,0.06)] space-y-5">
+          <div className="bg-white rounded-3xl border border-slate-200 p-5 sm:p-6 space-y-5">
             {/* Card Header */}
             <div className="flex items-center justify-between">
               <div>
@@ -141,9 +141,9 @@ export default function NocOverviewPage() {
             </div>
 
             {/* Server & Location Info Pill Card (Exact match to Screenshot 2 Left) */}
-            <div className="grid grid-cols-2 gap-3 p-3.5 rounded-2xl bg-[#F8FAFC] border border-slate-200/70">
+            <div className="grid grid-cols-2 gap-3 p-3.5 rounded-2xl bg-[#F8FAFC] border border-slate-200">
               <div className="flex items-center gap-2.5 min-w-0">
-                <div className="w-10 h-10 rounded-full hyper-hero-gradient text-white flex items-center justify-center shrink-0 shadow-[0_6px_14px_rgba(30,107,255,0.35)]">
+                <div className="w-10 h-10 rounded-full hyper-hero-gradient text-white flex items-center justify-center shrink-0">
                   <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
                     <rect x="3" y="4" width="18" height="6" rx="2" />
                     <rect x="3" y="14" width="18" height="6" rx="2" />
@@ -158,7 +158,7 @@ export default function NocOverviewPage() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-2.5 min-w-0 border-l border-slate-200/80 pl-3">
+              <div className="flex items-center gap-2.5 min-w-0 border-l border-slate-200 pl-3">
                 <div className="w-10 h-10 rounded-full bg-slate-200/75 text-slate-700 flex items-center justify-center shrink-0">
                   <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <circle cx="12" cy="12" r="9" />
@@ -213,10 +213,10 @@ export default function NocOverviewPage() {
                   ? stopSpeedBenchmark()
                   : runSpeedBenchmark()
               }
-              className={`w-full py-3.5 rounded-full font-bold text-sm transition-all cursor-pointer ${
+              className={`w-full py-3.5 rounded-full font-bold text-sm transition-all duration-200 ease-out cursor-pointer ${
                 speedBenchmark.isRunning
-                  ? "bg-rose-500 hover:bg-rose-600 text-white shadow-[0_12px_28px_-6px_rgba(244,63,94,0.5)]"
-                  : "hyper-hero-gradient hover:brightness-105 text-white shadow-[0_14px_30px_-6px_rgba(30,107,255,0.55)]"
+                  ? "bg-rose-500 hover:bg-rose-600 text-white"
+                  : "hyper-hero-gradient hover:brightness-105 text-white"
               }`}
             >
               {speedBenchmark.isRunning
@@ -269,7 +269,7 @@ export default function NocOverviewPage() {
         {/* RIGHT COLUMN (7 cols on XL): Data Usage, Hatched Analysis Chart, Pill Bar Overview & Subnet KPIs */}
         <div className="xl:col-span-7 space-y-5">
           {/* Data Usage & Telemetry Analysis Card (Screenshot 1 Middle & Screenshot 2 Right) */}
-          <div className="bg-white rounded-3xl border border-slate-200/90 p-5 sm:p-6 shadow-[0_12px_36px_-8px_rgba(15,23,42,0.06)] space-y-5">
+          <div className="bg-white rounded-3xl border border-slate-200 p-5 sm:p-6 space-y-5">
             {/* Top Row: Remaining Quota / Subnet Capacity + Add Quota / Export PDF Button */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
               <div className="flex flex-wrap items-center gap-6 sm:gap-8">
@@ -310,7 +310,7 @@ export default function NocOverviewPage() {
                       "Added +32 GB to active monitoring quota allocation."
                     );
                   }}
-                  className="px-4 py-2 rounded-full bg-blue-50 hover:bg-blue-100 text-blue-600 font-bold text-xs transition cursor-pointer"
+                  className="px-4 py-2 rounded-full bg-blue-50 hover:bg-blue-100 text-blue-600 font-bold text-xs transition-colors duration-200 cursor-pointer"
                 >
                   Add Quota +
                 </button>
@@ -318,9 +318,9 @@ export default function NocOverviewPage() {
                   type="button"
                   disabled={generatingPdf}
                   onClick={handleQuickReport}
-                  className="px-4 py-2 rounded-full bg-[#141B2D] hover:bg-slate-800 text-white font-bold text-xs transition cursor-pointer"
+                  className="px-4 py-2 rounded-full bg-[#141B2D] hover:bg-slate-800 text-white font-bold text-xs transition-colors duration-200 cursor-pointer"
                 >
-                  {generatingPdf ? "Building PDF..." : "📄 Export PDF"}
+                  {generatingPdf ? "Building PDF..." : "Export PDF"}
                 </button>
               </div>
             </div>
@@ -340,13 +340,13 @@ export default function NocOverviewPage() {
               />
 
               {/* Chart Mode Dropdown / Switcher matching Screenshot 2 Right "↓ Download ⌄" */}
-              <div className="inline-flex items-center gap-1.5 bg-slate-50 border border-slate-200/80 rounded-full p-1">
+              <div className="inline-flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-full p-1">
                 <button
                   type="button"
                   onClick={() => setChartTab("analysis")}
-                  className={`px-3 py-1 rounded-full text-xs font-bold transition cursor-pointer ${
+                  className={`px-3 py-1 rounded-full text-xs font-bold transition-all duration-200 ease-out cursor-pointer ${
                     chartTab === "analysis"
-                      ? "bg-blue-600 text-white shadow-xs"
+                      ? "bg-blue-600 text-white"
                       : "text-slate-600 hover:text-slate-900"
                   }`}
                 >
@@ -355,9 +355,9 @@ export default function NocOverviewPage() {
                 <button
                   type="button"
                   onClick={() => setChartTab("overview")}
-                  className={`px-3 py-1 rounded-full text-xs font-bold transition cursor-pointer ${
+                  className={`px-3 py-1 rounded-full text-xs font-bold transition-all duration-200 ease-out cursor-pointer ${
                     chartTab === "overview"
-                      ? "bg-blue-600 text-white shadow-xs"
+                      ? "bg-blue-600 text-white"
                       : "text-slate-600 hover:text-slate-900"
                   }`}
                 >
@@ -366,9 +366,9 @@ export default function NocOverviewPage() {
                 <button
                   type="button"
                   onClick={() => setChartTab("protocol")}
-                  className={`px-3 py-1 rounded-full text-xs font-bold transition cursor-pointer ${
+                  className={`px-3 py-1 rounded-full text-xs font-bold transition-all duration-200 ease-out cursor-pointer ${
                     chartTab === "protocol"
-                      ? "bg-blue-600 text-white shadow-xs"
+                      ? "bg-blue-600 text-white"
                       : "text-slate-600 hover:text-slate-900"
                   }`}
                 >
@@ -442,7 +442,7 @@ export default function NocOverviewPage() {
           </div>
 
           {/* Quick Ping Signal List Card (Matching Screenshot 1 Right "Ping" Screen!) */}
-          <div className="bg-white rounded-3xl border border-slate-200/90 p-5 sm:p-6 shadow-[0_12px_36px_-8px_rgba(15,23,42,0.06)] space-y-4">
+          <div className="bg-white rounded-3xl border border-slate-200 p-5 sm:p-6 space-y-4">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div>
                 <h2 className="text-base font-extrabold text-slate-900">
@@ -457,13 +457,13 @@ export default function NocOverviewPage() {
                   type="button"
                   disabled={isScanning}
                   onClick={() => triggerScan("auto")}
-                  className="px-3.5 py-1.5 rounded-full bg-blue-50 hover:bg-blue-100 text-blue-600 font-bold text-xs transition cursor-pointer"
+                  className="px-3.5 py-1.5 rounded-full bg-blue-50 hover:bg-blue-100 text-blue-600 font-bold text-xs transition-colors duration-200 cursor-pointer"
                 >
-                  {isScanning ? "Scanning..." : "↻ Scan Subnet"}
+                  {isScanning ? "Scanning..." : "Scan Subnet"}
                 </button>
                 <Link
                   href="/connectivity"
-                  className="px-3.5 py-1.5 rounded-full bg-[#141B2D] text-white font-bold text-xs hover:bg-slate-800 transition"
+                  className="px-3.5 py-1.5 rounded-full bg-[#141B2D] text-white font-bold text-xs hover:bg-slate-800 transition-colors duration-200"
                 >
                   Ping Console →
                 </Link>
@@ -526,13 +526,13 @@ export default function NocOverviewPage() {
               <button
                 type="button"
                 onClick={() => triggerSeedCampusLab()}
-                className="px-3.5 py-1.5 rounded-full bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold cursor-pointer"
+                className="px-3.5 py-1.5 rounded-full bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold cursor-pointer transition-colors duration-200"
               >
-                🏫 Seed Campus Lab
+                Seed Campus Lab
               </button>
               <Link
                 href="/discovery"
-                className="px-4 py-1.5 rounded-full hyper-hero-gradient text-white text-xs font-bold shadow-xs"
+                className="px-4 py-1.5 rounded-full hyper-hero-gradient text-white text-xs font-bold transition-all duration-200 ease-out hover:brightness-105"
               >
                 Full LAN &amp; Topology →
               </Link>
@@ -551,7 +551,7 @@ export default function NocOverviewPage() {
         </div>
 
         {/* Right 4 Cols: Active Security & QoS Advisories */}
-        <div className="lg:col-span-4 bg-white rounded-3xl border border-slate-200/90 p-5 sm:p-6 shadow-[0_12px_36px_-8px_rgba(15,23,42,0.06)] flex flex-col justify-between space-y-4">
+        <div className="lg:col-span-4 bg-white rounded-3xl border border-slate-200 p-5 sm:p-6 flex flex-col justify-between space-y-4">
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
@@ -615,7 +615,7 @@ export default function NocOverviewPage() {
               href="/packets"
               className="font-bold text-slate-600 hover:text-blue-600"
             >
-              Wireshark 🦈 →
+              Wireshark Sniffer →
             </Link>
           </div>
         </div>

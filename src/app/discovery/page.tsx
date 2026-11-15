@@ -50,7 +50,7 @@ export default function NetworkDiscoveryPage() {
   return (
     <div className="space-y-6">
       {/* Top LAN Header & Segmented Pill Switcher (Matching Screenshot 2 Middle "Lan — Found X devices") */}
-      <div className="bg-white rounded-3xl border border-slate-200/90 p-5 sm:p-6 shadow-[0_12px_36px_-8px_rgba(15,23,42,0.06)] space-y-5">
+      <div className="bg-white rounded-3xl border border-slate-200 p-5 sm:p-6 space-y-5">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-xs font-bold mb-1.5">
@@ -186,31 +186,31 @@ export default function NetworkDiscoveryPage() {
               type="button"
               disabled={isScanning}
               onClick={() => triggerScan(scanMode, effectiveCidr)}
-              className="px-5 py-2 rounded-full hyper-hero-gradient hover:brightness-105 disabled:opacity-50 text-white font-bold text-xs shadow-[0_8px_20px_-6px_rgba(30,107,255,0.5)] transition cursor-pointer"
+              className="px-5 py-2 rounded-full hyper-hero-gradient hover:brightness-105 disabled:opacity-50 text-white font-bold text-xs transition-all duration-200 ease-out cursor-pointer"
             >
               {isScanning
                 ? `Scanning (${scanStage} ${scanProgressPct}%)...`
-                : "⚡ Start Discovery Sweep"}
+                : "Start Discovery Sweep"}
             </button>
 
             <button
               type="button"
               disabled={isScanning}
               onClick={() => triggerSeedCampusLab()}
-              className="px-4 py-2 rounded-full bg-[#141B2D] hover:bg-slate-800 text-white text-xs font-bold transition cursor-pointer"
+              className="px-4 py-2 rounded-full bg-[#141B2D] hover:bg-slate-800 text-white text-xs font-bold transition-colors duration-200 cursor-pointer"
             >
-              🏫 Seed Campus Lab
+              Seed Campus Lab
             </button>
           </div>
 
-          {/* Pill Search Input matching Screenshot 1 Right "🔍 Hyper.net" */}
+          {/* Pill Search Input */}
           <div className="relative min-w-[240px]">
             <input
               type="search"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="🔍 Search IP, Hostname, MAC, Vendor..."
-              className="w-full bg-[#F8FAFC] border border-slate-200/90 focus:border-blue-500 focus:bg-white rounded-full px-4 py-2 text-xs text-slate-800 outline-none transition"
+              placeholder="Search IP, Hostname, MAC, Vendor..."
+              className="w-full bg-[#F8FAFC] border border-slate-200 focus:border-blue-500 focus:bg-white rounded-full px-4 py-2 text-xs text-slate-800 outline-none transition-colors duration-200"
             />
           </div>
         </div>
@@ -256,7 +256,7 @@ export default function NetworkDiscoveryPage() {
                       onClick={() => triggerSeedCampusLab()}
                       className="px-5 py-2.5 rounded-full hyper-hero-gradient text-white text-xs font-bold cursor-pointer"
                     >
-                      🏫 Seed Campus Lab Devices
+                      Seed Campus Lab Devices
                     </button>
                   )}
                 </div>
@@ -281,7 +281,7 @@ export default function NetworkDiscoveryPage() {
           </div>
 
           {/* Right 4 Cols: Selected Device Detail & History Sheet (Matching Screenshot 2 Right "History") */}
-          <div className="xl:col-span-4 bg-white rounded-3xl border border-slate-200/90 p-5 sm:p-6 shadow-[0_12px_36px_-8px_rgba(15,23,42,0.06)] space-y-4 sticky top-22">
+          <div className="xl:col-span-4 bg-white rounded-3xl border border-slate-200 p-5 sm:p-6 space-y-4 sticky top-22">
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-base font-extrabold text-slate-900">
@@ -368,26 +368,26 @@ export default function NetworkDiscoveryPage() {
                     href={`/connectivity?target=${encodeURIComponent(
                       activeSelected.ip_address
                     )}&autostart=ping`}
-                    className="py-2.5 px-4 rounded-full hyper-hero-gradient text-white font-bold text-center text-xs shadow-sm"
+                    className="py-2.5 px-4 rounded-full hyper-hero-gradient text-white font-bold text-center text-xs transition-all duration-200 ease-out hover:brightness-105"
                   >
-                    ⚡ Run Ping Sequence on {activeSelected.ip_address}
+                    Run Ping Sequence on {activeSelected.ip_address}
                   </Link>
                   <div className="grid grid-cols-2 gap-2">
                     <Link
                       href={`/connectivity?target=${encodeURIComponent(
                         activeSelected.ip_address
                       )}&tab=ports&autostart=scan`}
-                      className="py-2 px-3 rounded-full bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-center text-xs"
+                      className="py-2 px-3 rounded-full bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-center text-xs transition-colors duration-200"
                     >
-                      🔓 Scan Ports
+                      Scan Ports
                     </Link>
                     <Link
                       href={`/packets?filter=${encodeURIComponent(
                         `host ${activeSelected.ip_address}`
                       )}`}
-                      className="py-2 px-3 rounded-full bg-[#141B2D] hover:bg-slate-800 text-white font-bold text-center text-xs"
+                      className="py-2 px-3 rounded-full bg-[#141B2D] hover:bg-slate-800 text-white font-bold text-center text-xs transition-colors duration-200"
                     >
-                      🦈 Sniff Packets
+                      Sniff Packets
                     </Link>
                   </div>
                 </div>
@@ -412,7 +412,7 @@ export default function NetworkDiscoveryPage() {
               onSelectDevice={(d) => setSelectedNode(d)}
             />
           </div>
-          <div className="bg-white border border-slate-200/90 rounded-3xl p-5 sm:p-6 shadow-[0_12px_36px_-8px_rgba(15,23,42,0.06)] space-y-4">
+          <div className="bg-white border border-slate-200 rounded-3xl p-5 sm:p-6 space-y-4">
             <h3 className="text-base font-extrabold text-slate-900">
               Topology Node Inspector
             </h3>
@@ -429,7 +429,7 @@ export default function NetworkDiscoveryPage() {
 
       {/* VIEW 3: Full Technical Inventory Table */}
       {activeTab === "table" && (
-        <div className="bg-white border border-slate-200/90 rounded-3xl p-5 sm:p-6 shadow-[0_12px_36px_-8px_rgba(15,23,42,0.06)] space-y-4">
+        <div className="bg-white border border-slate-200 rounded-3xl p-5 sm:p-6 space-y-4">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-base font-extrabold text-slate-900">
@@ -502,25 +502,25 @@ export default function NetworkDiscoveryPage() {
                         href={`/connectivity?target=${encodeURIComponent(
                           dev.ip_address
                         )}&autostart=ping`}
-                        className="px-2.5 py-1 rounded-full bg-blue-50 hover:bg-blue-100 text-blue-600 font-bold text-[11px]"
+                        className="px-2.5 py-1 rounded-full bg-blue-50 hover:bg-blue-100 text-blue-600 font-bold text-[11px] transition-colors duration-200"
                       >
-                        ⚡ Ping
+                        Ping
                       </Link>
                       <Link
                         href={`/connectivity?target=${encodeURIComponent(
                           dev.ip_address
                         )}&tab=ports&autostart=scan`}
-                        className="px-2.5 py-1 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[11px]"
+                        className="px-2.5 py-1 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[11px] transition-colors duration-200"
                       >
-                        🔓 Ports
+                        Ports
                       </Link>
                       <Link
                         href={`/packets?filter=${encodeURIComponent(
                           `host ${dev.ip_address}`
                         )}`}
-                        className="px-2.5 py-1 rounded-full bg-[#141B2D] text-white font-bold text-[11px]"
+                        className="px-2.5 py-1 rounded-full bg-[#141B2D] hover:bg-slate-800 text-white font-bold text-[11px] transition-colors duration-200"
                       >
-                        🦈 Sniff
+                        Sniff
                       </Link>
                     </td>
                   </tr>
