@@ -1,6 +1,11 @@
 "use client";
 
 import { InteractiveSubnetTopology } from "@/components/dashboard/TelemetryCharts";
+import {
+  LanDeviceCard,
+  SegmentedPillControl,
+  SignalStrengthBars,
+} from "@/components/ui/HyperComponents";
 import { DiscoveredDevice } from "@/lib/api";
 import { useNetPulseStore } from "@/store/useNetPulseStore";
 import Link from "next/link";
@@ -22,7 +27,7 @@ export default function NetworkDiscoveryPage() {
   const [scanMode, setScanMode] = useState<string>("auto");
   const [customCidr, setCustomCidr] = useState<string>("");
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [activeTab, setActiveTab] = useState<"table" | "topology">("table");
+  const [activeTab, setActiveTab] = useState<"cards" | "topology" | "table">("cards");
   const [selectedNode, setSelectedNode] = useState<DiscoveredDevice | null>(null);
 
   const effectiveCidr = customCidr || activeInterface.subnet_cidr;
@@ -40,21 +45,107 @@ export default function NetworkDiscoveryPage() {
     );
   }, [devices, searchQuery]);
 
+  const activeSelected = selectedNode || filteredDevices[0] || null;
+
   return (
     <div className="space-y-6">
-      {/* Feature 1 Mandatory Banner: Local IP, Subnet Mask, Network Range & Gateway */}
-      <div className="bg-[#0F172A] border border-slate-800 rounded-xl p-5 space-y-4">
+      {/* Top LAN Header & Segmented Pill Switcher (Matching Screenshot 2 Middle "Lan — Found X devices") */}
+      <div className="bg-white rounded-3xl border border-slate-200/90 p-5 sm:p-6 shadow-[0_12px_36px_-8px_rgba(15,23,42,0.06)] space-y-5">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div>
-            <div className="text-xs font-mono text-cyan-400 uppercase tracking-wider">
-              FEATURE 1 — NETWORK DISCOVERY &amp; LAYER 2/3 SUBNET ENUMERATION
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-xs font-bold mb-1.5">
+              <span>FEATURE 1 · LAN DISCOVERY</span>
+              <span>•</span>
+              <span>Found {devices.length} devices</span>
             </div>
-            <h1 className="text-xl font-bold text-white mt-0.5">
-              Active Interface, Network CIDR Range &amp; Device Inventory
+            <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
+              Local Area Network (LAN) &amp; Subnet Topology
             </h1>
+            <p className="text-xs text-slate-400 mt-0.5">
+              Multi-tier Layer 2 Scapy ARP, Layer 3 ICMP, Layer 4 TCP &amp; Offline IEEE OUI MAC vendor enumeration
+            </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center gap-3">
+            <SegmentedPillControl
+              size="sm"
+              options={[
+                { id: "cards", label: "Devices", count: filteredDevices.length },
+                { id: "topology", label: "Internet & Map" },
+                { id: "table", label: "Inventory Table" },
+              ]}
+              value={activeTab}
+              onChange={(v) => setActiveTab(v)}
+            />
+          </div>
+        </div>
+
+        {/* 5 Feature 1 Mandatory Telemetry Cards (Local IP, CIDR Range, Subnet Mask, Gateway, MAC) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
+          <div className="p-4 rounded-2xl bg-[#F8FAFC] border border-slate-200/80">
+            <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+              Detected Local IP
+            </div>
+            <div className="text-lg font-extrabold font-mono text-blue-600 mt-1">
+              {activeInterface.local_ip}
+            </div>
+            <div className="text-[11px] text-slate-500 mt-0.5 truncate">
+              NIC: {activeInterface.interface_name}
+            </div>
+          </div>
+
+          <div className="p-4 rounded-2xl bg-[#F8FAFC] border border-slate-200/80">
+            <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+              Network Range (CIDR)
+            </div>
+            <div className="text-lg font-extrabold font-mono text-slate-900 mt-1">
+              {activeInterface.subnet_cidr}
+            </div>
+            <div className="text-[11px] font-mono text-slate-500 mt-0.5 truncate">
+              {activeInterface.first_usable_ip} – {activeInterface.last_usable_ip}
+            </div>
+          </div>
+
+          <div className="p-4 rounded-2xl bg-[#F8FAFC] border border-slate-200/80">
+            <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+              Subnet Mask
+            </div>
+            <div className="text-lg font-extrabold font-mono text-slate-900 mt-1">
+              {activeInterface.netmask}
+            </div>
+            <div className="text-[11px] text-slate-500 mt-0.5">
+              {activeInterface.usable_hosts} Usable Host IPs
+            </div>
+          </div>
+
+          <div className="p-4 rounded-2xl bg-[#F8FAFC] border border-slate-200/80">
+            <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+              Default Gateway
+            </div>
+            <div className="text-lg font-extrabold font-mono text-emerald-600 mt-1">
+              {activeInterface.gateway_ip}
+            </div>
+            <div className="text-[11px] font-mono text-slate-500 mt-0.5 truncate">
+              Bcast: {activeInterface.broadcast_address}
+            </div>
+          </div>
+
+          <div className="p-4 rounded-2xl bg-[#F8FAFC] border border-slate-200/80">
+            <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+              Local MAC Address
+            </div>
+            <div className="text-lg font-extrabold font-mono text-slate-900 mt-1">
+              {activeInterface.mac_address}
+            </div>
+            <div className="text-[11px] text-slate-500 mt-0.5">
+              Speed: {activeInterface.speed_mbps || 1000} Mbps
+            </div>
+          </div>
+        </div>
+
+        {/* Discovery Controls & Search Bar */}
+        <div className="pt-4 border-t border-slate-100 flex flex-col xl:flex-row items-stretch xl:items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-2.5">
             <select
               aria-label="Select Network Interface"
               value={activeInterface.interface_name}
@@ -62,7 +153,7 @@ export default function NetworkDiscoveryPage() {
                 setCustomCidr("");
                 selectInterface(e.target.value);
               }}
-              className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs font-mono text-cyan-300"
+              className="bg-[#F8FAFC] border border-slate-200 rounded-full px-3.5 py-2 text-xs font-bold text-slate-800 cursor-pointer"
             >
               {interfaces.map((nic) => (
                 <option key={nic.interface_name} value={nic.interface_name}>
@@ -71,308 +162,248 @@ export default function NetworkDiscoveryPage() {
               ))}
             </select>
 
-            <button
-              type="button"
-              disabled={isScanning}
-              onClick={() => triggerSeedCampusLab()}
-              className="px-3.5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-cyan-500/40 text-cyan-300 text-xs font-semibold cursor-pointer"
-            >
-              🏫 Seed Campus Lab Devices
-            </button>
-          </div>
-        </div>
-
-        {/* 5 Telemetry Boxes explicitly highlighting Local IP, Network Range, Subnet Mask, Gateway, MAC */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
-          <div className="p-3 rounded-lg bg-slate-950/90 border border-slate-800">
-            <div className="text-[11px] text-slate-400">DETECTED LOCAL IP</div>
-            <div className="text-lg font-bold font-mono text-emerald-400 mt-0.5">
-              {activeInterface.local_ip}
-            </div>
-            <div className="text-[11px] font-mono text-slate-500">
-              {activeInterface.interface_name}
-            </div>
-          </div>
-
-          <div className="p-3 rounded-lg bg-slate-950/90 border border-slate-800">
-            <div className="text-[11px] text-slate-400">NETWORK RANGE (CIDR)</div>
-            <div className="text-lg font-bold font-mono text-cyan-400 mt-0.5">
-              {activeInterface.subnet_cidr}
-            </div>
-            <div className="text-[11px] font-mono text-slate-500">
-              {activeInterface.first_usable_ip} – {activeInterface.last_usable_ip}
-            </div>
-          </div>
-
-          <div className="p-3 rounded-lg bg-slate-950/90 border border-slate-800">
-            <div className="text-[11px] text-slate-400">SUBNET MASK</div>
-            <div className="text-lg font-bold font-mono text-slate-100 mt-0.5">
-              {activeInterface.netmask}
-            </div>
-            <div className="text-[11px] font-mono text-slate-500">
-              {activeInterface.usable_hosts} Usable Host IPs
-            </div>
-          </div>
-
-          <div className="p-3 rounded-lg bg-slate-950/90 border border-slate-800">
-            <div className="text-[11px] text-slate-400">DEFAULT GATEWAY</div>
-            <div className="text-lg font-bold font-mono text-amber-300 mt-0.5">
-              {activeInterface.gateway_ip}
-            </div>
-            <div className="text-[11px] font-mono text-slate-500">
-              Broadcast: {activeInterface.broadcast_address}
-            </div>
-          </div>
-
-          <div className="p-3 rounded-lg bg-slate-950/90 border border-slate-800">
-            <div className="text-[11px] text-slate-400">LOCAL MAC ADDRESS</div>
-            <div className="text-lg font-bold font-mono text-purple-300 mt-0.5">
-              {activeInterface.mac_address}
-            </div>
-            <div className="text-[11px] font-mono text-slate-500">
-              Speed: {activeInterface.speed_mbps || 1000} Mbps
-            </div>
-          </div>
-        </div>
-
-        {/* Scan Control Toolbar */}
-        <div className="pt-2 border-t border-slate-800 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
-          <div className="flex flex-wrap items-center gap-2">
-            <label className="text-xs font-mono text-slate-400">Target CIDR:</label>
             <input
               type="text"
               value={effectiveCidr}
               onChange={(e) => setCustomCidr(e.target.value)}
-              className="bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-xs font-mono text-white w-44"
+              className="bg-[#F8FAFC] border border-slate-200 rounded-full px-3.5 py-2 text-xs font-mono font-bold text-blue-600 w-40"
               placeholder="192.168.1.0/24"
             />
 
-            <label className="text-xs font-mono text-slate-400 ml-2">Discovery Mode:</label>
             <select
               aria-label="Discovery Mode"
               value={scanMode}
               onChange={(e) => setScanMode(e.target.value)}
-              className="bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-xs font-mono text-cyan-300"
+              className="bg-[#F8FAFC] border border-slate-200 rounded-full px-3.5 py-2 text-xs font-semibold text-slate-700 cursor-pointer"
             >
-              <option value="auto">Hybrid Auto (Scapy ARP L2 + ICMP L3 + TCP L4 + arp -a)</option>
+              <option value="auto">Hybrid Auto (ARP L2 + ICMP L3 + TCP L4)</option>
               <option value="arp">Layer 2 ARP Broadcast Sweep</option>
               <option value="icmp">Layer 3 ICMP &amp; Layer 4 TCP Sweep</option>
-              <option value="simulation">Campus Lab Simulation Mode (8 Enterprise Hosts)</option>
+              <option value="simulation">Campus Lab Simulation (8 Hosts)</option>
             </select>
 
             <button
               type="button"
               disabled={isScanning}
               onClick={() => triggerScan(scanMode, effectiveCidr)}
-              className="px-4 py-1.5 rounded-lg bg-cyan-500 hover:bg-cyan-400 disabled:opacity-50 text-slate-950 font-bold text-xs transition cursor-pointer"
+              className="px-5 py-2 rounded-full hyper-hero-gradient hover:brightness-105 disabled:opacity-50 text-white font-bold text-xs shadow-[0_8px_20px_-6px_rgba(30,107,255,0.5)] transition cursor-pointer"
             >
-              {isScanning ? `Scanning (${scanStage} ${scanProgressPct}%)...` : "⚡ Start Discovery Sweep"}
+              {isScanning
+                ? `Scanning (${scanStage} ${scanProgressPct}%)...`
+                : "⚡ Start Discovery Sweep"}
+            </button>
+
+            <button
+              type="button"
+              disabled={isScanning}
+              onClick={() => triggerSeedCampusLab()}
+              className="px-4 py-2 rounded-full bg-[#141B2D] hover:bg-slate-800 text-white text-xs font-bold transition cursor-pointer"
+            >
+              🏫 Seed Campus Lab
             </button>
           </div>
 
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setActiveTab("table")}
-              className={`px-3 py-1.5 rounded-lg text-xs font-mono cursor-pointer ${activeTab === "table"
-                  ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/40"
-                  : "bg-slate-900 text-slate-400 border border-slate-800"
-                }`}
-            >
-              📋 Device Inventory ({devices.length})
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveTab("topology")}
-              className={`px-3 py-1.5 rounded-lg text-xs font-mono cursor-pointer ${activeTab === "topology"
-                  ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/40"
-                  : "bg-slate-900 text-slate-400 border border-slate-800"
-                }`}
-            >
-              🕸️ Topology Map
-            </button>
+          {/* Pill Search Input matching Screenshot 1 Right "🔍 Hyper.net" */}
+          <div className="relative min-w-[240px]">
+            <input
+              type="search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="🔍 Search IP, Hostname, MAC, Vendor..."
+              className="w-full bg-[#F8FAFC] border border-slate-200/90 focus:border-blue-500 focus:bg-white rounded-full px-4 py-2 text-xs text-slate-800 outline-none transition"
+            />
           </div>
         </div>
 
         {isScanning && (
-          <div className="w-full bg-slate-900 h-2 rounded-full overflow-hidden">
+          <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
             <div
-              className="bg-cyan-400 h-full transition-all duration-300"
+              className="hyper-hero-gradient h-full transition-all duration-300 rounded-full"
               style={{ width: `${scanProgressPct}%` }}
             />
           </div>
         )}
       </div>
 
-      {/* Main Workspace: Inventory Table or Interactive Topology Graph */}
-      {activeTab === "table" ? (
-        <div className="bg-[#0F172A] border border-slate-800 rounded-xl p-4 space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div>
-              <h2 className="text-sm font-bold text-white">
-                Active Devices Detected on Subnet ({filteredDevices.length})
-              </h2>
-              <p className="text-xs text-slate-400">
-                Resolved via Scapy Layer 2 ARP, Layer 3 ICMP, Layer 4 TCP Handshake, OS ARP Cache, and Offline IEEE OUI Lookup
-              </p>
-            </div>
-            <input
-              type="search"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Filter by IP, Hostname, MAC, Vendor..."
-              className="bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-xs font-mono text-slate-100 w-full sm:w-72"
-            />
+      {/* VIEW 1: LAN Device Cards Grid (Screenshot 2 Middle "Lan — Found 12 devices") */}
+      {activeTab === "cards" && (
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
+          <div className="xl:col-span-8">
+            {filteredDevices.length === 0 ? (
+              <div className="bg-white rounded-3xl border border-slate-200/90 p-10 text-center space-y-3">
+                <div className="text-base font-extrabold text-slate-900">
+                  {searchQuery
+                    ? `No LAN devices matched "${searchQuery}"`
+                    : "No Subnet Devices Discovered Yet"}
+                </div>
+                <p className="text-xs text-slate-400 max-w-md mx-auto">
+                  {searchQuery
+                    ? "Try clearing your search filter or searching by IPv4 address."
+                    : `Click "Start Discovery Sweep" to scan ${effectiveCidr}, or seed the simulated Campus Lab.`}
+                </p>
+                <div className="flex justify-center gap-2 pt-2">
+                  {searchQuery ? (
+                    <button
+                      type="button"
+                      onClick={() => setSearchQuery("")}
+                      className="px-4 py-2 rounded-full bg-slate-100 text-slate-700 text-xs font-bold cursor-pointer"
+                    >
+                      Clear Filter
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => triggerSeedCampusLab()}
+                      className="px-5 py-2.5 rounded-full hyper-hero-gradient text-white text-xs font-bold cursor-pointer"
+                    >
+                      🏫 Seed Campus Lab Devices
+                    </button>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {filteredDevices.map((dev, idx) => {
+                  const isFeatured =
+                    activeSelected?.ip_address === dev.ip_address ||
+                    (!selectedNode && idx === 0);
+                  return (
+                    <LanDeviceCard
+                      key={dev.ip_address}
+                      device={dev}
+                      featured={isFeatured}
+                      onSelect={(d) => setSelectedNode(d)}
+                    />
+                  );
+                })}
+              </div>
+            )}
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-xs">
-              <thead>
-                <tr className="border-b border-slate-800 text-slate-400 font-mono text-[11px]">
-                  <th className="py-2.5 px-2">Status</th>
-                  <th className="py-2.5 px-2">IP Address</th>
-                  <th className="py-2.5 px-2">Hostname</th>
-                  <th className="py-2.5 px-2">MAC Address</th>
-                  <th className="py-2.5 px-2">Vendor (IEEE OUI)</th>
-                  <th className="py-2.5 px-2">OS / Role Heuristic</th>
-                  <th className="py-2.5 px-2">Method</th>
-                  <th className="py-2.5 px-2">RTT</th>
-                  <th className="py-2.5 px-2">Open Ports</th>
-                  <th className="py-2.5 px-2 text-right">Contextual Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-800/70 font-mono">
-                {filteredDevices.length === 0 ? (
-                  <tr>
-                    <td colSpan={10} className="py-12 px-4 text-center">
-                      <div className="max-w-md mx-auto space-y-3">
-                        <div className="text-sm font-semibold text-slate-200">
-                          {searchQuery
-                            ? `No devices matched query "${searchQuery}"`
-                            : "No Subnet Devices Discovered Yet"}
-                        </div>
-                        <p className="text-xs text-slate-400">
-                          {searchQuery
-                            ? "Try searching by IP, hostname, MAC, or vendor, or clear the search query."
-                            : `Run a discovery sweep across ${effectiveCidr} or seed realistic campus lab nodes for presentation.`}
-                        </p>
-                        <div className="flex justify-center gap-2 pt-1">
-                          {searchQuery ? (
-                            <button
-                              type="button"
-                              onClick={() => setSearchQuery("")}
-                              className="px-3.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 cursor-pointer"
-                            >
-                              Clear Search Filter
-                            </button>
-                          ) : (
-                            <>
-                              <button
-                                type="button"
-                                disabled={isScanning}
-                                onClick={() => triggerScan(scanMode, effectiveCidr)}
-                                className="px-3.5 py-1.5 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs cursor-pointer"
-                              >
-                                ⚡ Start Discovery Sweep
-                              </button>
-                              <button
-                                type="button"
-                                disabled={isScanning}
-                                onClick={() => triggerSeedCampusLab()}
-                                className="px-3.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-cyan-500/40 text-cyan-300 text-xs font-semibold cursor-pointer"
-                              >
-                                🏫 Seed Campus Lab
-                              </button>
-                            </>
-                          )}
-                        </div>
-                      </div>
-                    </td>
-                  </tr>
-                ) : (
-                  filteredDevices.map((dev) => (
-                    <tr key={dev.ip_address} className="hover:bg-slate-900/60">
-                      <td className="py-2.5 px-2">
-                        <span
-                          className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold ${dev.is_online
-                              ? "bg-emerald-500/15 text-emerald-400"
-                              : "bg-rose-500/15 text-rose-400"
-                            }`}
-                        >
-                          ● {dev.is_online ? "ONLINE" : "OFFLINE"}
-                        </span>
-                      </td>
-                      <td className="py-2.5 px-2 text-cyan-300 font-bold">
-                        {dev.ip_address}
-                        {dev.is_gateway && (
-                          <span className="ml-1.5 text-[10px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300">
-                            GW
-                          </span>
-                        )}
-                        {dev.is_local_host && (
-                          <span className="ml-1.5 text-[10px] px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-300">
-                            LOCAL
-                          </span>
-                        )}
-                      </td>
-                      <td className="py-2.5 px-2 text-slate-100 font-sans font-medium">
-                        {dev.hostname}
-                      </td>
-                      <td className="py-2.5 px-2 text-purple-300">
-                        {dev.mac_address}
-                      </td>
-                      <td className="py-2.5 px-2 text-slate-300 font-sans">
-                        {dev.vendor}
-                      </td>
-                      <td className="py-2.5 px-2 text-slate-400 font-sans text-[11px]">
-                        {dev.os_guess}
-                      </td>
-                      <td className="py-2.5 px-2">
-                        <span className="px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 text-[10px]">
-                          {dev.discovery_method}
-                        </span>
-                      </td>
-                      <td className="py-2.5 px-2 text-emerald-300">
-                        {dev.last_rtt_ms != null ? `${dev.last_rtt_ms} ms` : "—"}
-                      </td>
-                      <td className="py-2.5 px-2 text-amber-300 text-[11px]">
-                        {dev.open_ports_summary || "—"}
-                      </td>
-                      <td className="py-2.5 px-2 text-right space-x-1.5 whitespace-nowrap">
-                        <Link
-                          href={`/connectivity?target=${encodeURIComponent(
-                            dev.ip_address
-                          )}&autostart=ping`}
-                          className="px-2 py-1 rounded bg-cyan-500/15 hover:bg-cyan-500/30 text-cyan-300 text-[11px]"
-                        >
-                          ⚡ Ping Host
-                        </Link>
-                        <Link
-                          href={`/connectivity?target=${encodeURIComponent(
-                            dev.ip_address
-                          )}&tab=ports&autostart=scan`}
-                          className="px-2 py-1 rounded bg-purple-500/15 hover:bg-purple-500/30 text-purple-300 text-[11px]"
-                        >
-                          🔓 Scan Ports
-                        </Link>
-                        <Link
-                          href={`/packets?filter=${encodeURIComponent(
-                            `host ${dev.ip_address}`
-                          )}`}
-                          className="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px]"
-                        >
-                          🦈 Capture
-                        </Link>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+          {/* Right 4 Cols: Selected Device Detail & History Sheet (Matching Screenshot 2 Right "History") */}
+          <div className="xl:col-span-4 bg-white rounded-3xl border border-slate-200/90 p-5 sm:p-6 shadow-[0_12px_36px_-8px_rgba(15,23,42,0.06)] space-y-4 sticky top-22">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-base font-extrabold text-slate-900">
+                  Host Telemetry Sheet
+                </h3>
+                <p className="text-xs text-slate-400">
+                  Click any LAN card to inspect Layer 2–7 details
+                </p>
+              </div>
+              {activeSelected && (
+                <SignalStrengthBars
+                  rttMs={activeSelected.last_rtt_ms}
+                  isOnline={activeSelected.is_online}
+                />
+              )}
+            </div>
+
+            {activeSelected ? (
+              <>
+                <div className="p-4 rounded-2xl bg-[#F8FAFC] border border-slate-200/80 space-y-1">
+                  <div className="text-base font-extrabold text-slate-900">
+                    {activeSelected.hostname}
+                  </div>
+                  <div className="text-xs font-mono font-bold text-blue-600">
+                    {activeSelected.ip_address}
+                  </div>
+                </div>
+
+                <div className="divide-y divide-slate-100 text-xs">
+                  <div className="py-2.5 flex justify-between">
+                    <span className="text-slate-400">Status</span>
+                    <span
+                      className={`font-bold ${
+                        activeSelected.is_online
+                          ? "text-emerald-600"
+                          : "text-rose-600"
+                      }`}
+                    >
+                      ● {activeSelected.is_online ? "Online" : "Offline"}
+                    </span>
+                  </div>
+                  <div className="py-2.5 flex justify-between">
+                    <span className="text-slate-400">Ping / RTT</span>
+                    <span className="font-mono font-bold text-slate-900">
+                      {activeSelected.last_rtt_ms != null
+                        ? `${activeSelected.last_rtt_ms} ms`
+                        : "Timeout"}
+                    </span>
+                  </div>
+                  <div className="py-2.5 flex justify-between">
+                    <span className="text-slate-400">MAC Address</span>
+                    <span className="font-mono font-bold text-slate-800">
+                      {activeSelected.mac_address}
+                    </span>
+                  </div>
+                  <div className="py-2.5 flex justify-between">
+                    <span className="text-slate-400">IEEE OUI Vendor</span>
+                    <span className="font-bold text-slate-800">
+                      {activeSelected.vendor}
+                    </span>
+                  </div>
+                  <div className="py-2.5 flex justify-between">
+                    <span className="text-slate-400">OS / Role</span>
+                    <span className="font-semibold text-slate-700 text-right">
+                      {activeSelected.os_guess}
+                    </span>
+                  </div>
+                  <div className="py-2.5 flex justify-between">
+                    <span className="text-slate-400">Discovery Method</span>
+                    <span className="font-mono font-bold text-blue-600">
+                      {activeSelected.discovery_method}
+                    </span>
+                  </div>
+                  <div className="py-2.5 flex justify-between">
+                    <span className="text-slate-400">Open Service Ports</span>
+                    <span className="font-mono font-bold text-slate-800">
+                      {activeSelected.open_ports_summary || "None recorded"}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 gap-2 pt-2">
+                  <Link
+                    href={`/connectivity?target=${encodeURIComponent(
+                      activeSelected.ip_address
+                    )}&autostart=ping`}
+                    className="py-2.5 px-4 rounded-full hyper-hero-gradient text-white font-bold text-center text-xs shadow-sm"
+                  >
+                    ⚡ Run Ping Sequence on {activeSelected.ip_address}
+                  </Link>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Link
+                      href={`/connectivity?target=${encodeURIComponent(
+                        activeSelected.ip_address
+                      )}&tab=ports&autostart=scan`}
+                      className="py-2 px-3 rounded-full bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-center text-xs"
+                    >
+                      🔓 Scan Ports
+                    </Link>
+                    <Link
+                      href={`/packets?filter=${encodeURIComponent(
+                        `host ${activeSelected.ip_address}`
+                      )}`}
+                      className="py-2 px-3 rounded-full bg-[#141B2D] hover:bg-slate-800 text-white font-bold text-center text-xs"
+                    >
+                      🦈 Sniff Packets
+                    </Link>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <p className="text-xs text-slate-400">
+                Select any device card to inspect its telemetry.
+              </p>
+            )}
           </div>
         </div>
-      ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      )}
+
+      {/* VIEW 2: Interactive Subnet Topology Map */}
+      {activeTab === "topology" && (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2">
             <InteractiveSubnetTopology
               devices={devices}
@@ -381,54 +412,12 @@ export default function NetworkDiscoveryPage() {
               onSelectDevice={(d) => setSelectedNode(d)}
             />
           </div>
-          <div className="bg-[#0F172A] border border-slate-800 rounded-xl p-4 space-y-4">
-            <h3 className="text-sm font-bold text-white">
-              Node Telemetry Inspector
+          <div className="bg-white border border-slate-200/90 rounded-3xl p-5 sm:p-6 shadow-[0_12px_36px_-8px_rgba(15,23,42,0.06)] space-y-4">
+            <h3 className="text-base font-extrabold text-slate-900">
+              Topology Node Inspector
             </h3>
-            {selectedNode ? (
-              <div className="space-y-3 text-xs font-mono">
-                <div className="p-3 rounded-lg bg-slate-950 border border-slate-800 space-y-1">
-                  <div className="text-cyan-400 font-bold text-sm">
-                    {selectedNode.hostname}
-                  </div>
-                  <div className="text-slate-300">IP: {selectedNode.ip_address}</div>
-                  <div className="text-purple-300">MAC: {selectedNode.mac_address}</div>
-                  <div className="text-slate-400">Vendor: {selectedNode.vendor}</div>
-                  <div className="text-slate-400">OS: {selectedNode.os_guess}</div>
-                  <div className="text-emerald-400">
-                    Last RTT: {selectedNode.last_rtt_ms ?? "N/A"} ms ({selectedNode.discovery_method})
-                  </div>
-                  <div className="text-amber-300">
-                    Open Ports: {selectedNode.open_ports_summary || "None scanned"}
-                  </div>
-                </div>
-                <div className="flex flex-col gap-2">
-                  <Link
-                    href={`/connectivity?target=${encodeURIComponent(
-                      selectedNode.ip_address
-                    )}&autostart=ping`}
-                    className="py-2 px-3 rounded bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-center text-xs"
-                  >
-                    ⚡ Ping {selectedNode.ip_address}
-                  </Link>
-                  <Link
-                    href={`/connectivity?target=${encodeURIComponent(
-                      selectedNode.ip_address
-                    )}&tab=ports&autostart=scan`}
-                    className="py-2 px-3 rounded bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/40 text-purple-300 font-bold text-center text-xs"
-                  >
-                    🔓 Run Socket Port Scanner
-                  </Link>
-                  <Link
-                    href={`/packets?filter=${encodeURIComponent(
-                      `host ${selectedNode.ip_address}`
-                    )}`}
-                    className="py-2 px-3 rounded bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-bold text-center text-xs"
-                  >
-                    🦈 Sniff Traffic in Wireshark
-                  </Link>
-                </div>
-              </div>
+            {activeSelected ? (
+              <LanDeviceCard device={activeSelected} featured={true} />
             ) : (
               <p className="text-xs text-slate-400">
                 Click any router or workstation node in the topology map to inspect its Layer 2 MAC, Layer 3 IPv4, OUI vendor, and launch quick diagnostics.
@@ -437,7 +426,110 @@ export default function NetworkDiscoveryPage() {
           </div>
         </div>
       )}
+
+      {/* VIEW 3: Full Technical Inventory Table */}
+      {activeTab === "table" && (
+        <div className="bg-white border border-slate-200/90 rounded-3xl p-5 sm:p-6 shadow-[0_12px_36px_-8px_rgba(15,23,42,0.06)] space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-base font-extrabold text-slate-900">
+                Complete Subnet Host Inventory ({filteredDevices.length})
+              </h2>
+              <p className="text-xs text-slate-400">
+                Layer 2 MAC, IEEE OUI Vendor, Reverse DNS Hostname, OS Heuristic &amp; RTT
+              </p>
+            </div>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr className="border-b border-slate-200 text-slate-400 font-bold uppercase text-[11px]">
+                  <th className="py-3 px-2.5">Status</th>
+                  <th className="py-3 px-2.5">IP Address</th>
+                  <th className="py-3 px-2.5">Hostname</th>
+                  <th className="py-3 px-2.5">MAC Address</th>
+                  <th className="py-3 px-2.5">Vendor (IEEE OUI)</th>
+                  <th className="py-3 px-2.5">OS / Role</th>
+                  <th className="py-3 px-2.5">Method</th>
+                  <th className="py-3 px-2.5">RTT</th>
+                  <th className="py-3 px-2.5">Open Ports</th>
+                  <th className="py-3 px-2.5 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 font-mono">
+                {filteredDevices.map((dev) => (
+                  <tr key={dev.ip_address} className="hover:bg-slate-50/90">
+                    <td className="py-3 px-2.5">
+                      <span
+                        className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                          dev.is_online
+                            ? "bg-emerald-50 text-emerald-600 border border-emerald-200"
+                            : "bg-rose-50 text-rose-600 border border-rose-200"
+                        }`}
+                      >
+                        ● {dev.is_online ? "ONLINE" : "OFFLINE"}
+                      </span>
+                    </td>
+                    <td className="py-3 px-2.5 text-blue-600 font-bold">
+                      {dev.ip_address}
+                    </td>
+                    <td className="py-3 px-2.5 text-slate-900 font-sans font-bold">
+                      {dev.hostname}
+                    </td>
+                    <td className="py-3 px-2.5 text-slate-600">
+                      {dev.mac_address}
+                    </td>
+                    <td className="py-3 px-2.5 text-slate-700 font-sans font-medium">
+                      {dev.vendor}
+                    </td>
+                    <td className="py-3 px-2.5 text-slate-500 font-sans text-[11px]">
+                      {dev.os_guess}
+                    </td>
+                    <td className="py-3 px-2.5">
+                      <span className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[10px] font-bold">
+                        {dev.discovery_method}
+                      </span>
+                    </td>
+                    <td className="py-3 px-2.5 text-emerald-600 font-bold">
+                      {dev.last_rtt_ms != null ? `${dev.last_rtt_ms} ms` : "—"}
+                    </td>
+                    <td className="py-3 px-2.5 text-amber-600 font-semibold text-[11px]">
+                      {dev.open_ports_summary || "—"}
+                    </td>
+                    <td className="py-3 px-2.5 text-right space-x-1.5 whitespace-nowrap font-sans">
+                      <Link
+                        href={`/connectivity?target=${encodeURIComponent(
+                          dev.ip_address
+                        )}&autostart=ping`}
+                        className="px-2.5 py-1 rounded-full bg-blue-50 hover:bg-blue-100 text-blue-600 font-bold text-[11px]"
+                      >
+                        ⚡ Ping
+                      </Link>
+                      <Link
+                        href={`/connectivity?target=${encodeURIComponent(
+                          dev.ip_address
+                        )}&tab=ports&autostart=scan`}
+                        className="px-2.5 py-1 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[11px]"
+                      >
+                        🔓 Ports
+                      </Link>
+                      <Link
+                        href={`/packets?filter=${encodeURIComponent(
+                          `host ${dev.ip_address}`
+                        )}`}
+                        className="px-2.5 py-1 rounded-full bg-[#141B2D] text-white font-bold text-[11px]"
+                      >
+                        🦈 Sniff
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
-

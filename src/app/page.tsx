@@ -5,6 +5,13 @@ import {
   LiveLatencyAreaChart,
   OsiProtocolDonutChart,
 } from "@/components/dashboard/TelemetryCharts";
+import {
+  HyperSpeedGauge,
+  LanDeviceCard,
+  MetricWaveCard,
+  PingTargetRow,
+  SegmentedPillControl,
+} from "@/components/ui/HyperComponents";
 import { netpulseApi } from "@/lib/api";
 import { useNetPulseStore } from "@/store/useNetPulseStore";
 import Link from "next/link";
@@ -21,473 +28,595 @@ export default function NocOverviewPage() {
     securityGrade,
     securityAlerts,
     telemetrySeries,
+    totalMbRecv,
+    totalMbSent,
+    speedBenchmark,
     isScanning,
     triggerScan,
     triggerSeedCampusLab,
+    runSpeedBenchmark,
+    stopSpeedBenchmark,
+    postStatusNotice,
   } = useNetPulseStore();
 
   const [generatingPdf, setGeneratingPdf] = useState(false);
-  const [chartView, setChartView] = useState<"bandwidth" | "protocol">("bandwidth");
+  const [timeRange, setTimeRange] = useState<"daily" | "weekly" | "monthly" | "yearly">("weekly");
+  const [chartTab, setChartTab] = useState<"analysis" | "overview" | "protocol">("analysis");
+  const [quotaGb, setQuotaGb] = useState<number>(128);
+  const [selectedFeatureMetric, setSelectedFeatureMetric] = useState<
+    "download" | "upload" | "ping" | "jitter"
+  >("download");
 
   const onlineDevices = devices.filter((d) => d.is_online);
   const validRtts = qosStats.filter((s) => s.avg_latency_ms > 0);
   const avgLatency =
     validRtts.length > 0
-      ? (
-        validRtts.reduce((acc, s) => acc + s.avg_latency_ms, 0) /
-        validRtts.length
-      ).toFixed(2)
-      : "1.42";
-  const maxLatency =
+      ? Number(
+          (
+            validRtts.reduce((acc, s) => acc + s.avg_latency_ms, 0) /
+            validRtts.length
+          ).toFixed(1)
+        )
+      : speedBenchmark.pingMs;
+
+  const avgJitter =
     validRtts.length > 0
-      ? Math.max(...validRtts.map((s) => s.max_latency_ms)).toFixed(2)
-      : "4.80";
-  const avgPacketLoss =
-    qosStats.length > 0
-      ? (
-        qosStats.reduce((acc, s) => acc + s.packet_loss_pct, 0) /
-        qosStats.length
-      ).toFixed(1)
-      : "0.0";
+      ? Number(
+          (
+            validRtts.reduce((acc, s) => acc + s.jitter_ms, 0) /
+            validRtts.length
+          ).toFixed(1)
+        )
+      : speedBenchmark.jitterMs;
+
+  const downloadGb = Math.max(40, Math.round(totalMbRecv / 1024));
+  const uploadGb = Math.max(16, Math.round(totalMbSent / 1024));
 
   const handleQuickReport = async () => {
     setGeneratingPdf(true);
     try {
       const res = await netpulseApi.generateReport();
       window.open(netpulseApi.getReportPdfUrl(res.report.id), "_blank");
+      postStatusNotice(
+        "success",
+        "Official PDF Report Generated",
+        `Compiled Diagnostic Report #${res.report.id}.`
+      );
     } catch {
+      postStatusNotice(
+        "info",
+        "Opening Report Builder",
+        "Redirected to the Diagnostic Report Center."
+      );
       router.push("/reports");
     } finally {
       setGeneratingPdf(false);
     }
   };
 
+  // Build dynamic sparkline arrays from telemetrySeries
+  const rxSpark = telemetrySeries.map((p) => p.rx_kbps || 480);
+  const txSpark = telemetrySeries.map((p) => p.tx_kbps || 240);
+  const rttSpark = telemetrySeries.map((p) => p.avg_rtt_ms || 12);
+  const jitterSpark = telemetrySeries.map((p) => p.jitter_ms || 1.5);
+
+  // Determine what value to display on the main gauge based on user card selection
+  const activeGaugeValue =
+    speedBenchmark.isRunning
+      ? speedBenchmark.gaugeValue
+      : selectedFeatureMetric === "download"
+      ? speedBenchmark.downloadMbps
+      : selectedFeatureMetric === "upload"
+      ? speedBenchmark.uploadMbps
+      : selectedFeatureMetric === "ping"
+      ? avgLatency
+      : avgJitter;
+
+  const activeGaugeUnit =
+    selectedFeatureMetric === "ping" || selectedFeatureMetric === "jitter"
+      ? "ms"
+      : "mbps";
+
   return (
     <div className="space-y-6">
-      {/* Page Header & Quick Action Bar */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#0F172A] border border-slate-800 rounded-xl p-4">
-        <div>
-          <div className="text-xs font-mono uppercase tracking-wider text-cyan-400">
-            WVSU CICT · CCS 234 NETWORK OPERATIONS &amp; PERFORMANCE CENTER
-          </div>
-          <h1 className="text-xl md:text-2xl font-bold text-white mt-0.5">
-            Real-Time Network Telemetry &amp; Diagnostic Overview
-          </h1>
-          <p className="text-xs text-slate-400 mt-1">
-            Live OSI Layer 2–7 discovery, ICMP/TCP QoS monitoring, Wireshark packet analysis, and automated security advisories.
-          </p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <button
-            type="button"
-            disabled={isScanning}
-            onClick={() => triggerScan("auto")}
-            className="px-3.5 py-2 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-semibold text-xs transition cursor-pointer"
-          >
-            {isScanning ? "Scanning Subnet..." : "🔍 Scan Active Subnet"}
-          </button>
-          <button
-            type="button"
-            disabled={isScanning}
-            onClick={() => triggerSeedCampusLab()}
-            className="px-3.5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-cyan-500/40 text-cyan-300 font-semibold text-xs transition cursor-pointer"
-          >
-            🏫 Load Campus Lab Topology
-          </button>
-          <button
-            type="button"
-            disabled={generatingPdf}
-            onClick={handleQuickReport}
-            className="px-3.5 py-2 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-300 font-semibold text-xs transition cursor-pointer"
-          >
-            {generatingPdf ? "Building PDF..." : "📄 Export PDF Report"}
-          </button>
-        </div>
-      </div>
-
-      {/* 4 KPI Summary Cards (Tremor / NOC Style) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-        {/* KPI 1: Feature 1 Local IP & Network Range */}
-        <div className="bg-[#0F172A] border border-slate-800 rounded-xl p-4 space-y-2">
-          <div className="flex items-center justify-between text-xs text-slate-400">
-            <span>LOCAL IP &amp; SUBNET RANGE</span>
-            <span className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-cyan-500/15 text-cyan-300">
-              FEATURE 1
-            </span>
-          </div>
-          <div className="text-2xl font-bold font-mono text-white">
-            {activeInterface.local_ip}
-          </div>
-          <div className="text-xs font-mono text-cyan-400">
-            CIDR Range: {activeInterface.subnet_cidr} ({activeInterface.usable_hosts} hosts)
-          </div>
-          <div className="text-[11px] font-mono text-slate-400 flex justify-between pt-1 border-t border-slate-800/80">
-            <span>NIC: {activeInterface.interface_name}</span>
-            <span>GW: {activeInterface.gateway_ip}</span>
-          </div>
-        </div>
-
-        {/* KPI 2: Feature 1 Active Devices */}
-        <div className="bg-[#0F172A] border border-slate-800 rounded-xl p-4 space-y-2">
-          <div className="flex items-center justify-between text-xs text-slate-400">
-            <span>ACTIVE SUBNET DEVICES</span>
-            <span className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-300">
-              ARP · ICMP · TCP
-            </span>
-          </div>
-          <div className="text-2xl font-bold font-mono text-emerald-400">
-            {onlineDevices.length}{" "}
-            <span className="text-sm font-normal text-slate-400">
-              / {devices.length} Hosts Online
-            </span>
-          </div>
-          {/* Uptime Tracker Blocks */}
-          <div className="flex items-center gap-1 pt-1">
-            {(devices.length > 0 ? devices.slice(0, 12) : Array.from({ length: 8 })).map(
-              (dev, i) => {
-                const online = dev ? (dev as { is_online: boolean }).is_online : true;
-                return (
-                  <span
-                    key={i}
-                    className={`h-2.5 flex-1 rounded-sm ${online ? "bg-emerald-500" : "bg-rose-500"
-                      }`}
-                  />
-                );
-              }
-            )}
-          </div>
-          <div className="text-[11px] font-mono text-slate-400 flex justify-between pt-1 border-t border-slate-800/80">
-            <span>MAC: {activeInterface.mac_address}</span>
-            <Link href="/discovery" className="text-cyan-400 hover:underline">
-              View Topology →
-            </Link>
-          </div>
-        </div>
-
-        {/* KPI 3: Features 2 & 3 Network Latency & Loss */}
-        <div className="bg-[#0F172A] border border-slate-800 rounded-xl p-4 space-y-2">
-          <div className="flex items-center justify-between text-xs text-slate-400">
-            <span>SUBNET LATENCY &amp; LOSS</span>
-            <span className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-blue-500/15 text-blue-300">
-              FEATURES 2 &amp; 3
-            </span>
-          </div>
-          <div className="text-2xl font-bold font-mono text-white">
-            {avgLatency} <span className="text-sm font-normal text-slate-400">ms avg</span>
-          </div>
-          <div className="text-xs font-mono text-amber-300">
-            Max Peak: {maxLatency} ms | Loss: {avgPacketLoss}%
-          </div>
-          <div className="text-[11px] font-mono text-slate-400 flex justify-between pt-1 border-t border-slate-800/80">
-            <span>Tested Hosts: {qosStats.length}</span>
-            <Link href="/connectivity" className="text-cyan-400 hover:underline">
-              Ping Console →
-            </Link>
-          </div>
-        </div>
-
-        {/* KPI 4: Feature 5 Security Posture */}
-        <div className="bg-[#0F172A] border border-slate-800 rounded-xl p-4 space-y-2">
-          <div className="flex items-center justify-between text-xs text-slate-400">
-            <span>SECURITY POSTURE SCORE</span>
-            <span className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-purple-500/15 text-purple-300">
-              FEATURE 5
-            </span>
-          </div>
-          <div className="flex items-baseline gap-2">
-            <span className="text-2xl font-bold font-mono text-cyan-400">
-              {securityScore}/100
-            </span>
-            <span className="text-xs font-mono px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 font-bold">
-              Grade {securityGrade}
-            </span>
-          </div>
-          <div className="text-xs font-mono text-slate-300">
-            {securityAlerts.length} Active Advisories Across 4 Categories
-          </div>
-          <div className="text-[11px] font-mono text-slate-400 flex justify-between pt-1 border-t border-slate-800/80">
-            <span>Firewall + QoS Rules</span>
-            <Link href="/security" className="text-cyan-400 hover:underline">
-              Security Center →
-            </Link>
-          </div>
-        </div>
-      </div>
-
-      {/* Center Charts Row (Bonus Feature 2 & 7: Real-Time Charts) */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div className="lg:col-span-2 bg-[#0F172A] border border-slate-800 rounded-xl p-4">
-          <div className="flex items-center justify-between mb-3">
-            <div>
-              <h2 className="text-sm font-bold text-white">
-                Real-Time Subnet Latency &amp; Jitter Stream (WebSocket 2s Interval)
-              </h2>
-              <p className="text-xs text-slate-400">
-                Continuous RTT telemetry across discovered active subnet hosts
-              </p>
-            </div>
-            <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
-              ● STREAMING
-            </span>
-          </div>
-          <LiveLatencyAreaChart data={telemetrySeries} />
-        </div>
-
-        <div className="bg-[#0F172A] border border-slate-800 rounded-xl p-4 flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between mb-3">
+      {/* Top Hero Grid: Left = Speed Test Gauge + 2x2 Sparkline Cards (Screenshot 1 & 2 Left) | Right = Data Usage & Analysis Charts (Screenshot 1 Middle & Screenshot 2 Right) */}
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
+        {/* LEFT COLUMN (5 cols on XL): Speed Test Console & 2x2 Metric Wave Cards */}
+        <div className="xl:col-span-5 space-y-5">
+          {/* Speed Test Main Card (Screenshot 1 Left & Screenshot 2 Left) */}
+          <div className="bg-white rounded-3xl border border-slate-200/90 p-5 sm:p-6 shadow-[0_12px_36px_-8px_rgba(15,23,42,0.06)] space-y-5">
+            {/* Card Header */}
+            <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-sm font-bold text-white">
-                  {chartView === "bandwidth"
-                    ? "NIC Bandwidth Throughput"
-                    : "OSI Protocol Distribution"}
-                </h2>
+                <h1 className="text-lg font-extrabold text-slate-900 tracking-tight">
+                  Speed Test &amp; QoS Gauge
+                </h1>
                 <p className="text-xs text-slate-400">
-                  {chartView === "bandwidth"
-                    ? "Live TX / RX kbps via Python psutil"
-                    : "L2–L7 Network Packet Breakdown"}
+                  Test your throughput, subnet latency &amp; jitter
                 </p>
               </div>
-              <div className="flex items-center gap-1 font-mono text-[11px]">
+              <span className="px-3 py-1 rounded-full text-[11px] font-mono font-bold bg-blue-50 text-blue-600 border border-blue-100">
+                {speedBenchmark.isRunning ? `● ${speedBenchmark.phase}` : "● READY"}
+              </span>
+            </div>
+
+            {/* Server & Location Info Pill Card (Exact match to Screenshot 2 Left) */}
+            <div className="grid grid-cols-2 gap-3 p-3.5 rounded-2xl bg-[#F8FAFC] border border-slate-200/70">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="w-10 h-10 rounded-full hyper-hero-gradient text-white flex items-center justify-center shrink-0 shadow-[0_6px_14px_rgba(30,107,255,0.35)]">
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                    <rect x="3" y="4" width="18" height="6" rx="2" />
+                    <rect x="3" y="14" width="18" height="6" rx="2" />
+                    <path d="M7 7h.01M7 17h.01" strokeLinecap="round" />
+                  </svg>
+                </div>
+                <div className="min-w-0">
+                  <div className="text-[11px] text-slate-400">Server / NIC</div>
+                  <div className="text-xs font-extrabold text-slate-900 truncate">
+                    HYPERNET · {activeInterface.interface_name}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2.5 min-w-0 border-l border-slate-200/80 pl-3">
+                <div className="w-10 h-10 rounded-full bg-slate-200/75 text-slate-700 flex items-center justify-center shrink-0">
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <circle cx="12" cy="12" r="9" />
+                    <path d="M3.6 9h16.8M3.6 15h16.8M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18" />
+                  </svg>
+                </div>
+                <div className="min-w-0">
+                  <div className="text-[11px] text-slate-400">Local IP / CIDR</div>
+                  <div className="text-xs font-extrabold text-slate-900 font-mono truncate">
+                    {activeInterface.local_ip}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Circular Speedometer Gauge */}
+            <div className="py-1">
+              <HyperSpeedGauge
+                value={activeGaugeValue}
+                label={activeGaugeUnit}
+                sublabel={`Gateway ${activeInterface.gateway_ip} · ${activeInterface.subnet_cidr}`}
+                isRunning={speedBenchmark.isRunning}
+                phase={speedBenchmark.phase}
+              />
+            </div>
+
+            {/* Download / Upload Volume Summary Row (Screenshot 2 Left) */}
+            <div className="grid grid-cols-2 gap-4 pt-2 border-t border-slate-100 text-center">
+              <div>
+                <div className="inline-flex items-center gap-1 text-xs font-semibold text-slate-400">
+                  <span className="text-blue-600 font-bold">↓</span> Download Volume
+                </div>
+                <div className="text-xl font-extrabold text-slate-900 mt-0.5">
+                  {downloadGb} GB
+                </div>
+              </div>
+              <div className="border-l border-slate-100">
+                <div className="inline-flex items-center gap-1 text-xs font-semibold text-slate-400">
+                  <span className="text-blue-600 font-bold">↑</span> Upload Volume
+                </div>
+                <div className="text-xl font-extrabold text-slate-900 mt-0.5">
+                  {uploadGb} GB
+                </div>
+              </div>
+            </div>
+
+            {/* Full-Width Gradient Pill Button (Screenshot 2 Left "Stop Test" / "Start Test") */}
+            <button
+              type="button"
+              onClick={() =>
+                speedBenchmark.isRunning
+                  ? stopSpeedBenchmark()
+                  : runSpeedBenchmark()
+              }
+              className={`w-full py-3.5 rounded-full font-bold text-sm transition-all cursor-pointer ${
+                speedBenchmark.isRunning
+                  ? "bg-rose-500 hover:bg-rose-600 text-white shadow-[0_12px_28px_-6px_rgba(244,63,94,0.5)]"
+                  : "hyper-hero-gradient hover:brightness-105 text-white shadow-[0_14px_30px_-6px_rgba(30,107,255,0.55)]"
+              }`}
+            >
+              {speedBenchmark.isRunning
+                ? `Stop Test (${speedBenchmark.progressPct}%)`
+                : "Start Speed & QoS Test"}
+            </button>
+          </div>
+
+          {/* 2x2 Metric Sparkline Cards (Exact match to Screenshot 1 Left: Download, Upload, Ping, Jitter) */}
+          <div className="grid grid-cols-2 gap-4">
+            <MetricWaveCard
+              title="Download"
+              value={speedBenchmark.downloadMbps}
+              unit="mbps"
+              icon="↓"
+              featured={selectedFeatureMetric === "download"}
+              sparkline={rxSpark}
+              onClick={() => setSelectedFeatureMetric("download")}
+            />
+            <MetricWaveCard
+              title="Upload"
+              value={speedBenchmark.uploadMbps}
+              unit="mbps"
+              icon="↑"
+              featured={selectedFeatureMetric === "upload"}
+              sparkline={txSpark}
+              onClick={() => setSelectedFeatureMetric("upload")}
+            />
+            <MetricWaveCard
+              title="Ping"
+              value={avgLatency}
+              unit="ms"
+              subtitle="RTT"
+              featured={selectedFeatureMetric === "ping"}
+              sparkline={rttSpark}
+              onClick={() => setSelectedFeatureMetric("ping")}
+            />
+            <MetricWaveCard
+              title="Jitter"
+              value={avgJitter}
+              unit="ms"
+              subtitle="QoS"
+              featured={selectedFeatureMetric === "jitter"}
+              sparkline={jitterSpark}
+              onClick={() => setSelectedFeatureMetric("jitter")}
+            />
+          </div>
+        </div>
+
+        {/* RIGHT COLUMN (7 cols on XL): Data Usage, Hatched Analysis Chart, Pill Bar Overview & Subnet KPIs */}
+        <div className="xl:col-span-7 space-y-5">
+          {/* Data Usage & Telemetry Analysis Card (Screenshot 1 Middle & Screenshot 2 Right) */}
+          <div className="bg-white rounded-3xl border border-slate-200/90 p-5 sm:p-6 shadow-[0_12px_36px_-8px_rgba(15,23,42,0.06)] space-y-5">
+            {/* Top Row: Remaining Quota / Subnet Capacity + Add Quota / Export PDF Button */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+              <div className="flex flex-wrap items-center gap-6 sm:gap-8">
+                <div>
+                  <div className="text-xs font-medium text-slate-400">
+                    Remaining Telemetry Quota
+                  </div>
+                  <div className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight mt-0.5">
+                    {quotaGb} GB
+                  </div>
+                </div>
+                <div>
+                  <div className="text-xs font-medium text-slate-400">
+                    Download
+                  </div>
+                  <div className="text-xl sm:text-2xl font-extrabold text-slate-900 mt-0.5">
+                    {downloadGb} GB
+                  </div>
+                </div>
+                <div>
+                  <div className="text-xs font-medium text-slate-400">
+                    Upload
+                  </div>
+                  <div className="text-xl sm:text-2xl font-extrabold text-slate-900 mt-0.5">
+                    {uploadGb} GB
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
                 <button
                   type="button"
-                  onClick={() => setChartView("bandwidth")}
-                  className={`px-2 py-0.5 rounded cursor-pointer ${chartView === "bandwidth"
-                      ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/40"
-                      : "text-slate-400 hover:text-white"
-                    }`}
+                  onClick={() => {
+                    setQuotaGb((q) => q + 32);
+                    postStatusNotice(
+                      "success",
+                      "Telemetry Quota Expanded",
+                      "Added +32 GB to active monitoring quota allocation."
+                    );
+                  }}
+                  className="px-4 py-2 rounded-full bg-blue-50 hover:bg-blue-100 text-blue-600 font-bold text-xs transition cursor-pointer"
                 >
-                  Bandwidth
+                  Add Quota +
                 </button>
                 <button
                   type="button"
-                  onClick={() => setChartView("protocol")}
-                  className={`px-2 py-0.5 rounded cursor-pointer ${chartView === "protocol"
-                      ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/40"
-                      : "text-slate-400 hover:text-white"
-                    }`}
+                  disabled={generatingPdf}
+                  onClick={handleQuickReport}
+                  className="px-4 py-2 rounded-full bg-[#141B2D] hover:bg-slate-800 text-white font-bold text-xs transition cursor-pointer"
                 >
-                  OSI Donut
+                  {generatingPdf ? "Building PDF..." : "📄 Export PDF"}
                 </button>
               </div>
             </div>
 
-            {chartView === "bandwidth" ? (
-              <BandwidthThroughputChart data={telemetrySeries} />
-            ) : (
-              <OsiProtocolDonutChart />
-            )}
+            {/* Segmented Pill Selector: Daily | Weekly | Monthly | Yearly (Exact match to Screenshot 1 Middle & Screenshot 2 Right) */}
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <SegmentedPillControl
+                size="sm"
+                options={[
+                  { id: "daily", label: "Daily" },
+                  { id: "weekly", label: "Weekly" },
+                  { id: "monthly", label: "Monthly" },
+                  { id: "yearly", label: "Yearly" },
+                ]}
+                value={timeRange}
+                onChange={(v) => setTimeRange(v)}
+              />
+
+              {/* Chart Mode Dropdown / Switcher matching Screenshot 2 Right "↓ Download ⌄" */}
+              <div className="inline-flex items-center gap-1.5 bg-slate-50 border border-slate-200/80 rounded-full p-1">
+                <button
+                  type="button"
+                  onClick={() => setChartTab("analysis")}
+                  className={`px-3 py-1 rounded-full text-xs font-bold transition cursor-pointer ${
+                    chartTab === "analysis"
+                      ? "bg-blue-600 text-white shadow-xs"
+                      : "text-slate-600 hover:text-slate-900"
+                  }`}
+                >
+                  Analysis
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setChartTab("overview")}
+                  className={`px-3 py-1 rounded-full text-xs font-bold transition cursor-pointer ${
+                    chartTab === "overview"
+                      ? "bg-blue-600 text-white shadow-xs"
+                      : "text-slate-600 hover:text-slate-900"
+                  }`}
+                >
+                  Overview Bars
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setChartTab("protocol")}
+                  className={`px-3 py-1 rounded-full text-xs font-bold transition cursor-pointer ${
+                    chartTab === "protocol"
+                      ? "bg-blue-600 text-white shadow-xs"
+                      : "text-slate-600 hover:text-slate-900"
+                  }`}
+                >
+                  OSI Layers
+                </button>
+              </div>
+            </div>
+
+            {/* Active Chart Section */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <h2 className="text-base font-extrabold text-slate-900">
+                  {chartTab === "analysis"
+                    ? "Analysis — Real-Time Latency & Jitter Stream"
+                    : chartTab === "overview"
+                    ? "Overview — Weekly Downlink & Capacity Bars"
+                    : "OSI Layer 2–7 Protocol Breakdown"}
+                </h2>
+                <span className="text-xs font-mono text-blue-600 font-semibold">
+                  {timeRange.toUpperCase()} WINDOW
+                </span>
+              </div>
+
+              {chartTab === "analysis" ? (
+                <LiveLatencyAreaChart data={telemetrySeries} />
+              ) : chartTab === "overview" ? (
+                <BandwidthThroughputChart data={telemetrySeries} />
+              ) : (
+                <OsiProtocolDonutChart />
+              )}
+            </div>
+
+            {/* History / Subnet Telemetry Key-Value Sheet (Matching Screenshot 2 Right bottom "History / Show All") */}
+            <div className="pt-3 border-t border-slate-100">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-sm font-extrabold text-slate-900">
+                  Subnet &amp; Interface Telemetry Summary
+                </h3>
+                <Link
+                  href="/discovery"
+                  className="text-xs font-bold text-blue-600 hover:underline"
+                >
+                  Show All ({devices.length} Hosts) →
+                </Link>
+              </div>
+              <div className="divide-y divide-slate-100 text-xs">
+                <div className="py-2.5 flex items-center justify-between">
+                  <span className="text-slate-400 font-medium">Average Subnet Ping</span>
+                  <span className="font-bold font-mono text-slate-900">{avgLatency} ms</span>
+                </div>
+                <div className="py-2.5 flex items-center justify-between">
+                  <span className="text-slate-400 font-medium">Local IPv4 &amp; Subnet CIDR</span>
+                  <span className="font-bold font-mono text-blue-600">
+                    {activeInterface.local_ip} ({activeInterface.subnet_cidr})
+                  </span>
+                </div>
+                <div className="py-2.5 flex items-center justify-between">
+                  <span className="text-slate-400 font-medium">Default Gateway &amp; MAC</span>
+                  <span className="font-bold font-mono text-slate-900">
+                    {activeInterface.gateway_ip} · {activeInterface.mac_address}
+                  </span>
+                </div>
+                <div className="py-2.5 flex items-center justify-between">
+                  <span className="text-slate-400 font-medium">Active LAN Devices &amp; Security Score</span>
+                  <span className="font-bold text-emerald-600">
+                    {onlineDevices.length}/{devices.length} Online · Score {securityScore}/100 (Grade {securityGrade})
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <div className="pt-2 mt-2 border-t border-slate-800/80 flex items-center justify-between text-xs font-mono">
-            <span className="text-slate-400">Deep Inspection:</span>
+          {/* Quick Ping Signal List Card (Matching Screenshot 1 Right "Ping" Screen!) */}
+          <div className="bg-white rounded-3xl border border-slate-200/90 p-5 sm:p-6 shadow-[0_12px_36px_-8px_rgba(15,23,42,0.06)] space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <h2 className="text-base font-extrabold text-slate-900">
+                  Live Host Ping &amp; Signal Quality
+                </h2>
+                <p className="text-xs text-slate-400">
+                  One-click latency signal bars across active subnet hosts
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  disabled={isScanning}
+                  onClick={() => triggerScan("auto")}
+                  className="px-3.5 py-1.5 rounded-full bg-blue-50 hover:bg-blue-100 text-blue-600 font-bold text-xs transition cursor-pointer"
+                >
+                  {isScanning ? "Scanning..." : "↻ Scan Subnet"}
+                </button>
+                <Link
+                  href="/connectivity"
+                  className="px-3.5 py-1.5 rounded-full bg-[#141B2D] text-white font-bold text-xs hover:bg-slate-800 transition"
+                >
+                  Ping Console →
+                </Link>
+              </div>
+            </div>
+
+            <div className="divide-y divide-slate-100 rounded-2xl border border-slate-100 overflow-hidden">
+              {devices.slice(0, 5).map((dev) => (
+                <PingTargetRow
+                  key={dev.ip_address}
+                  ip={dev.ip_address}
+                  hostname={dev.hostname}
+                  subtitle={dev.vendor}
+                  rttMs={dev.last_rtt_ms}
+                  isOnline={dev.is_online}
+                  rightActions={
+                    <div className="hidden sm:flex items-center gap-1">
+                      <Link
+                        href={`/connectivity?target=${encodeURIComponent(
+                          dev.ip_address
+                        )}&autostart=ping`}
+                        className="px-2.5 py-1 rounded-full bg-blue-50 hover:bg-blue-100 text-blue-600 text-[11px] font-bold"
+                      >
+                        Ping
+                      </Link>
+                      <Link
+                        href={`/connectivity?target=${encodeURIComponent(
+                          dev.ip_address
+                        )}&tab=ports&autostart=scan`}
+                        className="px-2.5 py-1 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-bold"
+                      >
+                        Ports
+                      </Link>
+                    </div>
+                  }
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom Section: Featured LAN Device Cards (Screenshot 2 Middle "Lan — Found X devices") + Security Advisories */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Left 8 Cols: LAN Device Cards */}
+        <div className="lg:col-span-8 space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h2 className="text-lg font-extrabold text-slate-900">
+                LAN Devices{" "}
+                <span className="text-blue-600 font-bold text-sm ml-1">
+                  Found {devices.length} devices
+                </span>
+              </h2>
+              <p className="text-xs text-slate-400">
+                Layer 2 ARP, Layer 3 ICMP &amp; Layer 4 TCP discovered subnet nodes
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => triggerSeedCampusLab()}
+                className="px-3.5 py-1.5 rounded-full bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold cursor-pointer"
+              >
+                🏫 Seed Campus Lab
+              </button>
+              <Link
+                href="/discovery"
+                className="px-4 py-1.5 rounded-full hyper-hero-gradient text-white text-xs font-bold shadow-xs"
+              >
+                Full LAN &amp; Topology →
+              </Link>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {devices.slice(0, 4).map((dev, index) => (
+              <LanDeviceCard
+                key={dev.ip_address}
+                device={dev}
+                featured={index === 0}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Right 4 Cols: Active Security & QoS Advisories */}
+        <div className="lg:col-span-4 bg-white rounded-3xl border border-slate-200/90 p-5 sm:p-6 shadow-[0_12px_36px_-8px_rgba(15,23,42,0.06)] flex flex-col justify-between space-y-4">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-base font-extrabold text-slate-900">
+                  Security Posture
+                </h2>
+                <p className="text-xs text-slate-400">
+                  Feature 5 deterministic rule engine
+                </p>
+              </div>
+              <div className="px-3 py-1.5 rounded-2xl bg-blue-50 border border-blue-100 text-right font-mono">
+                <div className="text-sm font-extrabold text-blue-600">
+                  {securityScore}/100 ({securityGrade})
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              {securityAlerts.slice(0, 3).map((alert, idx) => {
+                const badgeCls =
+                  alert.severity === "CRITICAL"
+                    ? "bg-rose-50 text-rose-600 border-rose-200"
+                    : alert.severity === "HIGH"
+                    ? "bg-amber-50 text-amber-700 border-amber-200"
+                    : "bg-blue-50 text-blue-600 border-blue-200";
+                return (
+                  <div
+                    key={alert.id || idx}
+                    className="p-3.5 rounded-2xl bg-[#F8FAFC] border border-slate-200/80 space-y-1.5"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span
+                        className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full border ${badgeCls}`}
+                      >
+                        {alert.severity} · {alert.category}
+                      </span>
+                      <span className="text-[11px] font-mono font-semibold text-slate-500">
+                        {alert.target_ip}
+                      </span>
+                    </div>
+                    <div className="text-xs font-bold text-slate-900">
+                      {alert.title}
+                    </div>
+                    <p className="text-[11px] text-slate-500 line-clamp-2">
+                      {alert.recommendation}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+            <Link
+              href="/security"
+              className="font-bold text-blue-600 hover:underline"
+            >
+              Open Security Advisor ({securityAlerts.length}) →
+            </Link>
             <Link
               href="/packets"
-              className="text-cyan-400 hover:underline flex items-center gap-1"
+              className="font-bold text-slate-600 hover:text-blue-600"
             >
               Wireshark 🦈 →
             </Link>
-          </div>
-        </div>
-      </div>
-
-      {/* Bottom Split: Active Devices Quick Table + Security Recommendations Feed */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
-        {/* Left 2/3: Discovered Devices with 1-Click Contextual Actions */}
-        <div className="xl:col-span-2 bg-[#0F172A] border border-slate-800 rounded-xl p-4">
-          <div className="flex items-center justify-between mb-3">
-            <div>
-              <h2 className="text-sm font-bold text-white">
-                Discovered Subnet Hosts &amp; One-Click Diagnostic Pipeline
-              </h2>
-              <p className="text-xs text-slate-400">
-                Click Ping, Scan Ports, or Sniff on any host without re-typing its IP address
-              </p>
-            </div>
-            <Link
-              href="/discovery"
-              className="text-xs font-mono text-cyan-400 hover:underline"
-            >
-              Full Discovery &amp; Map →
-            </Link>
-          </div>
-
-          {devices.length === 0 ? (
-            <div className="p-8 rounded-lg bg-slate-950/70 border border-dashed border-slate-800 text-center space-y-3">
-              <div className="text-sm font-semibold text-slate-200">
-                No Subnet Scan Recorded Yet in Current Session
-              </div>
-              <p className="text-xs text-slate-400 max-w-md mx-auto">
-                Click &ldquo;Scan Active Subnet&rdquo; to discover real LAN hosts via ARP/ICMP/TCP, or click &ldquo;Load Campus Lab Topology&rdquo; to seed a complete multi-host lab environment.
-              </p>
-              <div className="flex justify-center gap-3 pt-1">
-                <button
-                  type="button"
-                  onClick={() => triggerScan("auto")}
-                  className="px-4 py-2 rounded-lg bg-cyan-500 text-slate-950 font-semibold text-xs cursor-pointer"
-                >
-                  🔍 Run Initial Subnet Scan
-                </button>
-                <button
-                  type="button"
-                  onClick={() => triggerSeedCampusLab()}
-                  className="px-4 py-2 rounded-lg bg-slate-800 border border-cyan-500/40 text-cyan-300 font-semibold text-xs cursor-pointer"
-                >
-                  🏫 Seed Campus Lab Topology
-                </button>
-              </div>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse text-xs">
-                <thead>
-                  <tr className="border-b border-slate-800 text-slate-400 font-mono text-[11px]">
-                    <th className="py-2 px-2">Status</th>
-                    <th className="py-2 px-2">IP Address</th>
-                    <th className="py-2 px-2">Hostname</th>
-                    <th className="py-2 px-2">MAC / Vendor</th>
-                    <th className="py-2 px-2">RTT</th>
-                    <th className="py-2 px-2 text-right">Quick Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-800/60 font-mono">
-                  {devices.slice(0, 8).map((dev) => (
-                    <tr key={dev.ip_address} className="hover:bg-slate-900/60">
-                      <td className="py-2.5 px-2">
-                        <span
-                          className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold ${dev.is_online
-                              ? "bg-emerald-500/15 text-emerald-400"
-                              : "bg-rose-500/15 text-rose-400"
-                            }`}
-                        >
-                          ● {dev.is_online ? "ONLINE" : "OFFLINE"}
-                        </span>
-                      </td>
-                      <td className="py-2.5 px-2 text-cyan-300 font-semibold">
-                        {dev.ip_address}
-                      </td>
-                      <td className="py-2.5 px-2 text-slate-200 font-sans">
-                        {dev.hostname}
-                      </td>
-                      <td className="py-2.5 px-2 text-slate-400 text-[11px]">
-                        <div>{dev.mac_address}</div>
-                        <div className="text-slate-500">{dev.vendor}</div>
-                      </td>
-                      <td className="py-2.5 px-2 text-emerald-300">
-                        {dev.last_rtt_ms != null ? `${dev.last_rtt_ms} ms` : "—"}
-                      </td>
-                      <td className="py-2.5 px-2 text-right space-x-1.5 whitespace-nowrap">
-                        <Link
-                          href={`/connectivity?target=${encodeURIComponent(
-                            dev.ip_address
-                          )}&autostart=ping`}
-                          className="px-2 py-1 rounded bg-cyan-500/15 hover:bg-cyan-500/30 text-cyan-300 text-[11px]"
-                        >
-                          ⚡ Ping
-                        </Link>
-                        <Link
-                          href={`/connectivity?target=${encodeURIComponent(
-                            dev.ip_address
-                          )}&tab=ports&autostart=scan`}
-                          className="px-2 py-1 rounded bg-purple-500/15 hover:bg-purple-500/30 text-purple-300 text-[11px]"
-                        >
-                          🔓 Ports
-                        </Link>
-                        <Link
-                          href={`/packets?filter=${encodeURIComponent(
-                            `host ${dev.ip_address}`
-                          )}`}
-                          className="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px]"
-                        >
-                          🦈 Sniff
-                        </Link>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-
-        {/* Right 1/3: Security Recommendations Feed */}
-        <div className="bg-[#0F172A] border border-slate-800 rounded-xl p-4 flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between mb-3">
-              <div>
-                <h2 className="text-sm font-bold text-white">
-                  Security &amp; QoS Advisories
-                </h2>
-                <p className="text-xs text-slate-400">
-                  Feature 5 deterministic rule evaluation
-                </p>
-              </div>
-              <Link
-                href="/security"
-                className="text-xs font-mono text-cyan-400 hover:underline"
-              >
-                All Rules →
-              </Link>
-            </div>
-
-            {securityAlerts.length === 0 ? (
-              <div className="p-6 rounded-lg bg-slate-950/70 border border-dashed border-slate-800 text-center space-y-2">
-                <div className="text-xs font-semibold text-slate-300">
-                  No Active Security Advisories
-                </div>
-                <p className="text-[11px] text-slate-400">
-                  Subnet baseline satisfies standard security parameters, or evaluate rules below.
-                </p>
-                <div className="pt-1">
-                  <button
-                    type="button"
-                    onClick={() => triggerSeedCampusLab()}
-                    className="px-3 py-1.5 rounded-lg bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-500/40 text-cyan-300 font-mono text-[11px] cursor-pointer"
-                  >
-                    🏫 Seed Campus Lab Advisories
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <div className="space-y-2.5">
-                {securityAlerts.slice(0, 4).map((alert, idx) => {
-                  const badgeColor =
-                    alert.severity === "CRITICAL"
-                      ? "bg-rose-500/20 text-rose-300 border-rose-500/40"
-                      : alert.severity === "HIGH"
-                        ? "bg-amber-500/20 text-amber-300 border-amber-500/40"
-                        : "bg-cyan-500/15 text-cyan-300 border-cyan-500/30";
-                  return (
-                    <div
-                      key={alert.id || idx}
-                      className="p-3 rounded-lg bg-slate-950/80 border border-slate-800 space-y-1"
-                    >
-                      <div className="flex items-center justify-between gap-2">
-                        <span
-                          className={`text-[10px] font-mono font-bold px-1.5 py-0.5 rounded border ${badgeColor}`}
-                        >
-                          {alert.severity} · {alert.category}
-                        </span>
-                        <span className="text-[11px] font-mono text-slate-400">
-                          {alert.target_ip}
-                        </span>
-                      </div>
-                      <div className="text-xs font-semibold text-slate-100">
-                        {alert.title}
-                      </div>
-                      <p className="text-[11px] text-slate-400 line-clamp-2">
-                        {alert.recommendation}
-                      </p>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-
-          <div className="pt-3 mt-3 border-t border-slate-800 flex items-center justify-between text-xs font-mono">
-            <span className="text-slate-400">Tkinter Companion GUI:</span>
-            <span className="text-emerald-400">backend/tkinter_gui.py</span>
           </div>
         </div>
       </div>

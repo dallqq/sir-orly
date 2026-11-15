@@ -5,82 +5,228 @@ import { TelemetryPoint } from "@/store/useNetPulseStore";
 import React, { useState } from "react";
 
 /**
- * 1. Real-Time Multi-Series RTT Latency & Jitter Area Chart (SVG)
+ * 1. Signature Diagonal-Hatched Analysis Area Chart (from Screenshot 1 Middle "Analysis")
+ * Features diagonal blue stripe hatching between Peak RTT and Avg RTT curves,
+ * circular white-with-blue-border nodes, and floating blue pill callout badge!
  */
 export function LiveLatencyAreaChart({ data }: { data: TelemetryPoint[] }) {
-  const pts = data.length > 1 ? data : [
-    { time: "00:00", avg_rtt_ms: 2.1, max_rtt_ms: 4.5, jitter_ms: 0.5, tx_kbps: 110, rx_kbps: 320 },
-    { time: "00:02", avg_rtt_ms: 2.8, max_rtt_ms: 6.2, jitter_ms: 0.8, tx_kbps: 150, rx_kbps: 410 },
-  ];
+  const pts =
+    data.length > 2
+      ? data.slice(-7)
+      : [
+          { time: "Mon", avg_rtt_ms: 8.2, max_rtt_ms: 14.5, jitter_ms: 1.1, tx_kbps: 310, rx_kbps: 520 },
+          { time: "Tue", avg_rtt_ms: 6.8, max_rtt_ms: 13.8, jitter_ms: 0.9, tx_kbps: 380, rx_kbps: 610 },
+          { time: "Wed", avg_rtt_ms: 10.4, max_rtt_ms: 17.6, jitter_ms: 1.4, tx_kbps: 420, rx_kbps: 690 },
+          { time: "Thu", avg_rtt_ms: 7.9, max_rtt_ms: 18.8, jitter_ms: 1.2, tx_kbps: 510, rx_kbps: 840 },
+          { time: "Fri", avg_rtt_ms: 11.5, max_rtt_ms: 19.4, jitter_ms: 1.5, tx_kbps: 490, rx_kbps: 780 },
+          { time: "Sat", avg_rtt_ms: 14.2, max_rtt_ms: 23.0, jitter_ms: 1.8, tx_kbps: 540, rx_kbps: 920 },
+        ];
 
-  const width = 680;
-  const height = 210;
-  const padX = 38;
-  const padY = 22;
-  const innerW = width - padX * 2;
-  const innerH = height - padY * 2;
+  const [activeIndex, setActiveIndex] = useState<number>(
+    Math.min(3, Math.max(0, pts.length - 2))
+  );
+  const safeActiveIdx = Math.min(activeIndex, pts.length - 1);
 
-  const maxVal = Math.max(20, ...pts.map((p) => Math.max(p.max_rtt_ms, p.avg_rtt_ms)));
+  const width = 640;
+  const height = 225;
+  const padLeft = 52;
+  const padRight = 24;
+  const padTop = 22;
+  const padBottom = 34;
+  const innerW = width - padLeft - padRight;
+  const innerH = height - padTop - padBottom;
 
-  const toCoords = (key: "avg_rtt_ms" | "max_rtt_ms" | "jitter_ms") =>
-    pts.map((pt, i) => {
-      const x = padX + (i / Math.max(1, pts.length - 1)) * innerW;
-      const y = padY + innerH - (Math.min(pt[key], maxVal) / maxVal) * innerH;
-      return `${x.toFixed(1)},${y.toFixed(1)}`;
-    });
+  const maxVal = Math.max(
+    24,
+    ...pts.map((p) => Math.max(p.max_rtt_ms, p.avg_rtt_ms * 1.4))
+  );
 
-  const avgLine = toCoords("avg_rtt_ms").join(" ");
-  const maxLine = toCoords("max_rtt_ms").join(" ");
-  const avgArea = `${padX},${padY + innerH} ${avgLine} ${padX + innerW},${padY + innerH}`;
+  const getCoord = (idx: number, val: number) => {
+    const x = padLeft + (idx / Math.max(1, pts.length - 1)) * innerW;
+    const y = padTop + innerH - (Math.min(val, maxVal) / maxVal) * innerH;
+    return { x, y };
+  };
+
+  const upperCoords = pts.map((p, i) =>
+    getCoord(i, Math.max(p.max_rtt_ms, p.avg_rtt_ms + 4))
+  );
+  const lowerCoords = pts.map((p, i) => getCoord(i, p.avg_rtt_ms));
+
+  const upperPointsStr = upperCoords
+    .map((c) => `${c.x.toFixed(1)},${c.y.toFixed(1)}`)
+    .join(" ");
+  const lowerPointsStr = lowerCoords
+    .map((c) => `${c.x.toFixed(1)},${c.y.toFixed(1)}`)
+    .join(" ");
+
+  // Closed polygon between upper curve and reversed lower curve for the diagonal hatch fill
+  const bandPolygon = [
+    ...upperCoords.map((c) => `${c.x.toFixed(1)},${c.y.toFixed(1)}`),
+    ...[...lowerCoords].reverse().map((c) => `${c.x.toFixed(1)},${c.y.toFixed(1)}`),
+  ].join(" ");
+
+  const activeUpper = upperCoords[safeActiveIdx];
+  const activeLower = lowerCoords[safeActiveIdx];
+  const activePt = pts[safeActiveIdx];
+  const midY = (activeUpper.y + activeLower.y) / 2;
 
   return (
-    <div className="w-full">
-      <div className="flex items-center justify-between text-xs mb-2">
-        <div className="flex items-center gap-4 font-mono">
-          <span className="flex items-center gap-1.5 text-cyan-400">
-            <span className="h-2 w-2 rounded-full bg-cyan-400" /> Avg RTT (ms)
+    <div className="w-full select-none">
+      <div className="flex flex-wrap items-center justify-between gap-2 text-xs mb-3">
+        <div className="flex items-center gap-4">
+          <span className="inline-flex items-center gap-1.5 font-semibold text-slate-700">
+            <span className="h-2.5 w-2.5 rounded-full bg-blue-600" /> Avg RTT (ms)
           </span>
-          <span className="flex items-center gap-1.5 text-amber-400">
-            <span className="h-2 w-2 rounded-full bg-amber-400" /> Peak RTT (ms)
+          <span className="inline-flex items-center gap-1.5 font-semibold text-slate-500">
+            <span className="h-2.5 w-2.5 rounded-full bg-sky-300 border border-blue-500" /> Peak Envelope (ms)
           </span>
         </div>
         <span className="font-mono text-[11px] text-slate-400">
-          Max Scale: {maxVal.toFixed(1)} ms
+          Click any node to inspect interval · Scale: {maxVal.toFixed(0)} ms
         </span>
       </div>
-      <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-52 bg-slate-950/60 rounded-lg border border-slate-800/80">
+
+      <svg
+        viewBox={`0 0 ${width} ${height}`}
+        className="w-full h-56 bg-[#FAFBFD] rounded-2xl border border-slate-200/80"
+      >
         <defs>
-          <linearGradient id="cyanAreaGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#06b6d4" stopOpacity="0.38" />
-            <stop offset="100%" stopColor="#06b6d4" stopOpacity="0.02" />
-          </linearGradient>
+          {/* Diagonal Hatch Pattern matching Screenshot 1 "Analysis" chart */}
+          <pattern
+            id="hyperDiagonalHatch"
+            width="8"
+            height="8"
+            patternTransform="rotate(35 0 0)"
+            patternUnits="userSpaceOnUse"
+          >
+            <line
+              x1="0"
+              y1="0"
+              x2="0"
+              y2="8"
+              stroke="#93C5FD"
+              strokeWidth="2.5"
+              strokeOpacity="0.55"
+            />
+          </pattern>
         </defs>
-        {[0, 0.25, 0.5, 0.75, 1].map((step) => {
-          const y = padY + step * innerH;
-          const label = ((1 - step) * maxVal).toFixed(0);
+
+        {/* Horizontal Grid Lines & Y-Axis Labels */}
+        {[0, 0.33, 0.66, 1].map((step) => {
+          const y = padTop + step * innerH;
+          const val = ((1 - step) * maxVal).toFixed(1);
           return (
             <g key={step}>
-              <line x1={padX} y1={y} x2={width - padX} y2={y} stroke="#1e293b" strokeDasharray="3 3" />
-              <text x={6} y={y + 3} fill="#64748b" fontSize="10" fontFamily="monospace">
-                {label}ms
+              <line
+                x1={padLeft}
+                y1={y}
+                x2={width - padRight}
+                y2={y}
+                stroke="#EEF2F6"
+                strokeWidth="1"
+              />
+              <text
+                x={12}
+                y={y + 4}
+                fill="#94A3B8"
+                fontSize="10.5"
+                fontWeight="600"
+              >
+                {val} ms
               </text>
             </g>
           );
         })}
-        <polygon points={avgArea} fill="url(#cyanAreaGrad)" />
-        <polyline fill="none" stroke="#f59e0b" strokeWidth="1.75" strokeDasharray="4 2" points={maxLine} />
-        <polyline fill="none" stroke="#06b6d4" strokeWidth="2.5" points={avgLine} />
+
+        {/* Diagonal Hatched Band between Peak and Avg RTT */}
+        <polygon points={bandPolygon} fill="url(#hyperDiagonalHatch)" />
+
+        {/* Upper & Lower Trend Polylines */}
+        <polyline
+          fill="none"
+          stroke="#93C5FD"
+          strokeWidth="2"
+          points={upperPointsStr}
+          strokeLinejoin="round"
+        />
+        <polyline
+          fill="none"
+          stroke="#1E6BFF"
+          strokeWidth="2.5"
+          points={lowerPointsStr}
+          strokeLinejoin="round"
+        />
+
+        {/* Active Vertical Callout Line & Floating Pill Badge (Screenshot 1 Middle "3.2%") */}
+        {activeUpper && activeLower && (
+          <g>
+            <line
+              x1={activeUpper.x}
+              y1={activeUpper.y}
+              x2={activeLower.x}
+              y2={activeLower.y}
+              stroke="#1E6BFF"
+              strokeWidth="2"
+            />
+            <rect
+              x={activeUpper.x - 28}
+              y={midY - 12}
+              width="56"
+              height="24"
+              rx="12"
+              fill="#1E6BFF"
+              style={{ filter: "drop-shadow(0 4px 8px rgba(30,107,255,0.35))" }}
+            />
+            <text
+              x={activeUpper.x}
+              y={midY + 4}
+              textAnchor="middle"
+              fill="#FFFFFF"
+              fontSize="10.5"
+              fontWeight="700"
+            >
+              {activePt.avg_rtt_ms}ms
+            </text>
+          </g>
+        )}
+
+        {/* Interactive Nodes & X-Axis Labels */}
         {pts.map((pt, idx) => {
-          const x = padX + (idx / Math.max(1, pts.length - 1)) * innerW;
-          const y = padY + innerH - (Math.min(pt.avg_rtt_ms, maxVal) / maxVal) * innerH;
+          const u = upperCoords[idx];
+          const l = lowerCoords[idx];
+          const isSelected = idx === safeActiveIdx;
           return (
-            <g key={`${pt.time}-${idx}`}>
-              <circle cx={x} cy={y} r="3" fill="#06b6d4" />
-              {idx % Math.max(1, Math.floor(pts.length / 5)) === 0 && (
-                <text x={x - 14} y={height - 5} fill="#64748b" fontSize="9.5" fontFamily="monospace">
-                  {pt.time}
-                </text>
-              )}
+            <g
+              key={`${pt.time}-${idx}`}
+              onClick={() => setActiveIndex(idx)}
+              className="cursor-pointer"
+            >
+              <circle
+                cx={u.x}
+                cy={u.y}
+                r={isSelected ? "5" : "4"}
+                fill={isSelected ? "#1E6BFF" : "#FFFFFF"}
+                stroke="#60A5FA"
+                strokeWidth="2"
+              />
+              <circle
+                cx={l.x}
+                cy={l.y}
+                r={isSelected ? "5.5" : "4"}
+                fill={isSelected ? "#1E6BFF" : "#FFFFFF"}
+                stroke="#1E6BFF"
+                strokeWidth="2.2"
+              />
+              <text
+                x={l.x}
+                y={height - 10}
+                textAnchor="middle"
+                fill={isSelected ? "#1E6BFF" : "#94A3B8"}
+                fontSize="11"
+                fontWeight={isSelected ? "700" : "600"}
+              >
+                {pt.time}
+              </text>
             </g>
           );
         })}
@@ -90,60 +236,75 @@ export function LiveLatencyAreaChart({ data }: { data: TelemetryPoint[] }) {
 }
 
 /**
- * 2. Real-Time NIC Bandwidth Throughput Chart (TX / RX kbps)
+ * 2. Pill Bar Overview Chart with Hatched Tracks (from Screenshot 2 Right "Result / Overview")
  */
 export function BandwidthThroughputChart({ data }: { data: TelemetryPoint[] }) {
-  const pts = data.length > 1 ? data : [
-    { time: "00:00", avg_rtt_ms: 2, max_rtt_ms: 4, jitter_ms: 0.4, tx_kbps: 140, rx_kbps: 420 },
-    { time: "00:02", avg_rtt_ms: 2, max_rtt_ms: 5, jitter_ms: 0.5, tx_kbps: 210, rx_kbps: 640 },
-  ];
+  const days = ["Sat", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri"];
+  const pts =
+    data.length >= 7
+      ? data.slice(-7)
+      : [
+          { time: "Sat", avg_rtt_ms: 2, max_rtt_ms: 4, jitter_ms: 0.4, tx_kbps: 240, rx_kbps: 560 },
+          { time: "Sun", avg_rtt_ms: 2, max_rtt_ms: 5, jitter_ms: 0.5, tx_kbps: 190, rx_kbps: 410 },
+          { time: "Mon", avg_rtt_ms: 2, max_rtt_ms: 4, jitter_ms: 0.4, tx_kbps: 210, rx_kbps: 440 },
+          { time: "Tue", avg_rtt_ms: 3, max_rtt_ms: 6, jitter_ms: 0.6, tx_kbps: 320, rx_kbps: 680 },
+          { time: "Wed", avg_rtt_ms: 2, max_rtt_ms: 5, jitter_ms: 0.5, tx_kbps: 250, rx_kbps: 490 },
+          { time: "Thu", avg_rtt_ms: 3, max_rtt_ms: 6, jitter_ms: 0.6, tx_kbps: 340, rx_kbps: 640 },
+          { time: "Fri", avg_rtt_ms: 2, max_rtt_ms: 4, jitter_ms: 0.4, tx_kbps: 180, rx_kbps: 340 },
+        ];
 
-  const width = 420;
-  const height = 210;
-  const padX = 36;
-  const padY = 22;
-  const innerW = width - padX * 2;
-  const innerH = height - padY * 2;
-  const maxBw = Math.max(500, ...pts.map((p) => Math.max(p.tx_kbps, p.rx_kbps)));
-
-  const rxPoints = pts
-    .map((pt, i) => {
-      const x = padX + (i / Math.max(1, pts.length - 1)) * innerW;
-      const y = padY + innerH - (Math.min(pt.rx_kbps, maxBw) / maxBw) * innerH;
-      return `${x.toFixed(1)},${y.toFixed(1)}`;
-    })
-    .join(" ");
-
-  const txPoints = pts
-    .map((pt, i) => {
-      const x = padX + (i / Math.max(1, pts.length - 1)) * innerW;
-      const y = padY + innerH - (Math.min(pt.tx_kbps, maxBw) / maxBw) * innerH;
-      return `${x.toFixed(1)},${y.toFixed(1)}`;
-    })
-    .join(" ");
+  const maxRx = Math.max(850, ...pts.map((p) => p.rx_kbps + p.tx_kbps));
 
   return (
-    <div className="w-full">
-      <div className="flex items-center justify-between text-xs mb-2 font-mono">
-        <span className="text-emerald-400">● RX Downlink (kbps)</span>
-        <span className="text-purple-400">● TX Uplink (kbps)</span>
+    <div className="w-full select-none">
+      <div className="flex items-center justify-between text-xs mb-3">
+        <span className="inline-flex items-center gap-1.5 font-semibold text-blue-600">
+          <span className="w-2.5 h-2.5 rounded-full bg-blue-600" /> Downlink RX (kbps)
+        </span>
+        <span className="inline-flex items-center gap-1.5 font-semibold text-slate-400">
+          <span className="w-2.5 h-2.5 rounded-full bg-slate-200 border border-slate-300" /> Hatched Peak Capacity
+        </span>
       </div>
-      <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-52 bg-slate-950/60 rounded-lg border border-slate-800/80">
-        {[0, 0.5, 1].map((step) => {
-          const y = padY + step * innerH;
+
+      <div className="grid grid-cols-7 gap-2.5 sm:gap-3.5 items-end h-52 pt-2 pb-1 px-2 bg-[#FAFBFD] rounded-2xl border border-slate-200/80">
+        {pts.map((pt, idx) => {
+          const totalPct = Math.min(96, Math.max(45, ((pt.rx_kbps + pt.tx_kbps + 220) / maxRx) * 100));
+          const rxPct = Math.min(88, Math.max(26, (pt.rx_kbps / maxRx) * 100));
+          const label = pt.time.length <= 5 ? pt.time : days[idx % days.length];
+
           return (
-            <line key={step} x1={padX} y1={y} x2={width - padX} y2={y} stroke="#1e293b" strokeDasharray="3 3" />
+            <div
+              key={`${pt.time}-${idx}`}
+              className="flex flex-col items-center h-full justify-end group"
+            >
+              {/* Full Column Container */}
+              <div className="relative w-full max-w-[38px] flex-1 flex items-end justify-center">
+                {/* Hatched Background Pill Track (Screenshot 2 Right) */}
+                <div
+                  style={{ height: `${totalPct}%` }}
+                  className="w-full rounded-full hyper-hatched-pill transition-all duration-300 relative overflow-hidden flex items-end"
+                  title={`RX: ${pt.rx_kbps} kbps | TX: ${pt.tx_kbps} kbps`}
+                >
+                  {/* Active Blue Gradient Foreground Pill */}
+                  <div
+                    style={{ height: `${(rxPct / totalPct) * 100}%` }}
+                    className="w-full rounded-full hyper-hero-gradient shadow-[0_6px_16px_rgba(30,107,255,0.35)] transition-all duration-500 group-hover:brightness-110"
+                  />
+                </div>
+              </div>
+              <span className="text-[11px] font-semibold text-slate-400 group-hover:text-blue-600 mt-2 transition-colors">
+                {label}
+              </span>
+            </div>
           );
         })}
-        <polyline fill="none" stroke="#10b981" strokeWidth="2.4" points={rxPoints} />
-        <polyline fill="none" stroke="#a855f7" strokeWidth="2" points={txPoints} />
-      </svg>
+      </div>
     </div>
   );
 }
 
 /**
- * 3. Host Latency Comparison Bar Chart (Feature 3 Visual)
+ * 3. Host Latency Comparison Bar Chart (Feature 3 Visual — Clean Light Hyper Theme)
  */
 export function HostLatencyBarChart({ stats }: { stats: HostQoSStats[] }) {
   if (stats.length === 0) {
@@ -153,37 +314,51 @@ export function HostLatencyBarChart({ stats }: { stats: HostQoSStats[] }) {
       </div>
     );
   }
-  const maxRtt = Math.max(25, ...stats.map((s) => s.max_latency_ms || s.avg_latency_ms || 1));
+  const maxRtt = Math.max(
+    25,
+    ...stats.map((s) => s.max_latency_ms || s.avg_latency_ms || 1)
+  );
 
   return (
-    <div className="space-y-2.5">
+    <div className="space-y-3">
       {stats.slice(0, 8).map((s) => {
-        const avgPct = Math.min(100, Math.max(4, (s.avg_latency_ms / maxRtt) * 100));
-        const maxPct = Math.min(100, Math.max(avgPct, (s.max_latency_ms / maxRtt) * 100));
+        const avgPct = Math.min(
+          100,
+          Math.max(6, (s.avg_latency_ms / maxRtt) * 100)
+        );
+        const maxPct = Math.min(
+          100,
+          Math.max(avgPct, (s.max_latency_ms / maxRtt) * 100)
+        );
         const isLoss = s.packet_loss_pct >= 100;
         const barColor = isLoss
           ? "bg-rose-500"
           : s.avg_latency_ms > 80
-          ? "bg-amber-400"
-          : "bg-emerald-400";
+          ? "bg-amber-500"
+          : "hyper-hero-gradient";
 
         return (
-          <div key={s.ip_address} className="space-y-1">
-            <div className="flex justify-between text-xs font-mono">
-              <span className="text-slate-200 truncate">
-                {s.hostname} <span className="text-slate-400">({s.ip_address})</span>
+          <div key={s.ip_address} className="space-y-1.5">
+            <div className="flex justify-between items-center text-xs">
+              <span className="font-bold text-slate-800 truncate">
+                {s.hostname}{" "}
+                <span className="text-slate-400 font-mono font-normal">
+                  ({s.ip_address})
+                </span>
               </span>
-              <span className="text-cyan-300">
-                Avg: {s.avg_latency_ms}ms | Max: {s.max_latency_ms}ms | Loss: {s.packet_loss_pct}%
+              <span className="font-mono text-[11px] font-semibold text-blue-600 shrink-0">
+                {isLoss
+                  ? "100% Loss"
+                  : `${s.avg_latency_ms}ms avg · ${s.max_latency_ms}ms peak`}
               </span>
             </div>
-            <div className="h-2.5 w-full bg-slate-900 rounded-full overflow-hidden relative border border-slate-800">
+            <div className="h-3 w-full bg-slate-100 rounded-full overflow-hidden relative border border-slate-200/70">
               <div
-                className="h-full bg-cyan-500/25 absolute left-0 top-0"
+                className="h-full bg-blue-200/60 absolute left-0 top-0 rounded-full transition-all duration-300"
                 style={{ width: `${maxPct}%` }}
               />
               <div
-                className={`h-full ${barColor} relative rounded-full`}
+                className={`h-full ${barColor} relative rounded-full transition-all duration-500`}
                 style={{ width: `${isLoss ? 100 : avgPct}%` }}
               />
             </div>
@@ -195,7 +370,7 @@ export function HostLatencyBarChart({ stats }: { stats: HostQoSStats[] }) {
 }
 
 /**
- * 4. Interactive Node-Link Subnet Topology Graph (React Flow style)
+ * 4. Interactive Node-Link Subnet Topology Graph (Clean Hyper Light Blueprint Style)
  */
 export function InteractiveSubnetTopology({
   devices,
@@ -211,10 +386,10 @@ export function InteractiveSubnetTopology({
   const [selectedIp, setSelectedIp] = useState<string | null>(null);
 
   const width = 820;
-  const height = 420;
+  const height = 430;
   const cx = width / 2;
   const cy = height / 2;
-  const radius = 152;
+  const radius = 154;
 
   const gatewayNode = devices.find((d) => d.is_gateway) || {
     ip_address: gatewayIp,
@@ -232,41 +407,58 @@ export function InteractiveSubnetTopology({
     open_ports_summary: "53, 80, 443",
   };
 
-  const leafNodes = devices.filter((d) => d.ip_address !== gatewayNode.ip_address);
+  const leafNodes = devices.filter(
+    (d) => d.ip_address !== gatewayNode.ip_address
+  );
 
   return (
-    <div className="relative bg-[#070B12] rounded-xl border border-slate-800 overflow-hidden">
-      <div className="px-4 py-2.5 bg-slate-900/90 border-b border-slate-800 flex flex-wrap items-center justify-between gap-2 text-xs font-mono">
-        <div className="flex items-center gap-3">
-          <span className="text-cyan-400 font-semibold">INTERACTIVE L2/L3 TOPOLOGY MAP</span>
-          <span className="text-slate-400">({devices.length} Subnet Nodes)</span>
+    <div className="relative bg-white rounded-3xl border border-slate-200/90 shadow-[0_10px_30px_-6px_rgba(15,23,42,0.05)] overflow-hidden">
+      <div className="px-5 py-3.5 bg-slate-50/90 border-b border-slate-200/80 flex flex-wrap items-center justify-between gap-2 text-xs">
+        <div className="flex items-center gap-2.5">
+          <span className="w-2.5 h-2.5 rounded-full bg-blue-600" />
+          <span className="text-slate-900 font-bold">
+            Interactive Layer 2/3 Subnet Topology Map
+          </span>
+          <span className="text-slate-500 font-mono">
+            ({devices.length} Discovered Nodes)
+          </span>
         </div>
-        <div className="flex items-center gap-3 text-[11px]">
-          <span className="text-emerald-400">● Optimal (&lt;50ms)</span>
-          <span className="text-amber-400">● High RTT (50–150ms)</span>
-          <span className="text-rose-400">● Unreachable / Loss</span>
+        <div className="flex items-center gap-3 text-[11px] font-semibold">
+          <span className="text-emerald-600">● Optimal (&lt;50ms)</span>
+          <span className="text-amber-600">● Elevated (50–150ms)</span>
+          <span className="text-rose-600">● Offline / Loss</span>
         </div>
       </div>
 
-      <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-[400px]">
+      <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-[410px] bg-[#F8FAFC]">
         <defs>
-          <pattern id="nocGrid" width="28" height="28" patternUnits="userSpaceOnUse">
-            <path d="M 28 0 L 0 0 0 28" fill="none" stroke="#1e293b" strokeWidth="0.6" />
+          <pattern
+            id="hyperDotGrid"
+            width="24"
+            height="24"
+            patternUnits="userSpaceOnUse"
+          >
+            <circle cx="2" cy="2" r="1.2" fill="#CBD5E1" />
           </pattern>
+          <linearGradient id="gwHubGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#2B7FFF" />
+            <stop offset="100%" stopColor="#0B57D0" />
+          </linearGradient>
         </defs>
-        <rect width={width} height={height} fill="url(#nocGrid)" />
+        <rect width={width} height={height} fill="url(#hyperDotGrid)" />
 
         {/* Edges from Gateway to each Discovered Host */}
         {leafNodes.map((node, idx) => {
-          const angle = (idx / Math.max(1, leafNodes.length)) * 2 * Math.PI - Math.PI / 2;
-          const nx = cx + Math.cos(angle) * radius * 1.35;
+          const angle =
+            (idx / Math.max(1, leafNodes.length)) * 2 * Math.PI - Math.PI / 2;
+          const nx = cx + Math.cos(angle) * radius * 1.38;
           const ny = cy + Math.sin(angle) * radius * 0.92;
           const rtt = node.last_rtt_ms ?? 2.0;
           const strokeColor = !node.is_online
-            ? "#ef4444"
+            ? "#EF4444"
             : rtt > 50
-            ? "#f59e0b"
-            : "#10b981";
+            ? "#F59E0B"
+            : "#1E6BFF";
 
           return (
             <g key={`edge-${node.ip_address}`}>
@@ -276,14 +468,25 @@ export function InteractiveSubnetTopology({
                 x2={nx}
                 y2={ny}
                 stroke={strokeColor}
-                strokeWidth={selectedIp === node.ip_address ? "2.8" : "1.8"}
-                strokeDasharray={node.is_online ? "5 3" : "2 4"}
+                strokeWidth={selectedIp === node.ip_address ? "3" : "2"}
+                strokeDasharray={node.is_online ? "6 4" : "3 4"}
+                opacity={selectedIp === node.ip_address ? 1 : 0.65}
+              />
+              <rect
+                x={(cx + nx) / 2 - 24}
+                y={(cy + ny) / 2 - 10}
+                width="48"
+                height="18"
+                rx="9"
+                fill="#FFFFFF"
+                stroke="#E2E8F0"
               />
               <text
                 x={(cx + nx) / 2}
-                y={(cy + ny) / 2 - 5}
-                fill="#94a3b8"
+                y={(cy + ny) / 2 + 2}
+                fill={strokeColor}
                 fontSize="9.5"
+                fontWeight="700"
                 fontFamily="monospace"
                 textAnchor="middle"
               >
@@ -301,28 +504,60 @@ export function InteractiveSubnetTopology({
             onSelectDevice?.(gatewayNode);
           }}
         >
-          <circle cx={cx} cy={cy} r="34" fill="#0f172a" stroke="#06b6d4" strokeWidth="3" />
-          <text x={cx} y={cy - 4} fill="#22d3ee" fontSize="10" fontWeight="bold" fontFamily="monospace" textAnchor="middle">
+          <circle
+            cx={cx}
+            cy={cy}
+            r="44"
+            fill="#DBEAFE"
+            opacity="0.65"
+          />
+          <circle
+            cx={cx}
+            cy={cy}
+            r="36"
+            fill="url(#gwHubGrad)"
+            stroke="#FFFFFF"
+            strokeWidth="3"
+          />
+          <text
+            x={cx}
+            y={cy - 4}
+            fill="#FFFFFF"
+            fontSize="10"
+            fontWeight="800"
+            fontFamily="monospace"
+            textAnchor="middle"
+          >
             GATEWAY
           </text>
-          <text x={cx} y={cy + 11} fill="#f8fafc" fontSize="9.5" fontFamily="monospace" textAnchor="middle">
+          <text
+            x={cx}
+            y={cy + 11}
+            fill="#E0F2FE"
+            fontSize="9.5"
+            fontWeight="600"
+            fontFamily="monospace"
+            textAnchor="middle"
+          >
             {gatewayNode.ip_address}
           </text>
         </g>
 
         {/* Surrounding Subnet Host Nodes */}
         {leafNodes.map((node, idx) => {
-          const angle = (idx / Math.max(1, leafNodes.length)) * 2 * Math.PI - Math.PI / 2;
-          const nx = cx + Math.cos(angle) * radius * 1.35;
+          const angle =
+            (idx / Math.max(1, leafNodes.length)) * 2 * Math.PI - Math.PI / 2;
+          const nx = cx + Math.cos(angle) * radius * 1.38;
           const ny = cy + Math.sin(angle) * radius * 0.92;
           const isLocal = node.ip_address === localIp || node.is_local_host;
+          const isSel = selectedIp === node.ip_address;
           const borderCol = !node.is_online
-            ? "#ef4444"
-            : isLocal
-            ? "#06b6d4"
+            ? "#EF4444"
+            : isSel || isLocal
+            ? "#1E6BFF"
             : (node.last_rtt_ms ?? 2) > 50
-            ? "#f59e0b"
-            : "#10b981";
+            ? "#F59E0B"
+            : "#10B981";
 
           return (
             <g
@@ -334,22 +569,44 @@ export function InteractiveSubnetTopology({
               }}
             >
               <rect
-                x={nx - 68}
-                y={ny - 24}
-                width="136"
-                height="48"
-                rx="8"
-                fill="#0f172a"
+                x={nx - 70}
+                y={ny - 26}
+                width="140"
+                height="52"
+                rx="14"
+                fill={isSel ? "#1E6BFF" : "#FFFFFF"}
                 stroke={borderCol}
-                strokeWidth={selectedIp === node.ip_address ? "2.8" : "1.8"}
+                strokeWidth={isSel ? "2.8" : "2"}
               />
-              <text x={nx} y={ny - 6} fill="#f8fafc" fontSize="10" fontWeight="bold" fontFamily="monospace" textAnchor="middle">
+              <text
+                x={nx}
+                y={ny - 7}
+                fill={isSel ? "#FFFFFF" : "#0F172A"}
+                fontSize="10.5"
+                fontWeight="700"
+                textAnchor="middle"
+              >
                 {node.hostname.slice(0, 16)}
               </text>
-              <text x={nx} y={ny + 8} fill="#38bdf8" fontSize="9.5" fontFamily="monospace" textAnchor="middle">
+              <text
+                x={nx}
+                y={ny + 8}
+                fill={isSel ? "#DBEAFE" : "#1E6BFF"}
+                fontSize="9.5"
+                fontWeight="700"
+                fontFamily="monospace"
+                textAnchor="middle"
+              >
                 {node.ip_address}
               </text>
-              <text x={nx} y={ny + 19} fill="#94a3b8" fontSize="8" fontFamily="monospace" textAnchor="middle">
+              <text
+                x={nx}
+                y={ny + 20}
+                fill={isSel ? "#BFDBFE" : "#64748B"}
+                fontSize="8.5"
+                fontFamily="monospace"
+                textAnchor="middle"
+              >
                 {node.vendor.slice(0, 18)}
               </text>
             </g>
@@ -361,7 +618,7 @@ export function InteractiveSubnetTopology({
 }
 
 /**
- * 5. OSI Protocol Distribution Donut Chart (Tremor / Cloudflare Radar style)
+ * 5. OSI Protocol Distribution Donut Chart (Clean Hyper Blue & Emerald Palette)
  */
 export function OsiProtocolDonutChart({
   protocolCounts,
@@ -384,19 +641,19 @@ export function OsiProtocolDonutChart({
       : defaultCounts;
 
   const colorMap: Record<string, string> = {
-    TCP: "#06b6d4",
-    UDP: "#14b8a6",
-    ICMP: "#3b82f6",
-    ARP: "#a855f7",
-    HTTP: "#10b981",
-    DNS: "#f59e0b",
-    HTTPS: "#06b6d4",
+    TCP: "#1E6BFF",
+    UDP: "#38BDF8",
+    ICMP: "#10B981",
+    ARP: "#6366F1",
+    HTTP: "#0EA5E9",
+    DNS: "#F59E0B",
+    HTTPS: "#2563EB",
   };
 
   const entries = Object.entries(raw).map(([name, count]) => ({
     name,
     count,
-    color: colorMap[name.toUpperCase()] || "#64748b",
+    color: colorMap[name.toUpperCase()] || "#64748B",
   }));
 
   const total = entries.reduce((acc, e) => acc + e.count, 0) || 1;
@@ -424,20 +681,22 @@ export function OsiProtocolDonutChart({
   return (
     <div className="w-full space-y-3">
       {title && (
-        <div className="flex items-center justify-between text-xs font-mono">
-          <span className="text-slate-300 font-semibold">{title}</span>
-          <span className="text-cyan-400 font-bold">{total} Total Frames</span>
+        <div className="flex items-center justify-between text-xs">
+          <span className="text-slate-700 font-bold">{title}</span>
+          <span className="text-blue-600 font-mono font-bold">
+            {total} Total Frames
+          </span>
         </div>
       )}
-      <div className="flex flex-col sm:flex-row items-center justify-center gap-4 py-1">
-        <div className="relative w-[140px] h-[140px] shrink-0">
+      <div className="flex flex-col sm:flex-row items-center justify-center gap-5 py-2">
+        <div className="relative w-[144px] h-[144px] shrink-0">
           <svg viewBox={`0 0 ${size} ${size}`} className="w-full h-full -rotate-90">
             <circle
               cx={size / 2}
               cy={size / 2}
               r={radius}
               fill="none"
-              stroke="#1e293b"
+              stroke="#EFF4FB"
               strokeWidth={strokeWidth}
             />
             {slices.map((slice) => (
@@ -457,23 +716,25 @@ export function OsiProtocolDonutChart({
             ))}
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center text-center font-mono pointer-events-none">
-            <span className="text-lg font-bold text-white">{total}</span>
-            <span className="text-[10px] text-slate-400">Frames</span>
+            <span className="text-xl font-extrabold text-slate-900">{total}</span>
+            <span className="text-[10px] font-semibold text-slate-400 uppercase">
+              Packets
+            </span>
           </div>
         </div>
 
-        <div className="w-full sm:flex-1 space-y-1.5 text-xs font-mono">
+        <div className="w-full sm:flex-1 space-y-2 text-xs">
           {slices.map((s) => (
             <div key={s.name} className="flex items-center justify-between gap-2">
-              <span className="flex items-center gap-1.5 truncate">
+              <span className="flex items-center gap-2 truncate font-semibold text-slate-700">
                 <span
-                  className="h-2 w-2 rounded-full shrink-0"
+                  className="h-2.5 w-2.5 rounded-full shrink-0"
                   style={{ backgroundColor: s.color }}
                 />
-                <span className="text-slate-200">{s.name}</span>
+                <span>{s.name}</span>
               </span>
-              <span className="text-slate-400">
-                <span className="text-slate-300 font-bold">{s.count}</span> ({s.percentage}%)
+              <span className="font-mono text-slate-500">
+                <strong className="text-slate-900">{s.count}</strong> ({s.percentage}%)
               </span>
             </div>
           ))}
@@ -482,5 +743,3 @@ export function OsiProtocolDonutChart({
     </div>
   );
 }
-
-

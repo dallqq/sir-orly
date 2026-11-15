@@ -1,5 +1,6 @@
 /**
  * Canonical Typed REST API Client for NetPulse NOC (`http://localhost:8000/api/v1`)
+ * Includes timeout handling and structured error messages for edge cases.
  */
 
 export const API_BASE_URL =
@@ -187,27 +188,51 @@ export interface SystemHealthResponse {
     interval_seconds: number;
     active_ws_clients: number;
   };
+  network_status?: {
+    internet_reachable: boolean;
+    connection_state: "WAN_ONLINE" | "LAN_ONLY" | "LOOPBACK_OFFLINE" | string;
+    outbound_ip: string | null;
+    hostname: string;
+  };
   active_interface: NetworkInterfaceInfo;
 }
 
-async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`${API_BASE_URL}${path}`, {
-    ...init,
-    headers: {
-      "Content-Type": "application/json",
-      ...(init?.headers || {}),
-    },
-    cache: "no-store",
-  });
-  if (!res.ok) {
-    const errText = await res.text();
-    throw new Error(errText || `HTTP ${res.status}`);
+async function apiFetch<T>(
+  path: string,
+  init?: RequestInit,
+  timeoutMs: number = 15000
+): Promise<T> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const res = await fetch(`${API_BASE_URL}${path}`, {
+      ...init,
+      signal: controller.signal,
+      headers: {
+        "Content-Type": "application/json",
+        ...(init?.headers || {}),
+      },
+      cache: "no-store",
+    });
+    if (!res.ok) {
+      const errText = await res.text();
+      let parsedMsg = errText;
+      try {
+        const j = JSON.parse(errText);
+        if (j?.detail) parsedMsg = String(j.detail);
+      } catch {
+        // use raw text
+      }
+      throw new Error(parsedMsg || `HTTP ${res.status}`);
+    }
+    return (await res.json()) as T;
+  } finally {
+    clearTimeout(timer);
   }
-  return res.json() as Promise<T>;
 }
 
 export const netpulseApi = {
-  getHealth: () => apiFetch<SystemHealthResponse>("/health"),
+  getHealth: () => apiFetch<SystemHealthResponse>("/health", undefined, 4500),
 
   setDatabaseMode: (mode: string, cloud_database_url?: string) =>
     apiFetch<{
@@ -246,6 +271,9 @@ export const netpulseApi = {
       active_interface: NetworkInterfaceInfo;
       interfaces: NetworkInterfaceInfo[];
       hostname: string;
+      internet_reachable?: boolean;
+      outbound_ip?: string | null;
+      connection_state?: string;
     }>(
       `/discovery/interfaces${
         interfaceName ? `?interface_name=${encodeURIComponent(interfaceName)}` : ""
@@ -261,10 +289,14 @@ export const netpulseApi = {
       scan_session: Record<string, unknown>;
       active_interface: NetworkInterfaceInfo;
       devices: DiscoveredDevice[];
-    }>("/discovery/scan", {
-      method: "POST",
-      body: JSON.stringify(params),
-    }),
+    }>(
+      "/discovery/scan",
+      {
+        method: "POST",
+        body: JSON.stringify(params),
+      },
+      25000
+    ),
 
   getDevices: () =>
     apiFetch<{
@@ -285,10 +317,14 @@ export const netpulseApi = {
     apiFetch<{
       tested_hosts: number;
       results: (HostQoSStats & { samples: PingSequenceReply[] })[];
-    }>("/connectivity/ping", {
-      method: "POST",
-      body: JSON.stringify(params),
-    }),
+    }>(
+      "/connectivity/ping",
+      {
+        method: "POST",
+        body: JSON.stringify(params),
+      },
+      25000
+    ),
 
   getNetworkStats: () =>
     apiFetch<{
@@ -312,10 +348,14 @@ export const netpulseApi = {
       open_ports_count: number;
       scanned_at: string;
       results: PortScanResult[];
-    }>("/connectivity/ports/scan", {
-      method: "POST",
-      body: JSON.stringify(params),
-    }),
+    }>(
+      "/connectivity/ports/scan",
+      {
+        method: "POST",
+        body: JSON.stringify(params),
+      },
+      25000
+    ),
 
   getHostPorts: (ip: string) =>
     apiFetch<{
@@ -334,10 +374,14 @@ export const netpulseApi = {
       session: PcapCaptureSession;
       protocol_breakdown: Record<string, number>;
       packets: PacketDissection[];
-    }>("/packets/capture", {
-      method: "POST",
-      body: JSON.stringify(params),
-    }),
+    }>(
+      "/packets/capture",
+      {
+        method: "POST",
+        body: JSON.stringify(params),
+      },
+      20000
+    ),
 
   uploadPcap: async (file: File) => {
     const form = new FormData();
@@ -453,4 +497,3 @@ export const netpulseApi = {
   getReportPdfUrl: (id: number) => `${API_BASE_URL}/reports/${id}/pdf`,
   getReportCsvUrl: (id: number) => `${API_BASE_URL}/reports/${id}/csv`,
 };
-

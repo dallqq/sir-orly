@@ -243,9 +243,20 @@ def get_network_interfaces(preferred_interface: str | None = None) -> dict[str, 
                 active = item
                 break
 
+    internet_reachable = bool(outbound_ip is not None and not active["local_ip"].startswith("127."))
+    if internet_reachable:
+        connection_state = "WAN_ONLINE"
+    elif not active["local_ip"].startswith("127.") and active["is_up"]:
+        connection_state = "LAN_ONLY"
+    else:
+        connection_state = "LOOPBACK_OFFLINE"
+
     return {
         "active_interface": active,
         "interfaces": interfaces,
         "hostname": socket.gethostname(),
+        "internet_reachable": internet_reachable,
+        "outbound_ip": outbound_ip,
+        "connection_state": connection_state,
     }
 

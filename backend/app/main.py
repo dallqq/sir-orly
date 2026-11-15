@@ -84,6 +84,12 @@ def health_check() -> dict[str, Any]:
             "interval_seconds": settings.telemetry_interval_s,
             "active_ws_clients": len(ws_manager.active_connections),
         },
+        "network_status": {
+            "internet_reachable": nic_data.get("internet_reachable", False),
+            "connection_state": nic_data.get("connection_state", "LAN_ONLY"),
+            "outbound_ip": nic_data.get("outbound_ip"),
+            "hostname": nic_data.get("hostname", "localhost"),
+        },
         "active_interface": nic_data["active_interface"],
     }
 
