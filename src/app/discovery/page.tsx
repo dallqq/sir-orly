@@ -174,22 +174,20 @@ export default function NetworkDiscoveryPage() {
             <button
               type="button"
               onClick={() => setActiveTab("table")}
-              className={`px-3 py-1.5 rounded-lg text-xs font-mono cursor-pointer ${
-                activeTab === "table"
+              className={`px-3 py-1.5 rounded-lg text-xs font-mono cursor-pointer ${activeTab === "table"
                   ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/40"
                   : "bg-slate-900 text-slate-400 border border-slate-800"
-              }`}
+                }`}
             >
               📋 Device Inventory ({devices.length})
             </button>
             <button
               type="button"
               onClick={() => setActiveTab("topology")}
-              className={`px-3 py-1.5 rounded-lg text-xs font-mono cursor-pointer ${
-                activeTab === "topology"
+              className={`px-3 py-1.5 rounded-lg text-xs font-mono cursor-pointer ${activeTab === "topology"
                   ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/40"
                   : "bg-slate-900 text-slate-400 border border-slate-800"
-              }`}
+                }`}
             >
               🕸️ Topology Map
             </button>
@@ -244,83 +242,131 @@ export default function NetworkDiscoveryPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-800/70 font-mono">
-                {filteredDevices.map((dev) => (
-                  <tr key={dev.ip_address} className="hover:bg-slate-900/60">
-                    <td className="py-2.5 px-2">
-                      <span
-                        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold ${
-                          dev.is_online
-                            ? "bg-emerald-500/15 text-emerald-400"
-                            : "bg-rose-500/15 text-rose-400"
-                        }`}
-                      >
-                        ● {dev.is_online ? "ONLINE" : "OFFLINE"}
-                      </span>
-                    </td>
-                    <td className="py-2.5 px-2 text-cyan-300 font-bold">
-                      {dev.ip_address}
-                      {dev.is_gateway && (
-                        <span className="ml-1.5 text-[10px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300">
-                          GW
-                        </span>
-                      )}
-                      {dev.is_local_host && (
-                        <span className="ml-1.5 text-[10px] px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-300">
-                          LOCAL
-                        </span>
-                      )}
-                    </td>
-                    <td className="py-2.5 px-2 text-slate-100 font-sans font-medium">
-                      {dev.hostname}
-                    </td>
-                    <td className="py-2.5 px-2 text-purple-300">
-                      {dev.mac_address}
-                    </td>
-                    <td className="py-2.5 px-2 text-slate-300 font-sans">
-                      {dev.vendor}
-                    </td>
-                    <td className="py-2.5 px-2 text-slate-400 font-sans text-[11px]">
-                      {dev.os_guess}
-                    </td>
-                    <td className="py-2.5 px-2">
-                      <span className="px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 text-[10px]">
-                        {dev.discovery_method}
-                      </span>
-                    </td>
-                    <td className="py-2.5 px-2 text-emerald-300">
-                      {dev.last_rtt_ms != null ? `${dev.last_rtt_ms} ms` : "—"}
-                    </td>
-                    <td className="py-2.5 px-2 text-amber-300 text-[11px]">
-                      {dev.open_ports_summary || "—"}
-                    </td>
-                    <td className="py-2.5 px-2 text-right space-x-1.5 whitespace-nowrap">
-                      <Link
-                        href={`/connectivity?target=${encodeURIComponent(
-                          dev.ip_address
-                        )}&autostart=ping`}
-                        className="px-2 py-1 rounded bg-cyan-500/15 hover:bg-cyan-500/30 text-cyan-300 text-[11px]"
-                      >
-                        ⚡ Ping Host
-                      </Link>
-                      <Link
-                        href={`/connectivity?target=${encodeURIComponent(
-                          dev.ip_address
-                        )}&tab=ports&autostart=scan`}
-                        className="px-2 py-1 rounded bg-purple-500/15 hover:bg-purple-500/30 text-purple-300 text-[11px]"
-                      >
-                        🔓 Scan Ports
-                      </Link>
-                      <Link
-                        href={`/packets?filter=${encodeURIComponent(
-                          `host ${dev.ip_address}`
-                        )}`}
-                        className="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px]"
-                      >
-                        🦈 Capture
-                      </Link>
+                {filteredDevices.length === 0 ? (
+                  <tr>
+                    <td colSpan={10} className="py-12 px-4 text-center">
+                      <div className="max-w-md mx-auto space-y-3">
+                        <div className="text-sm font-semibold text-slate-200">
+                          {searchQuery
+                            ? `No devices matched query "${searchQuery}"`
+                            : "No Subnet Devices Discovered Yet"}
+                        </div>
+                        <p className="text-xs text-slate-400">
+                          {searchQuery
+                            ? "Try searching by IP, hostname, MAC, or vendor, or clear the search query."
+                            : `Run a discovery sweep across ${effectiveCidr} or seed realistic campus lab nodes for presentation.`}
+                        </p>
+                        <div className="flex justify-center gap-2 pt-1">
+                          {searchQuery ? (
+                            <button
+                              type="button"
+                              onClick={() => setSearchQuery("")}
+                              className="px-3.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 cursor-pointer"
+                            >
+                              Clear Search Filter
+                            </button>
+                          ) : (
+                            <>
+                              <button
+                                type="button"
+                                disabled={isScanning}
+                                onClick={() => triggerScan(scanMode, effectiveCidr)}
+                                className="px-3.5 py-1.5 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs cursor-pointer"
+                              >
+                                ⚡ Start Discovery Sweep
+                              </button>
+                              <button
+                                type="button"
+                                disabled={isScanning}
+                                onClick={() => triggerSeedCampusLab()}
+                                className="px-3.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-cyan-500/40 text-cyan-300 text-xs font-semibold cursor-pointer"
+                              >
+                                🏫 Seed Campus Lab
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      </div>
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  filteredDevices.map((dev) => (
+                    <tr key={dev.ip_address} className="hover:bg-slate-900/60">
+                      <td className="py-2.5 px-2">
+                        <span
+                          className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold ${dev.is_online
+                              ? "bg-emerald-500/15 text-emerald-400"
+                              : "bg-rose-500/15 text-rose-400"
+                            }`}
+                        >
+                          ● {dev.is_online ? "ONLINE" : "OFFLINE"}
+                        </span>
+                      </td>
+                      <td className="py-2.5 px-2 text-cyan-300 font-bold">
+                        {dev.ip_address}
+                        {dev.is_gateway && (
+                          <span className="ml-1.5 text-[10px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300">
+                            GW
+                          </span>
+                        )}
+                        {dev.is_local_host && (
+                          <span className="ml-1.5 text-[10px] px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-300">
+                            LOCAL
+                          </span>
+                        )}
+                      </td>
+                      <td className="py-2.5 px-2 text-slate-100 font-sans font-medium">
+                        {dev.hostname}
+                      </td>
+                      <td className="py-2.5 px-2 text-purple-300">
+                        {dev.mac_address}
+                      </td>
+                      <td className="py-2.5 px-2 text-slate-300 font-sans">
+                        {dev.vendor}
+                      </td>
+                      <td className="py-2.5 px-2 text-slate-400 font-sans text-[11px]">
+                        {dev.os_guess}
+                      </td>
+                      <td className="py-2.5 px-2">
+                        <span className="px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 text-[10px]">
+                          {dev.discovery_method}
+                        </span>
+                      </td>
+                      <td className="py-2.5 px-2 text-emerald-300">
+                        {dev.last_rtt_ms != null ? `${dev.last_rtt_ms} ms` : "—"}
+                      </td>
+                      <td className="py-2.5 px-2 text-amber-300 text-[11px]">
+                        {dev.open_ports_summary || "—"}
+                      </td>
+                      <td className="py-2.5 px-2 text-right space-x-1.5 whitespace-nowrap">
+                        <Link
+                          href={`/connectivity?target=${encodeURIComponent(
+                            dev.ip_address
+                          )}&autostart=ping`}
+                          className="px-2 py-1 rounded bg-cyan-500/15 hover:bg-cyan-500/30 text-cyan-300 text-[11px]"
+                        >
+                          ⚡ Ping Host
+                        </Link>
+                        <Link
+                          href={`/connectivity?target=${encodeURIComponent(
+                            dev.ip_address
+                          )}&tab=ports&autostart=scan`}
+                          className="px-2 py-1 rounded bg-purple-500/15 hover:bg-purple-500/30 text-purple-300 text-[11px]"
+                        >
+                          🔓 Scan Ports
+                        </Link>
+                        <Link
+                          href={`/packets?filter=${encodeURIComponent(
+                            `host ${dev.ip_address}`
+                          )}`}
+                          className="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px]"
+                        >
+                          🦈 Capture
+                        </Link>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
@@ -361,7 +407,7 @@ export default function NetworkDiscoveryPage() {
                     href={`/connectivity?target=${encodeURIComponent(
                       selectedNode.ip_address
                     )}&autostart=ping`}
-                    className="py-2 px-3 rounded bg-cyan-500 text-slate-950 font-bold text-center"
+                    className="py-2 px-3 rounded bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-center text-xs"
                   >
                     ⚡ Ping {selectedNode.ip_address}
                   </Link>
@@ -369,9 +415,17 @@ export default function NetworkDiscoveryPage() {
                     href={`/connectivity?target=${encodeURIComponent(
                       selectedNode.ip_address
                     )}&tab=ports&autostart=scan`}
-                    className="py-2 px-3 rounded bg-purple-500/20 border border-purple-500/40 text-purple-300 font-bold text-center"
+                    className="py-2 px-3 rounded bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/40 text-purple-300 font-bold text-center text-xs"
                   >
                     🔓 Run Socket Port Scanner
+                  </Link>
+                  <Link
+                    href={`/packets?filter=${encodeURIComponent(
+                      `host ${selectedNode.ip_address}`
+                    )}`}
+                    className="py-2 px-3 rounded bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-bold text-center text-xs"
+                  >
+                    🦈 Sniff Traffic in Wireshark
                   </Link>
                 </div>
               </div>

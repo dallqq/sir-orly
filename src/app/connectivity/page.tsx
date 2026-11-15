@@ -85,7 +85,7 @@ function ConnectivityWorkspace() {
     netpulseApi
       .getHostPorts("all")
       .then((r) => setPortResults(r.results))
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   // Handle cross-page contextual URL parameters (?target=IP&tab=ports&autostart=ping|scan)
@@ -93,8 +93,18 @@ function ConnectivityWorkspace() {
     const qTarget = searchParams.get("target");
     const qTab = searchParams.get("tab");
     const qAuto = searchParams.get("autostart");
-    const key = `${qTarget}-${qTab}-${qAuto}`;
 
+    if (qTarget) {
+      setTargetIp(qTarget);
+      setPortTargetIp(qTarget);
+    }
+    if (qTab === "ports") {
+      setActiveTab("ports");
+    } else if (qTab === "ping") {
+      setActiveTab("ping");
+    }
+
+    const key = `${qTarget}-${qTab}-${qAuto}`;
     if (qTarget && qAuto && autoTriggeredRef.current !== key) {
       autoTriggeredRef.current = key;
       const timer = setTimeout(() => {
@@ -127,22 +137,20 @@ function ConnectivityWorkspace() {
           <button
             type="button"
             onClick={() => setActiveTab("ping")}
-            className={`px-4 py-2 rounded-lg text-xs font-mono font-bold cursor-pointer ${
-              activeTab === "ping"
+            className={`px-4 py-2 rounded-lg text-xs font-mono font-bold cursor-pointer ${activeTab === "ping"
                 ? "bg-cyan-500 text-slate-950"
                 : "bg-slate-900 text-slate-300 border border-slate-800"
-            }`}
+              }`}
           >
             ⚡ Feature 2 &amp; 3: Ping &amp; QoS Statistics
           </button>
           <button
             type="button"
             onClick={() => setActiveTab("ports")}
-            className={`px-4 py-2 rounded-lg text-xs font-mono font-bold cursor-pointer ${
-              activeTab === "ports"
+            className={`px-4 py-2 rounded-lg text-xs font-mono font-bold cursor-pointer ${activeTab === "ports"
                 ? "bg-cyan-500 text-slate-950"
                 : "bg-slate-900 text-slate-300 border border-slate-800"
-            }`}
+              }`}
           >
             🔓 Bonus: Socket Port Scanner ({portResults.length})
           </button>
@@ -337,47 +345,57 @@ function ConnectivityWorkspace() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-800/70">
-                    {qosStats.map((s) => (
-                      <tr key={s.ip_address} className="hover:bg-slate-900/60">
-                        <td className="py-2.5 px-2 text-slate-100 font-sans font-medium">
-                          {s.hostname}
-                        </td>
-                        <td className="py-2.5 px-2 text-cyan-300 font-bold">
-                          {s.ip_address}
-                        </td>
-                        <td className="py-2.5 px-2 text-slate-300">
-                          {s.min_latency_ms} ms
-                        </td>
-                        <td className="py-2.5 px-2 text-emerald-400 font-bold">
-                          {s.avg_latency_ms} ms
-                        </td>
-                        <td className="py-2.5 px-2 text-amber-300 font-bold">
-                          {s.max_latency_ms} ms
-                        </td>
-                        <td className="py-2.5 px-2 text-purple-300">
-                          {s.jitter_ms} ms
-                        </td>
-                        <td className="py-2.5 px-2">
-                          <span
-                            className={`px-2 py-0.5 rounded text-[11px] font-bold ${
-                              s.packet_loss_pct >= 50
-                                ? "bg-rose-500/20 text-rose-300"
-                                : s.packet_loss_pct > 0
-                                ? "bg-amber-500/20 text-amber-300"
-                                : "bg-emerald-500/15 text-emerald-400"
-                            }`}
-                          >
-                            {s.packet_loss_pct}%
-                          </span>
-                        </td>
-                        <td className="py-2.5 px-2 text-slate-400">
-                          {s.packets_received}/{s.packets_sent}
-                        </td>
-                        <td className="py-2.5 px-2 text-slate-400 text-[10px]">
-                          {s.ping_method}
+                    {qosStats.length === 0 ? (
+                      <tr>
+                        <td
+                          colSpan={9}
+                          className="py-8 text-center text-slate-400 font-mono text-xs"
+                        >
+                          No network QoS statistics recorded yet. Execute a ping test above or run a subnet scan to populate per-host metrics.
                         </td>
                       </tr>
-                    ))}
+                    ) : (
+                      qosStats.map((s) => (
+                        <tr key={s.ip_address} className="hover:bg-slate-900/60">
+                          <td className="py-2.5 px-2 text-slate-100 font-sans font-medium">
+                            {s.hostname}
+                          </td>
+                          <td className="py-2.5 px-2 text-cyan-300 font-bold">
+                            {s.ip_address}
+                          </td>
+                          <td className="py-2.5 px-2 text-slate-300">
+                            {s.min_latency_ms} ms
+                          </td>
+                          <td className="py-2.5 px-2 text-emerald-400 font-bold">
+                            {s.avg_latency_ms} ms
+                          </td>
+                          <td className="py-2.5 px-2 text-amber-300 font-bold">
+                            {s.max_latency_ms} ms
+                          </td>
+                          <td className="py-2.5 px-2 text-purple-300">
+                            {s.jitter_ms} ms
+                          </td>
+                          <td className="py-2.5 px-2">
+                            <span
+                              className={`px-2 py-0.5 rounded text-[11px] font-bold ${s.packet_loss_pct >= 50
+                                  ? "bg-rose-500/20 text-rose-300"
+                                  : s.packet_loss_pct > 0
+                                    ? "bg-amber-500/20 text-amber-300"
+                                    : "bg-emerald-500/15 text-emerald-400"
+                                }`}
+                            >
+                              {s.packet_loss_pct}%
+                            </span>
+                          </td>
+                          <td className="py-2.5 px-2 text-slate-400">
+                            {s.packets_received}/{s.packets_sent}
+                          </td>
+                          <td className="py-2.5 px-2 text-slate-400 text-[10px]">
+                            {s.ping_method}
+                          </td>
+                        </tr>
+                      ))
+                    )}
                   </tbody>
                 </table>
               </div>
@@ -484,41 +502,51 @@ function ConnectivityWorkspace() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-800/70">
-                {portResults.map((p, idx) => (
-                  <tr key={`${p.ip_address}-${p.port}-${idx}`} className="hover:bg-slate-900/60">
-                    <td className="py-2.5 px-2 text-cyan-300 font-bold">{p.ip_address}</td>
-                    <td className="py-2.5 px-2 text-white font-bold">
-                      {p.port} / {p.protocol}
-                    </td>
-                    <td className="py-2.5 px-2">
-                      <span className="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-400 text-[10px] font-bold">
-                        {p.state}
-                      </span>
-                    </td>
-                    <td className="py-2.5 px-2 text-amber-300 font-semibold">
-                      {p.service_name}
-                    </td>
-                    <td className="py-2.5 px-2 text-slate-300 max-w-xs truncate">
-                      {p.banner}
-                    </td>
-                    <td className="py-2.5 px-2 text-purple-300 text-[11px]">
-                      {p.osi_layer}
-                    </td>
-                    <td className="py-2.5 px-2">
-                      <span
-                        className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                          p.risk_level === "CRITICAL"
-                            ? "bg-rose-500/20 text-rose-300"
-                            : p.risk_level === "HIGH"
-                            ? "bg-amber-500/20 text-amber-300"
-                            : "bg-cyan-500/15 text-cyan-300"
-                        }`}
-                      >
-                        {p.risk_level}
-                      </span>
+                {portResults.length === 0 ? (
+                  <tr>
+                    <td
+                      colSpan={7}
+                      className="py-10 text-center text-slate-400 font-mono text-xs"
+                    >
+                      No open socket ports recorded yet. Choose a target host above and click &ldquo;Launch Socket Port Scan&rdquo;.
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  portResults.map((p, idx) => (
+                    <tr key={`${p.ip_address}-${p.port}-${idx}`} className="hover:bg-slate-900/60">
+                      <td className="py-2.5 px-2 text-cyan-300 font-bold">{p.ip_address}</td>
+                      <td className="py-2.5 px-2 text-white font-bold">
+                        {p.port} / {p.protocol}
+                      </td>
+                      <td className="py-2.5 px-2">
+                        <span className="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-400 text-[10px] font-bold">
+                          {p.state}
+                        </span>
+                      </td>
+                      <td className="py-2.5 px-2 text-amber-300 font-semibold">
+                        {p.service_name}
+                      </td>
+                      <td className="py-2.5 px-2 text-slate-300 max-w-xs truncate">
+                        {p.banner}
+                      </td>
+                      <td className="py-2.5 px-2 text-purple-300 text-[11px]">
+                        {p.osi_layer}
+                      </td>
+                      <td className="py-2.5 px-2">
+                        <span
+                          className={`px-2 py-0.5 rounded text-[10px] font-bold ${p.risk_level === "CRITICAL"
+                              ? "bg-rose-500/20 text-rose-300"
+                              : p.risk_level === "HIGH"
+                                ? "bg-amber-500/20 text-amber-300"
+                                : "bg-cyan-500/15 text-cyan-300"
+                            }`}
+                        >
+                          {p.risk_level}
+                        </span>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>

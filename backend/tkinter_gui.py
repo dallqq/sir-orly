@@ -16,7 +16,7 @@ if str(BACKEND_ROOT) not in sys.path:
 from sqlmodel import Session, select  # noqa: E402
 from app.database import get_engine, init_db  # noqa: E402
 from app.models.device import DiscoveredDevice  # noqa: E402
-from app.models.telemetry import HostQoSStats  # noqa: E402
+from app.models.telemetry import HostQoSStats, PortScanResult  # noqa: E402
 from app.services.interface_detector import get_network_interfaces  # noqa: E402
 from app.services.network_scanner import run_subnet_discovery  # noqa: E402
 from app.services.ping_engine import ping_host  # noqa: E402
@@ -187,6 +187,7 @@ class NetPulseTkinterApp:
             self.dev_tree.heading(col, text=title)
             self.dev_tree.column(col, width=width, anchor="w")
         self.dev_tree.pack(fill="both", expand=True)
+        self.dev_tree.bind("<Double-1>", self._on_device_double_click)
 
         # Tab 2: Connectivity Testing & Network Statistics (Features 2 & 3)
         tab2 = self.ttk.Frame(self.nb, padding=10)
@@ -202,8 +203,27 @@ class NetPulseTkinterApp:
         self.ping_msg = self.ttk.Label(bar2, text="Enter any IP or select a host to measure RTT & Packet Loss %.")
         self.ping_msg.pack(side="left", padx=14)
 
+        # Live Ping Console Log
+        log_frame = self.ttk.Frame(tab2)
+        log_frame.pack(fill="x", pady=(0, 8))
+        self.ttk.Label(log_frame, text="Live Ping Sequence Console Stream:").pack(anchor="w", pady=(0, 2))
+        self.ping_log = self.tk.Text(
+            log_frame,
+            height=6,
+            bg="#070A12",
+            fg="#06B6D4",
+            insertbackground="#06B6D4",
+            font=("Consolas", 9),
+            relief="solid",
+            borderwidth=1,
+        )
+        self.ping_log.pack(fill="x", expand=True)
+        self.ping_log.insert("end", "[READY] Select host or click 'Run Ping Test' to stream per-sequence replies.\n")
+
+        # Network Statistics Table (Feature 3)
+        self.ttk.Label(tab2, text="Feature 3 — Per-Host Network QoS Statistics:").pack(anchor="w", pady=(4, 2))
         cols2 = ("hostname", "ip", "min_rtt", "avg_rtt", "max_rtt", "jitter", "loss")
-        self.stats_tree = self.ttk.Treeview(tab2, columns=cols2, show="headings", height=16)
+        self.stats_tree = self.ttk.Treeview(tab2, columns=cols2, show="headings", height=10)
         for col, title, width in (
             ("hostname", "Hostname", 220),
             ("ip", "IP Address", 140),
@@ -230,8 +250,26 @@ class NetPulseTkinterApp:
         self.ttk.Button(bar3, text="🔓 Scan Ports", style="Accent.TButton", command=self._run_port_scan).pack(side="left", padx=(0, 8))
         self.ttk.Button(bar3, text="🛡️ Evaluate Security Rules", style="Accent.TButton", command=self._run_security_eval).pack(side="left")
 
+        # Sub-Section A: Open Socket Ports
+        self.ttk.Label(tab3, text="Bonus Feature 5 — Open Socket Ports Discovered:").pack(anchor="w", pady=(0, 2))
+        cols_port = ("ip", "port", "state", "service", "banner", "risk")
+        self.port_tree = self.ttk.Treeview(tab3, columns=cols_port, show="headings", height=6)
+        for col, title, width in (
+            ("ip", "Host IP", 130),
+            ("port", "Port / Proto", 110),
+            ("state", "State", 85),
+            ("service", "Service", 120),
+            ("banner", "Service Banner", 280),
+            ("risk", "Risk", 100),
+        ):
+            self.port_tree.heading(col, text=title)
+            self.port_tree.column(col, width=width, anchor="w")
+        self.port_tree.pack(fill="x", pady=(0, 8))
+
+        # Sub-Section B: Security Recommendations
+        self.ttk.Label(tab3, text="Feature 5 — Security & Connectivity Recommendations:").pack(anchor="w", pady=(0, 2))
         cols3 = ("category", "severity", "target", "title", "recommendation")
-        self.sec_tree = self.ttk.Treeview(tab3, columns=cols3, show="headings", height=16)
+        self.sec_tree = self.ttk.Treeview(tab3, columns=cols3, show="headings", height=7)
         for col, title, width in (
             ("category", "Category", 130),
             ("severity", "Severity", 95),
@@ -243,10 +281,44 @@ class NetPulseTkinterApp:
             self.sec_tree.column(col, width=width, anchor="w")
         self.sec_tree.pack(fill="both", expand=True)
 
+    def _on_device_double_click(self, event) -> None:  # noqa: ANN001
+        selected = self.dev_tree.selection()
+        if not selected:
+            return
+        vals = self.dev_tree.item(selected[0], "values")
+        if vals:
+            ip = vals[0]
+            self.ping_entry.delete(0, "end")
+            self.ping_entry.insert(0, ip)
+            self.port_entry.delete(0, "end")
+            self.port_entry.insert(0, ip)
+            self.nb.select(1)
+
+    def _append_ping_log(self, target: str, res: dict) -> None:
+        self.ping_log.insert("end", f"--- Ping Statistics for {target} ({res.get('ping_method', 'ICMP')}) ---\n")
+        samples = res.get("samples") or []
+        for s in samples:
+            status = s.get("status", "SUCCESS")
+            seq = s.get("seq", 1)
+            count = s.get("count", 4)
+            rtt = s.get("rtt_ms")
+            ttl = s.get("ttl", 64)
+            if status == "SUCCESS" and rtt is not None:
+                self.ping_log.insert("end", f"  [{status}] seq={seq}/{count} Reply from {target}: bytes=32 time={rtt:.2f}ms TTL={ttl}\n")
+            else:
+                self.ping_log.insert("end", f"  [{status}] seq={seq}/{count} Request timed out from {target}\n")
+        self.ping_log.insert(
+            "end",
+            f"  Packets: Sent={res.get('packets_sent', 4)}, Recv={res.get('packets_received', 0)}, Loss={res.get('packet_loss_pct', 0):.1f}%\n"
+            f"  RTT: Min={res.get('min_latency_ms', 0):.2f}ms | Avg={res.get('avg_latency_ms', 0):.2f}ms | Max={res.get('max_latency_ms', 0):.2f}ms | Jitter={res.get('jitter_ms', 0):.2f}ms\n",
+        )
+        self.ping_log.see("end")
+
     def _refresh_tables(self) -> None:
         with Session(get_engine()) as session:
             devs = session.exec(select(DiscoveredDevice)).all()
             qos = session.exec(select(HostQoSStats)).all()
+            ports = session.exec(select(PortScanResult)).all()
             sec = evaluate_network_security(session)
 
         for item in self.dev_tree.get_children():
@@ -283,6 +355,22 @@ class NetPulseTkinterApp:
                 ),
             )
 
+        for item in self.port_tree.get_children():
+            self.port_tree.delete(item)
+        for p in ports:
+            self.port_tree.insert(
+                "",
+                "end",
+                values=(
+                    p.ip_address,
+                    f"{p.port}/{p.protocol}",
+                    p.state,
+                    p.service_name,
+                    p.banner[:36] if p.banner else "-",
+                    p.risk_level,
+                ),
+            )
+
         for item in self.sec_tree.get_children():
             self.sec_tree.delete(item)
         for a in sec["recommendations"]:
@@ -313,12 +401,15 @@ class NetPulseTkinterApp:
     def _run_ping(self) -> None:
         target = self.ping_entry.get().strip() or "127.0.0.1"
         self.ping_msg.configure(text=f"Pinging {target}...")
+        self.ping_log.insert("end", f"\n[START] Pinging target {target} (4 packets)...\n")
+        self.ping_log.see("end")
 
         def worker() -> None:
             with Session(get_engine()) as session:
                 res = asyncio.run(ping_host(session=session, target_ip=target, count=4))
             msg = f"Reply {target}: Avg={res['avg_latency_ms']}ms | Max={res['max_latency_ms']}ms | Loss={res['packet_loss_pct']}%"
             self.root.after(0, lambda: self.ping_msg.configure(text=msg))
+            self.root.after(0, lambda: self._append_ping_log(target, res))
             self.root.after(0, self._refresh_tables)
 
         threading.Thread(target=worker, daemon=True).start()

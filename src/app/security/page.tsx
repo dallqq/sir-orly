@@ -50,7 +50,7 @@ export default function SecurityAdvisorPage() {
     netpulseApi
       .getEmailOutbox()
       .then((res) => setOutbox(res.outbox))
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   const handleReEvaluate = async () => {
@@ -151,11 +151,10 @@ export default function SecurityAdvisorPage() {
               key={cat.id}
               type="button"
               onClick={() => setSelectedCategory(cat.id)}
-              className={`px-3.5 py-2 rounded-lg text-xs font-mono transition cursor-pointer ${
-                active
+              className={`px-3.5 py-2 rounded-lg text-xs font-mono transition cursor-pointer ${active
                   ? "bg-cyan-500 text-slate-950 font-bold"
                   : "bg-[#0F172A] text-slate-300 hover:bg-slate-800 border border-slate-800"
-              }`}
+                }`}
             >
               {cat.label} ({count})
             </button>
@@ -164,68 +163,109 @@ export default function SecurityAdvisorPage() {
       </div>
 
       {/* Categorized Security Recommendation Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {filteredAlerts.map((alert, idx) => {
-          const key = `${alert.category}-${alert.target_ip}-${idx}`;
-          const sevBadge =
-            alert.severity === "CRITICAL"
-              ? "bg-rose-500/20 text-rose-300 border-rose-500/40"
-              : alert.severity === "HIGH"
-              ? "bg-amber-500/20 text-amber-300 border-amber-500/40"
-              : alert.severity === "MEDIUM"
-              ? "bg-cyan-500/20 text-cyan-300 border-cyan-500/40"
-              : "bg-emerald-500/15 text-emerald-300 border-emerald-500/30";
-
-          return (
-            <div
-              key={key}
-              className="bg-[#0F172A] border border-slate-800 rounded-xl p-4 flex flex-col justify-between space-y-3"
+      {filteredAlerts.length === 0 ? (
+        <div className="bg-[#0F172A] border border-dashed border-slate-800 rounded-xl p-10 text-center space-y-3">
+          <div className="text-base font-bold text-white">
+            No Security Advisories in Category &ldquo;{selectedCategory}&rdquo;
+          </div>
+          <p className="text-xs text-slate-400 max-w-md mx-auto">
+            All evaluated hosts pass baseline checks for this category, or you can re-run rule evaluation across active subnet telemetry.
+          </p>
+          <div className="flex justify-center gap-3 pt-2">
+            <button
+              type="button"
+              disabled={evaluating}
+              onClick={handleReEvaluate}
+              className="px-4 py-2 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs font-mono cursor-pointer"
             >
-              <div className="space-y-2">
-                <div className="flex items-center justify-between gap-2 font-mono text-xs">
-                  <span className={`px-2 py-0.5 rounded border text-[10px] font-bold ${sevBadge}`}>
-                    {alert.severity} · {alert.category}
-                  </span>
-                  <span className="text-cyan-300">
-                    Target: {alert.target_ip} ({alert.hostname})
-                  </span>
-                </div>
+              🛡️ Re-Evaluate Rules Now
+            </button>
+            <button
+              type="button"
+              onClick={() => setSelectedCategory("ALL")}
+              className="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-mono cursor-pointer"
+            >
+              View All Categories
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {filteredAlerts.map((alert, idx) => {
+            const key = `${alert.category}-${alert.target_ip}-${idx}`;
+            const sevBadge =
+              alert.severity === "CRITICAL"
+                ? "bg-rose-500/20 text-rose-300 border-rose-500/40"
+                : alert.severity === "HIGH"
+                  ? "bg-amber-500/20 text-amber-300 border-amber-500/40"
+                  : alert.severity === "MEDIUM"
+                    ? "bg-cyan-500/20 text-cyan-300 border-cyan-500/40"
+                    : "bg-emerald-500/15 text-emerald-300 border-emerald-500/30";
 
-                <h3 className="text-sm font-bold text-white">{alert.title}</h3>
-                <p className="text-xs text-slate-400">{alert.description}</p>
-
-                <div className="p-3 rounded-lg bg-slate-950/90 border border-slate-800/90 space-y-1">
-                  <div className="text-[11px] font-mono text-emerald-400 font-semibold">
-                    Recommended Remediation:
+            return (
+              <div
+                key={key}
+                className="bg-[#0F172A] border border-slate-800 rounded-xl p-4 flex flex-col justify-between space-y-3"
+              >
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between gap-2 font-mono text-xs">
+                    <span className={`px-2 py-0.5 rounded border text-[10px] font-bold ${sevBadge}`}>
+                      {alert.severity} · {alert.category}
+                    </span>
+                    <span className="text-cyan-300">
+                      Target: {alert.target_ip} ({alert.hostname})
+                    </span>
                   </div>
-                  <p className="text-xs text-slate-200 whitespace-pre-line">
-                    {alert.recommendation}
-                  </p>
-                </div>
-              </div>
 
-              {alert.remediation_command && (
-                <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between gap-2">
-                  <code className="text-[11px] font-mono text-amber-300 bg-slate-950 px-2.5 py-1 rounded border border-slate-800 truncate flex-1">
-                    {alert.remediation_command}
-                  </code>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      navigator.clipboard?.writeText(alert.remediation_command);
-                      setCopiedId(key);
-                      setTimeout(() => setCopiedId(""), 1800);
-                    }}
-                    className="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-xs font-mono text-slate-200 shrink-0 cursor-pointer"
-                  >
-                    {copiedId === key ? "✓ Copied" : "Copy CLI"}
-                  </button>
+                  <h3 className="text-sm font-bold text-white">{alert.title}</h3>
+                  <p className="text-xs text-slate-400">{alert.description}</p>
+
+                  <div className="p-3 rounded-lg bg-slate-950/90 border border-slate-800/90 space-y-1">
+                    <div className="text-[11px] font-mono text-emerald-400 font-semibold">
+                      Recommended Remediation:
+                    </div>
+                    <p className="text-xs text-slate-200 whitespace-pre-line">
+                      {alert.recommendation}
+                    </p>
+                  </div>
                 </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
+
+                {alert.remediation_command && (
+                  <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between gap-2">
+                    <code className="text-[11px] font-mono text-amber-300 bg-slate-950 px-2.5 py-1 rounded border border-slate-800 truncate flex-1">
+                      {alert.remediation_command}
+                    </code>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        try {
+                          if (navigator.clipboard?.writeText) {
+                            navigator.clipboard.writeText(alert.remediation_command);
+                          } else {
+                            const ta = document.createElement("textarea");
+                            ta.value = alert.remediation_command;
+                            document.body.appendChild(ta);
+                            ta.select();
+                            document.execCommand("copy");
+                            document.body.removeChild(ta);
+                          }
+                        } catch {
+                          // ignore clipboard error
+                        }
+                        setCopiedId(key);
+                        setTimeout(() => setCopiedId(""), 1800);
+                      }}
+                      className="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-xs font-mono text-slate-200 shrink-0 cursor-pointer"
+                    >
+                      {copiedId === key ? "✓ Copied" : "Copy CLI"}
+                    </button>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
 
       {/* Bottom Split: Bonus Feature 4 (Email Notification + Local Outbox) & Bonus Feature 8 (Cloud DB Mode) */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">

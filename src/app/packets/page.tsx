@@ -27,6 +27,14 @@ function PacketsWorkspace() {
   const [packetLimit, setPacketLimit] = useState<number>(30);
   const [isCapturing, setIsCapturing] = useState<boolean>(false);
   const [statusBanner, setStatusBanner] = useState<string>("");
+  const [collapsedLayers, setCollapsedLayers] = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
+    const qFilter = searchParams.get("filter");
+    if (qFilter) {
+      setBpfFilter(qFilter);
+    }
+  }, [searchParams]);
 
   const loadSessionById = useCallback(async (id: number) => {
     try {
@@ -59,7 +67,7 @@ function PacketsWorkspace() {
         setProtocolBreakdown(detail.protocol_breakdown);
         setSelectedPacket(detail.packets[0] || null);
       })
-      .catch(() => {});
+      .catch(() => { });
     return () => {
       active = false;
     };
@@ -119,6 +127,22 @@ function PacketsWorkspace() {
     }
   };
 
+  const handleLoadDemoPcap = () => {
+    const demo =
+      sessions.find((s) => s.filename.toLowerCase().includes("demo")) ||
+      sessions[0];
+    if (demo) {
+      loadSessionById(demo.id);
+      setStatusBanner(`Loaded demo capture session: ${demo.filename}`);
+    } else {
+      setStatusBanner("Demo PCAP not found in session list.");
+    }
+  };
+
+  const toggleLayer = (layerKey: string) => {
+    setCollapsedLayers((prev) => ({ ...prev, [layerKey]: !prev[layerKey] }));
+  };
+
   const getProtocolBadgeClass = (proto: string) => {
     switch (proto.toUpperCase()) {
       case "ARP":
@@ -172,6 +196,14 @@ function PacketsWorkspace() {
               </>
             )}
 
+            <button
+              type="button"
+              onClick={handleLoadDemoPcap}
+              className="px-3.5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-cyan-500/40 text-cyan-300 font-mono text-xs font-semibold cursor-pointer"
+            >
+              🏫 Load Demo PCAP
+            </button>
+
             <label className="px-3.5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-mono text-xs cursor-pointer">
               📂 Upload .pcap
               <input
@@ -201,11 +233,10 @@ function PacketsWorkspace() {
                   key={chip}
                   type="button"
                   onClick={() => setBpfFilter(chip)}
-                  className={`px-2 py-1 rounded text-[11px] font-mono cursor-pointer ${
-                    bpfFilter === chip
+                  className={`px-2 py-1 rounded text-[11px] font-mono cursor-pointer ${bpfFilter === chip
                       ? "bg-cyan-500 text-slate-950 font-bold"
                       : "bg-slate-900 text-slate-400 hover:text-white border border-slate-800"
-                  }`}
+                    }`}
                 >
                   {chip}
                 </button>
@@ -299,44 +330,54 @@ function PacketsWorkspace() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800/60">
-              {packets.map((pkt) => {
-                const isSelected = selectedPacket?.index === pkt.index;
-                return (
-                  <tr
-                    key={pkt.index}
-                    onClick={() => setSelectedPacket(pkt)}
-                    className={`cursor-pointer transition ${
-                      isSelected
-                        ? "bg-cyan-500/20 text-white"
-                        : "hover:bg-slate-900/80 text-slate-200"
-                    }`}
+              {packets.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={7}
+                    className="py-12 text-center text-slate-400 font-mono text-xs"
                   >
-                    <td className="py-1.5 px-3 text-slate-400">{pkt.index}</td>
-                    <td className="py-1.5 px-3 text-slate-300">{pkt.timestamp}</td>
-                    <td className="py-1.5 px-3 text-cyan-300">
-                      {pkt.src_ip}
-                      {pkt.src_port ? `:${pkt.src_port}` : ""}
-                    </td>
-                    <td className="py-1.5 px-3 text-emerald-300">
-                      {pkt.dst_ip}
-                      {pkt.dst_port ? `:${pkt.dst_port}` : ""}
-                    </td>
-                    <td className="py-1.5 px-3">
-                      <span
-                        className={`px-1.5 py-0.5 rounded border text-[10px] font-bold ${getProtocolBadgeClass(
-                          pkt.protocol
-                        )}`}
-                      >
-                        {pkt.protocol}
-                      </span>
-                    </td>
-                    <td className="py-1.5 px-3 text-slate-300">{pkt.length} B</td>
-                    <td className="py-1.5 px-3 text-slate-300 truncate max-w-md">
-                      {pkt.info}
-                    </td>
-                  </tr>
-                );
-              })}
+                    No frames captured yet in this session. Click &ldquo;🦈 Start Capture&rdquo;, &ldquo;📂 Upload .pcap&rdquo;, or &ldquo;🏫 Load Demo PCAP&rdquo;.
+                  </td>
+                </tr>
+              ) : (
+                packets.map((pkt) => {
+                  const isSelected = selectedPacket?.index === pkt.index;
+                  return (
+                    <tr
+                      key={pkt.index}
+                      onClick={() => setSelectedPacket(pkt)}
+                      className={`cursor-pointer transition ${isSelected
+                          ? "bg-cyan-500/20 text-white"
+                          : "hover:bg-slate-900/80 text-slate-200"
+                        }`}
+                    >
+                      <td className="py-1.5 px-3 text-slate-400">{pkt.index}</td>
+                      <td className="py-1.5 px-3 text-slate-300">{pkt.timestamp}</td>
+                      <td className="py-2 px-3 text-cyan-300">
+                        {pkt.src_ip}
+                        {pkt.src_port ? `:${pkt.src_port}` : ""}
+                      </td>
+                      <td className="py-2 px-3 text-emerald-300">
+                        {pkt.dst_ip}
+                        {pkt.dst_port ? `:${pkt.dst_port}` : ""}
+                      </td>
+                      <td className="py-2 px-3">
+                        <span
+                          className={`px-1.5 py-0.5 rounded border text-[10px] font-bold ${getProtocolBadgeClass(
+                            pkt.protocol
+                          )}`}
+                        >
+                          {pkt.protocol}
+                        </span>
+                      </td>
+                      <td className="py-2 px-3 text-slate-300">{pkt.length} B</td>
+                      <td className="py-2 px-3 text-slate-300 truncate max-w-md">
+                        {pkt.info}
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
             </tbody>
           </table>
         </div>
@@ -344,14 +385,19 @@ function PacketsWorkspace() {
 
       {/* Bottom Split: Pane 2 (OSI Layer 2-7 Dissection Tree) & Pane 3 (Hex/ASCII Byte Dump) */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* Pane 2: OSI Layer 2, 3, 4, 7 Dissection Tree */}
+        {/* Pane 2: OSI Layer 2, 3, 4, 7 Dissection Tree (Collapsible Accordion) */}
         <div className="bg-[#0F172A] border border-slate-800 rounded-xl overflow-hidden">
-          <div className="px-4 py-2.5 bg-slate-900 border-b border-slate-800 text-xs font-mono text-cyan-400 font-bold">
-            PANE 2 — OSI &amp; TCP/IP PROTOCOL LAYER DISSECTION TREE{" "}
-            {selectedPacket ? `(Packet #${selectedPacket.index})` : ""}
+          <div className="px-4 py-2.5 bg-slate-900 border-b border-slate-800 text-xs font-mono text-cyan-400 font-bold flex items-center justify-between">
+            <span>
+              PANE 2 — OSI &amp; TCP/IP PROTOCOL LAYER DISSECTION TREE{" "}
+              {selectedPacket ? `(Packet #${selectedPacket.index})` : ""}
+            </span>
+            <span className="text-[11px] text-slate-400 font-normal">
+              Click headers to collapse/expand
+            </span>
           </div>
           {selectedPacket ? (
-            <div className="p-4 space-y-3 text-xs font-mono max-h-80 overflow-y-auto">
+            <div className="p-4 space-y-2.5 text-xs font-mono max-h-80 overflow-y-auto">
               {(
                 [
                   ["layer_2_datalink", "text-purple-300 border-purple-500/30"],
@@ -362,16 +408,34 @@ function PacketsWorkspace() {
               ).map(([layerKey, colorCls]) => {
                 const layerObj = selectedPacket.osi_layers[layerKey] || {};
                 const title = String(layerObj.layer || layerKey);
+                const isCollapsed = !!collapsedLayers[layerKey];
+                const fieldEntries = Object.entries(layerObj).filter(
+                  ([k]) => k !== "layer"
+                );
+
                 return (
                   <div
                     key={layerKey}
-                    className={`p-3 rounded-lg bg-slate-950/90 border ${colorCls} space-y-1`}
+                    className={`rounded-lg bg-slate-950/90 border ${colorCls} overflow-hidden`}
                   >
-                    <div className="font-bold">▾ {title}</div>
-                    <div className="pl-4 space-y-0.5 text-[11px] text-slate-300">
-                      {Object.entries(layerObj)
-                        .filter(([k]) => k !== "layer")
-                        .map(([k, v]) => (
+                    <button
+                      type="button"
+                      onClick={() => toggleLayer(layerKey)}
+                      className="w-full px-3 py-2 flex items-center justify-between text-left font-bold cursor-pointer hover:bg-slate-900/60"
+                    >
+                      <span className="flex items-center gap-1.5">
+                        <span className="text-cyan-400">
+                          {isCollapsed ? "▸" : "▾"}
+                        </span>{" "}
+                        {title}
+                      </span>
+                      <span className="text-[10px] text-slate-500 font-normal">
+                        {fieldEntries.length} fields
+                      </span>
+                    </button>
+                    {!isCollapsed && (
+                      <div className="px-3 pb-2.5 pt-1 border-t border-slate-800/60 space-y-1 text-[11px] text-slate-300">
+                        {fieldEntries.map(([k, v]) => (
                           <div key={k} className="flex justify-between gap-4">
                             <span className="text-slate-400">{k}:</span>
                             <span className="text-slate-100 text-right truncate">
@@ -379,7 +443,8 @@ function PacketsWorkspace() {
                             </span>
                           </div>
                         ))}
-                    </div>
+                      </div>
+                    )}
                   </div>
                 );
               })}

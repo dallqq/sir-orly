@@ -360,3 +360,127 @@ export function InteractiveSubnetTopology({
   );
 }
 
+/**
+ * 5. OSI Protocol Distribution Donut Chart (Tremor / Cloudflare Radar style)
+ */
+export function OsiProtocolDonutChart({
+  protocolCounts,
+  title = "OSI Protocol Distribution",
+}: {
+  protocolCounts?: Record<string, number>;
+  title?: string;
+}) {
+  const defaultCounts: Record<string, number> = {
+    TCP: 48,
+    UDP: 22,
+    ICMP: 16,
+    ARP: 8,
+    DNS: 6,
+  };
+
+  const raw =
+    protocolCounts && Object.keys(protocolCounts).length > 0
+      ? protocolCounts
+      : defaultCounts;
+
+  const colorMap: Record<string, string> = {
+    TCP: "#06b6d4",
+    UDP: "#14b8a6",
+    ICMP: "#3b82f6",
+    ARP: "#a855f7",
+    HTTP: "#10b981",
+    DNS: "#f59e0b",
+    HTTPS: "#06b6d4",
+  };
+
+  const entries = Object.entries(raw).map(([name, count]) => ({
+    name,
+    count,
+    color: colorMap[name.toUpperCase()] || "#64748b",
+  }));
+
+  const total = entries.reduce((acc, e) => acc + e.count, 0) || 1;
+
+  const size = 180;
+  const strokeWidth = 24;
+  const radius = (size - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
+
+  let accumulated = 0;
+  const slices = entries.map((e) => {
+    const fraction = e.count / total;
+    const strokeDasharray = `${fraction * circumference} ${circumference}`;
+    const strokeDashoffset = -accumulated * circumference;
+    accumulated += fraction;
+    return {
+      ...e,
+      fraction,
+      percentage: Math.round(fraction * 100),
+      strokeDasharray,
+      strokeDashoffset,
+    };
+  });
+
+  return (
+    <div className="w-full space-y-3">
+      {title && (
+        <div className="flex items-center justify-between text-xs font-mono">
+          <span className="text-slate-300 font-semibold">{title}</span>
+          <span className="text-cyan-400 font-bold">{total} Total Frames</span>
+        </div>
+      )}
+      <div className="flex flex-col sm:flex-row items-center justify-center gap-4 py-1">
+        <div className="relative w-[140px] h-[140px] shrink-0">
+          <svg viewBox={`0 0 ${size} ${size}`} className="w-full h-full -rotate-90">
+            <circle
+              cx={size / 2}
+              cy={size / 2}
+              r={radius}
+              fill="none"
+              stroke="#1e293b"
+              strokeWidth={strokeWidth}
+            />
+            {slices.map((slice) => (
+              <circle
+                key={slice.name}
+                cx={size / 2}
+                cy={size / 2}
+                r={radius}
+                fill="none"
+                stroke={slice.color}
+                strokeWidth={strokeWidth}
+                strokeDasharray={slice.strokeDasharray}
+                strokeDashoffset={slice.strokeDashoffset}
+                strokeLinecap="round"
+                className="transition-all duration-500"
+              />
+            ))}
+          </svg>
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-center font-mono pointer-events-none">
+            <span className="text-lg font-bold text-white">{total}</span>
+            <span className="text-[10px] text-slate-400">Frames</span>
+          </div>
+        </div>
+
+        <div className="w-full sm:flex-1 space-y-1.5 text-xs font-mono">
+          {slices.map((s) => (
+            <div key={s.name} className="flex items-center justify-between gap-2">
+              <span className="flex items-center gap-1.5 truncate">
+                <span
+                  className="h-2 w-2 rounded-full shrink-0"
+                  style={{ backgroundColor: s.color }}
+                />
+                <span className="text-slate-200">{s.name}</span>
+              </span>
+              <span className="text-slate-400">
+                <span className="text-slate-300 font-bold">{s.count}</span> ({s.percentage}%)
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+

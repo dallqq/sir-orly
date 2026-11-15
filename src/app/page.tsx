@@ -3,6 +3,7 @@
 import {
   BandwidthThroughputChart,
   LiveLatencyAreaChart,
+  OsiProtocolDonutChart,
 } from "@/components/dashboard/TelemetryCharts";
 import { netpulseApi } from "@/lib/api";
 import { useNetPulseStore } from "@/store/useNetPulseStore";
@@ -26,15 +27,16 @@ export default function NocOverviewPage() {
   } = useNetPulseStore();
 
   const [generatingPdf, setGeneratingPdf] = useState(false);
+  const [chartView, setChartView] = useState<"bandwidth" | "protocol">("bandwidth");
 
   const onlineDevices = devices.filter((d) => d.is_online);
   const validRtts = qosStats.filter((s) => s.avg_latency_ms > 0);
   const avgLatency =
     validRtts.length > 0
       ? (
-          validRtts.reduce((acc, s) => acc + s.avg_latency_ms, 0) /
-          validRtts.length
-        ).toFixed(2)
+        validRtts.reduce((acc, s) => acc + s.avg_latency_ms, 0) /
+        validRtts.length
+      ).toFixed(2)
       : "1.42";
   const maxLatency =
     validRtts.length > 0
@@ -43,9 +45,9 @@ export default function NocOverviewPage() {
   const avgPacketLoss =
     qosStats.length > 0
       ? (
-          qosStats.reduce((acc, s) => acc + s.packet_loss_pct, 0) /
-          qosStats.length
-        ).toFixed(1)
+        qosStats.reduce((acc, s) => acc + s.packet_loss_pct, 0) /
+        qosStats.length
+      ).toFixed(1)
       : "0.0";
 
   const handleQuickReport = async () => {
@@ -147,9 +149,8 @@ export default function NocOverviewPage() {
                 return (
                   <span
                     key={i}
-                    className={`h-2.5 flex-1 rounded-sm ${
-                      online ? "bg-emerald-500" : "bg-rose-500"
-                    }`}
+                    className={`h-2.5 flex-1 rounded-sm ${online ? "bg-emerald-500" : "bg-rose-500"
+                      }`}
                   />
                 );
               }
@@ -232,24 +233,61 @@ export default function NocOverviewPage() {
           <LiveLatencyAreaChart data={telemetrySeries} />
         </div>
 
-        <div className="bg-[#0F172A] border border-slate-800 rounded-xl p-4">
-          <div className="flex items-center justify-between mb-3">
-            <div>
-              <h2 className="text-sm font-bold text-white">
-                NIC Bandwidth Throughput
-              </h2>
-              <p className="text-xs text-slate-400">
-                Live TX / RX kbps via Python psutil
-              </p>
+        <div className="bg-[#0F172A] border border-slate-800 rounded-xl p-4 flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <div>
+                <h2 className="text-sm font-bold text-white">
+                  {chartView === "bandwidth"
+                    ? "NIC Bandwidth Throughput"
+                    : "OSI Protocol Distribution"}
+                </h2>
+                <p className="text-xs text-slate-400">
+                  {chartView === "bandwidth"
+                    ? "Live TX / RX kbps via Python psutil"
+                    : "L2–L7 Network Packet Breakdown"}
+                </p>
+              </div>
+              <div className="flex items-center gap-1 font-mono text-[11px]">
+                <button
+                  type="button"
+                  onClick={() => setChartView("bandwidth")}
+                  className={`px-2 py-0.5 rounded cursor-pointer ${chartView === "bandwidth"
+                      ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/40"
+                      : "text-slate-400 hover:text-white"
+                    }`}
+                >
+                  Bandwidth
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setChartView("protocol")}
+                  className={`px-2 py-0.5 rounded cursor-pointer ${chartView === "protocol"
+                      ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/40"
+                      : "text-slate-400 hover:text-white"
+                    }`}
+                >
+                  OSI Donut
+                </button>
+              </div>
             </div>
+
+            {chartView === "bandwidth" ? (
+              <BandwidthThroughputChart data={telemetrySeries} />
+            ) : (
+              <OsiProtocolDonutChart />
+            )}
+          </div>
+
+          <div className="pt-2 mt-2 border-t border-slate-800/80 flex items-center justify-between text-xs font-mono">
+            <span className="text-slate-400">Deep Inspection:</span>
             <Link
               href="/packets"
-              className="text-xs font-mono text-cyan-400 hover:underline"
+              className="text-cyan-400 hover:underline flex items-center gap-1"
             >
               Wireshark 🦈 →
             </Link>
           </div>
-          <BandwidthThroughputChart data={telemetrySeries} />
         </div>
       </div>
 
@@ -317,11 +355,10 @@ export default function NocOverviewPage() {
                     <tr key={dev.ip_address} className="hover:bg-slate-900/60">
                       <td className="py-2.5 px-2">
                         <span
-                          className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold ${
-                            dev.is_online
+                          className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold ${dev.is_online
                               ? "bg-emerald-500/15 text-emerald-400"
                               : "bg-rose-500/15 text-rose-400"
-                          }`}
+                            }`}
                         >
                           ● {dev.is_online ? "ONLINE" : "OFFLINE"}
                         </span>
@@ -393,39 +430,59 @@ export default function NocOverviewPage() {
               </Link>
             </div>
 
-            <div className="space-y-2.5">
-              {securityAlerts.slice(0, 4).map((alert, idx) => {
-                const badgeColor =
-                  alert.severity === "CRITICAL"
-                    ? "bg-rose-500/20 text-rose-300 border-rose-500/40"
-                    : alert.severity === "HIGH"
-                    ? "bg-amber-500/20 text-amber-300 border-amber-500/40"
-                    : "bg-cyan-500/15 text-cyan-300 border-cyan-500/30";
-                return (
-                  <div
-                    key={alert.id || idx}
-                    className="p-3 rounded-lg bg-slate-950/80 border border-slate-800 space-y-1"
+            {securityAlerts.length === 0 ? (
+              <div className="p-6 rounded-lg bg-slate-950/70 border border-dashed border-slate-800 text-center space-y-2">
+                <div className="text-xs font-semibold text-slate-300">
+                  No Active Security Advisories
+                </div>
+                <p className="text-[11px] text-slate-400">
+                  Subnet baseline satisfies standard security parameters, or evaluate rules below.
+                </p>
+                <div className="pt-1">
+                  <button
+                    type="button"
+                    onClick={() => triggerSeedCampusLab()}
+                    className="px-3 py-1.5 rounded-lg bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-500/40 text-cyan-300 font-mono text-[11px] cursor-pointer"
                   >
-                    <div className="flex items-center justify-between gap-2">
-                      <span
-                        className={`text-[10px] font-mono font-bold px-1.5 py-0.5 rounded border ${badgeColor}`}
-                      >
-                        {alert.severity} · {alert.category}
-                      </span>
-                      <span className="text-[11px] font-mono text-slate-400">
-                        {alert.target_ip}
-                      </span>
+                    🏫 Seed Campus Lab Advisories
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-2.5">
+                {securityAlerts.slice(0, 4).map((alert, idx) => {
+                  const badgeColor =
+                    alert.severity === "CRITICAL"
+                      ? "bg-rose-500/20 text-rose-300 border-rose-500/40"
+                      : alert.severity === "HIGH"
+                        ? "bg-amber-500/20 text-amber-300 border-amber-500/40"
+                        : "bg-cyan-500/15 text-cyan-300 border-cyan-500/30";
+                  return (
+                    <div
+                      key={alert.id || idx}
+                      className="p-3 rounded-lg bg-slate-950/80 border border-slate-800 space-y-1"
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <span
+                          className={`text-[10px] font-mono font-bold px-1.5 py-0.5 rounded border ${badgeColor}`}
+                        >
+                          {alert.severity} · {alert.category}
+                        </span>
+                        <span className="text-[11px] font-mono text-slate-400">
+                          {alert.target_ip}
+                        </span>
+                      </div>
+                      <div className="text-xs font-semibold text-slate-100">
+                        {alert.title}
+                      </div>
+                      <p className="text-[11px] text-slate-400 line-clamp-2">
+                        {alert.recommendation}
+                      </p>
                     </div>
-                    <div className="text-xs font-semibold text-slate-100">
-                      {alert.title}
-                    </div>
-                    <p className="text-[11px] text-slate-400 line-clamp-2">
-                      {alert.recommendation}
-                    </p>
-                  </div>
-                );
-              })}
-            </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           <div className="pt-3 mt-3 border-t border-slate-800 flex items-center justify-between text-xs font-mono">

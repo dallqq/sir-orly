@@ -63,7 +63,7 @@ export default function DiagnosticReportsPage() {
         setActiveReport(detail.report);
         setActivePayload(detail.payload as ReportPayload);
       })
-      .catch(() => {});
+      .catch(() => { });
     return () => {
       active = false;
     };
@@ -335,11 +335,34 @@ export default function DiagnosticReportsPage() {
             </div>
           </div>
 
-          {/* 5. Security Recommendations Summary */}
-          <div className="space-y-2">
+          {/* 5. Open Ports & Security Recommendations Summary */}
+          <div className="space-y-3">
             <h3 className="text-sm font-bold text-cyan-400 font-mono uppercase">
-              Section 4 — Security &amp; Connectivity Recommendations ({secRecs.length} Items)
+              Section 4 — Open Ports &amp; Security Recommendations ({secRecs.length} Advisories)
             </h3>
+
+            {/* Open Ports Quick Summary if detected hosts have open ports */}
+            {detectedDevices.some((d) => d.open_ports_summary) && (
+              <div className="p-3 rounded-lg bg-slate-950 border border-slate-800 space-y-1.5 text-xs font-mono">
+                <div className="text-amber-300 font-bold text-[11px] uppercase tracking-wider">
+                  Audited Open Network Service Ports:
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {detectedDevices
+                    .filter((d) => d.open_ports_summary)
+                    .map((d) => (
+                      <span
+                        key={d.ip_address}
+                        className="px-2 py-1 rounded bg-slate-900 border border-slate-700 text-slate-200"
+                      >
+                        <span className="text-cyan-300 font-bold">{d.ip_address}</span>:{" "}
+                        <span className="text-amber-300">{d.open_ports_summary}</span>
+                      </span>
+                    ))}
+                </div>
+              </div>
+            )}
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
               {secRecs.map((s, idx) => (
                 <div

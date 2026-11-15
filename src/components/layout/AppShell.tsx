@@ -13,6 +13,33 @@ interface NavItem {
   featureTag: string;
 }
 
+const ROUTE_INFO: Record<string, { label: string; sub: string }> = {
+  "/": {
+    label: "NOC Overview Dashboard",
+    sub: "Real-Time Telemetry & Metric Highlights",
+  },
+  "/discovery": {
+    label: "Network Discovery & Interactive Topology",
+    sub: "Feature 1 — Layer 2/3 Subnet Enumeration & Map",
+  },
+  "/connectivity": {
+    label: "Connectivity Testing, Statistics & Port Scanner",
+    sub: "Features 2 & 3 + Bonus Socket Scanner",
+  },
+  "/packets": {
+    label: "Wireshark Packet Analyzer",
+    sub: "Course Topic 7 & Bonus .pcap Interoperability",
+  },
+  "/security": {
+    label: "Security Advisor & Alert Center",
+    sub: "Feature 5 + Bonus Email Alerts & Cloud DB",
+  },
+  "/reports": {
+    label: "Diagnostic Report Center",
+    sub: "Feature 4 + Bonus ReportLab PDF Generator",
+  },
+};
+
 const NAV_ITEMS: NavItem[] = [
   {
     href: "/",
@@ -299,6 +326,34 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
         {/* Page Content Container */}
         <main className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6">
+          {/* Breadcrumb Navigation Bar (`shadcn-admin` specification) */}
+          {(() => {
+            const currentRoute =
+              ROUTE_INFO[pathname] ||
+              ROUTE_INFO["/" + pathname.split("/")[1]] || {
+                label: "Network Operations Center",
+                sub: "Live Network Telemetry & Diagnostics",
+              };
+            return (
+              <div className="flex flex-wrap items-center justify-between pb-3 border-b border-slate-800/80 text-xs font-mono gap-2">
+                <div className="flex items-center gap-2 text-slate-400">
+                  <Link
+                    href="/"
+                    className="hover:text-cyan-400 transition font-bold text-slate-300"
+                  >
+                    NetPulse NOC
+                  </Link>
+                  <span className="text-slate-600">/</span>
+                  <span className="text-cyan-300 font-semibold">
+                    {currentRoute.label}
+                  </span>
+                </div>
+                <div className="text-slate-400 text-[11px] font-mono">
+                  {currentRoute.sub}
+                </div>
+              </div>
+            );
+          })()}
           {children}
         </main>
       </div>
