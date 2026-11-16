@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    NetPulse NOC — One-Click Windows Launcher (CCS 234 Final Project)
+    NetPulse NOC - One-Click Windows Launcher (CCS 234 Final Project)
 .DESCRIPTION
     Starts the Python FastAPI Networking & WebSocket Backend (Port 8000),
     Next.js 16 Cyber-NOC Web Dashboard (Port 3000), and optionally opens
@@ -17,8 +17,8 @@ $BackendDir = Join-Path $RootDir "backend"
 $VenvPython = Join-Path $BackendDir ".venv\Scripts\python.exe"
 
 Write-Host "=====================================================================" -ForegroundColor Cyan
-Write-Host "  NetPulse NOC — Network Monitoring & Performance Analysis System" -ForegroundColor Cyan
-Write-Host "  Course: CCS 234 (Communications & Networking - WVSU CICT)" -ForegroundColor DarkCyan
+Write-Host "  NetPulse NOC - Network Monitoring and Performance Analysis System" -ForegroundColor Cyan
+Write-Host "  Course: CCS 234 (Communications and Networking - WVSU CICT)" -ForegroundColor DarkCyan
 Write-Host "=====================================================================" -ForegroundColor Cyan
 
 if (-not (Test-Path $VenvPython)) {
@@ -28,7 +28,7 @@ if (-not (Test-Path $VenvPython)) {
 }
 
 if ($CheckOnly) {
-    Write-Host "[*] Running NetPulse Backend & Tkinter Self-Check..." -ForegroundColor Green
+    Write-Host "[*] Running NetPulse Backend and Tkinter Self-Check..." -ForegroundColor Green
     & $VenvPython "$BackendDir\tkinter_gui.py" --self-test
     exit $LASTEXITCODE
 }
