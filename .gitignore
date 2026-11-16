@@ -57,3 +57,8 @@ backend/captures/*.pcapng
 backend/reports/*.pdf
 backend/reports/*.csv
 backend/reports/*.json
+
+# PyInstaller & Tauri Desktop Build Artifacts
+src-tauri/target/
+backend/build/
+backend/backend.spec

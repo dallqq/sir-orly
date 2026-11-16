@@ -1,6 +1,12 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  output: "export",
+  distDir: "out",
+  images: {
+    unoptimized: true,
+  },
+  trailingSlash: true,
   outputFileTracingRoot: import.meta.dirname,
   experimental: {
     cpus: 1,

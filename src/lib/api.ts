@@ -4,9 +4,9 @@
  */
 
 export const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/api/v1";
+  process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:8000/api/v1";
 export const WS_MONITOR_URL =
-  process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:8000/ws/monitor";
+  process.env.NEXT_PUBLIC_WS_URL || "ws://127.0.0.1:8000/ws/monitor";
 
 export interface NetworkInterfaceInfo {
   interface_name: string;

@@ -76,3 +76,7 @@ Read and execute the files in this folder in the following order:
    Guide to the custom Antigravity Agentic Skills located in [`.agents/skills/`](../.agents/skills/) and how to invoke each skill/subagent for each phase of development.
 5. [**`05-REQUIREMENTS-GAP-ANALYSIS-AND-FIX-CHECKLIST.md`**](./05-REQUIREMENTS-GAP-ANALYSIS-AND-FIX-CHECKLIST.md)  
    Comprehensive audit comparing the 6-page CCS 234 Final Project requirements & grading rubric against the current codebase, with an actionable step-by-step fix checklist.
+6. [**`06-DESKTOP-TAURI-NEXTJS-FLASK-SQLITE.md`**](./06-DESKTOP-TAURI-NEXTJS-FLASK-SQLITE.md)  
+   Complete packaging guide for Desktop distribution using Tauri v2, Next.js 16 static export, frozen Flask WSGI sidecar (Waitress/PyInstaller), and local SQLite WAL storage.
+7. [**`07-MOBILE-APK-TAURI2-CHAQUOPY-SQLITE.md`**](./07-MOBILE-APK-TAURI2-CHAQUOPY-SQLITE.md)  
+   Complete packaging guide for Mobile Android APK distribution using Tauri 2, Next.js 16 static export, embedded CPython runtime via Chaquopy, unprivileged Android networking engine, and private sandbox SQLite.
