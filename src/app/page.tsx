@@ -128,14 +128,14 @@ export default function NocOverviewPage() {
             {/* Card Header */}
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-lg font-extrabold text-slate-900 tracking-tight">
+                <h1 className="text-2xl sm:text-3xl font-heading font-semibold text-slate-900 tracking-tight">
                   Speed Test &amp; QoS Gauge
                 </h1>
-                <p className="text-xs text-slate-400">
+                <p className="text-xs text-slate-500 font-normal mt-0.5">
                   Test your throughput, subnet latency &amp; jitter
                 </p>
               </div>
-              <span className="px-3 py-1 rounded-full text-[11px] font-mono font-bold bg-blue-50 text-blue-600 border border-blue-100">
+              <span className="px-3 py-1 rounded-full text-[11px] font-typewriter font-medium bg-blue-50 text-blue-600 border border-blue-100">
                 {speedBenchmark.isRunning ? `● ${speedBenchmark.phase}` : "● READY"}
               </span>
             </div>
@@ -152,7 +152,7 @@ export default function NocOverviewPage() {
                 </div>
                 <div className="min-w-0">
                   <div className="text-[11px] text-slate-400">Server / NIC</div>
-                  <div className="text-xs font-extrabold text-slate-900 truncate">
+                  <div className="text-xs font-heading font-medium text-slate-900 truncate">
                     HYPERNET · {activeInterface.interface_name}
                   </div>
                 </div>
@@ -167,7 +167,7 @@ export default function NocOverviewPage() {
                 </div>
                 <div className="min-w-0">
                   <div className="text-[11px] text-slate-400">Local IP / CIDR</div>
-                  <div className="text-xs font-extrabold text-slate-900 font-mono truncate">
+                  <div className="text-xs font-typewriter font-medium text-slate-900 truncate">
                     {activeInterface.local_ip}
                   </div>
                 </div>
@@ -188,18 +188,18 @@ export default function NocOverviewPage() {
             {/* Download / Upload Volume Summary Row (Screenshot 2 Left) */}
             <div className="grid grid-cols-2 gap-4 pt-2 border-t border-slate-100 text-center">
               <div>
-                <div className="inline-flex items-center gap-1 text-xs font-semibold text-slate-400">
-                  <span className="text-blue-600 font-bold">↓</span> Download Volume
+                <div className="inline-flex items-center gap-1 text-xs font-heading font-medium text-slate-400">
+                  <span className="text-blue-600 font-medium">↓</span> Download Volume
                 </div>
-                <div className="text-xl font-extrabold text-slate-900 mt-0.5">
+                <div className="text-2xl sm:text-3xl font-semibold font-typewriter text-slate-900 mt-0.5">
                   {downloadGb} GB
                 </div>
               </div>
               <div className="border-l border-slate-100">
-                <div className="inline-flex items-center gap-1 text-xs font-semibold text-slate-400">
-                  <span className="text-blue-600 font-bold">↑</span> Upload Volume
+                <div className="inline-flex items-center gap-1 text-xs font-heading font-medium text-slate-400">
+                  <span className="text-blue-600 font-medium">↑</span> Upload Volume
                 </div>
-                <div className="text-xl font-extrabold text-slate-900 mt-0.5">
+                <div className="text-2xl sm:text-3xl font-semibold font-typewriter text-slate-900 mt-0.5">
                   {uploadGb} GB
                 </div>
               </div>
@@ -213,7 +213,7 @@ export default function NocOverviewPage() {
                   ? stopSpeedBenchmark()
                   : runSpeedBenchmark()
               }
-              className={`w-full py-3.5 rounded-full font-bold text-sm transition-all duration-200 ease-out cursor-pointer ${
+              className={`w-full py-3.5 rounded-full font-heading font-semibold text-sm transition-all duration-200 ease-out cursor-pointer ${
                 speedBenchmark.isRunning
                   ? "bg-rose-500 hover:bg-rose-600 text-white"
                   : "hyper-hero-gradient hover:brightness-105 text-white"
@@ -274,26 +274,26 @@ export default function NocOverviewPage() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
               <div className="flex flex-wrap items-center gap-6 sm:gap-8">
                 <div>
-                  <div className="text-xs font-medium text-slate-400">
+                  <div className="text-xs font-heading font-medium text-slate-400">
                     Remaining Telemetry Quota
                   </div>
-                  <div className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight mt-0.5">
+                  <div className="text-3xl sm:text-4xl font-semibold font-typewriter text-slate-900 tracking-tight mt-0.5">
                     {quotaGb} GB
                   </div>
                 </div>
                 <div>
-                  <div className="text-xs font-medium text-slate-400">
+                  <div className="text-xs font-heading font-medium text-slate-400">
                     Download
                   </div>
-                  <div className="text-xl sm:text-2xl font-extrabold text-slate-900 mt-0.5">
+                  <div className="text-2xl sm:text-3xl font-semibold font-typewriter text-slate-900 mt-0.5">
                     {downloadGb} GB
                   </div>
                 </div>
                 <div>
-                  <div className="text-xs font-medium text-slate-400">
+                  <div className="text-xs font-heading font-medium text-slate-400">
                     Upload
                   </div>
-                  <div className="text-xl sm:text-2xl font-extrabold text-slate-900 mt-0.5">
+                  <div className="text-2xl sm:text-3xl font-semibold font-typewriter text-slate-900 mt-0.5">
                     {uploadGb} GB
                   </div>
                 </div>
@@ -310,7 +310,7 @@ export default function NocOverviewPage() {
                       "Added +32 GB to active monitoring quota allocation."
                     );
                   }}
-                  className="px-4 py-2 rounded-full bg-blue-50 hover:bg-blue-100 text-blue-600 font-bold text-xs transition-colors duration-200 cursor-pointer"
+                  className="px-4 py-2 rounded-full bg-blue-50 hover:bg-blue-100 text-blue-600 font-heading font-medium text-xs transition-colors duration-200 cursor-pointer"
                 >
                   Add Quota +
                 </button>
@@ -318,7 +318,7 @@ export default function NocOverviewPage() {
                   type="button"
                   disabled={generatingPdf}
                   onClick={handleQuickReport}
-                  className="px-4 py-2 rounded-full bg-[#141B2D] hover:bg-slate-800 text-white font-bold text-xs transition-colors duration-200 cursor-pointer"
+                  className="px-4 py-2 rounded-full bg-[#141B2D] hover:bg-slate-800 text-white font-heading font-medium text-xs transition-colors duration-200 cursor-pointer"
                 >
                   {generatingPdf ? "Building PDF..." : "Export PDF"}
                 </button>
@@ -344,7 +344,7 @@ export default function NocOverviewPage() {
                 <button
                   type="button"
                   onClick={() => setChartTab("analysis")}
-                  className={`px-3 py-1 rounded-full text-xs font-bold transition-all duration-200 ease-out cursor-pointer ${
+                  className={`px-3 py-1 rounded-full text-xs font-heading font-medium transition-all duration-200 ease-out cursor-pointer ${
                     chartTab === "analysis"
                       ? "bg-blue-600 text-white"
                       : "text-slate-600 hover:text-slate-900"
@@ -355,7 +355,7 @@ export default function NocOverviewPage() {
                 <button
                   type="button"
                   onClick={() => setChartTab("overview")}
-                  className={`px-3 py-1 rounded-full text-xs font-bold transition-all duration-200 ease-out cursor-pointer ${
+                  className={`px-3 py-1 rounded-full text-xs font-heading font-medium transition-all duration-200 ease-out cursor-pointer ${
                     chartTab === "overview"
                       ? "bg-blue-600 text-white"
                       : "text-slate-600 hover:text-slate-900"
@@ -366,7 +366,7 @@ export default function NocOverviewPage() {
                 <button
                   type="button"
                   onClick={() => setChartTab("protocol")}
-                  className={`px-3 py-1 rounded-full text-xs font-bold transition-all duration-200 ease-out cursor-pointer ${
+                  className={`px-3 py-1 rounded-full text-xs font-heading font-medium transition-all duration-200 ease-out cursor-pointer ${
                     chartTab === "protocol"
                       ? "bg-blue-600 text-white"
                       : "text-slate-600 hover:text-slate-900"
@@ -380,14 +380,14 @@ export default function NocOverviewPage() {
             {/* Active Chart Section */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <h2 className="text-base font-extrabold text-slate-900">
+                <h2 className="text-xl sm:text-2xl font-heading font-semibold text-slate-900 tracking-tight">
                   {chartTab === "analysis"
                     ? "Analysis — Real-Time Latency & Jitter Stream"
                     : chartTab === "overview"
                     ? "Overview — Weekly Downlink & Capacity Bars"
                     : "OSI Layer 2–7 Protocol Breakdown"}
                 </h2>
-                <span className="text-xs font-mono text-blue-600 font-semibold">
+                <span className="text-xs font-typewriter text-blue-600 font-medium">
                   {timeRange.toUpperCase()} WINDOW
                 </span>
               </div>
@@ -404,37 +404,39 @@ export default function NocOverviewPage() {
             {/* History / Subnet Telemetry Key-Value Sheet (Matching Screenshot 2 Right bottom "History / Show All") */}
             <div className="pt-3 border-t border-slate-100">
               <div className="flex items-center justify-between mb-2">
-                <h3 className="text-sm font-extrabold text-slate-900">
+                <h3 className="text-base sm:text-lg font-heading font-medium text-slate-900">
                   Subnet &amp; Interface Telemetry Summary
                 </h3>
                 <Link
                   href="/discovery"
-                  className="text-xs font-bold text-blue-600 hover:underline"
+                  className="text-xs font-heading font-medium text-blue-600 hover:underline"
                 >
                   Show All ({devices.length} Hosts) →
                 </Link>
               </div>
               <div className="divide-y divide-slate-100 text-xs">
-                <div className="py-2.5 flex items-center justify-between">
-                  <span className="text-slate-400 font-medium">Average Subnet Ping</span>
-                  <span className="font-bold font-mono text-slate-900">{avgLatency} ms</span>
-                </div>
-                <div className="py-2.5 flex items-center justify-between">
-                  <span className="text-slate-400 font-medium">Local IPv4 &amp; Subnet CIDR</span>
-                  <span className="font-bold font-mono text-blue-600">
-                    {activeInterface.local_ip} ({activeInterface.subnet_cidr})
+                <div className="py-3 flex flex-wrap items-center justify-between gap-3">
+                  <span className="text-slate-500 font-medium">Average Subnet Ping</span>
+                  <span className="font-semibold font-typewriter text-slate-900 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-200/60">
+                    {avgLatency} ms
                   </span>
                 </div>
-                <div className="py-2.5 flex items-center justify-between">
-                  <span className="text-slate-400 font-medium">Default Gateway &amp; MAC</span>
-                  <span className="font-bold font-mono text-slate-900">
-                    {activeInterface.gateway_ip} · {activeInterface.mac_address}
+                <div className="py-3 flex flex-wrap items-center justify-between gap-3">
+                  <span className="text-slate-500 font-medium">Local IPv4 &amp; Subnet CIDR</span>
+                  <span className="font-semibold font-typewriter text-blue-600 bg-blue-50/60 px-2.5 py-1 rounded-lg border border-blue-200/50">
+                    {activeInterface.local_ip} <span className="text-blue-400 font-normal">({activeInterface.subnet_cidr})</span>
                   </span>
                 </div>
-                <div className="py-2.5 flex items-center justify-between">
-                  <span className="text-slate-400 font-medium">Active LAN Devices &amp; Security Score</span>
-                  <span className="font-bold text-emerald-600">
-                    {onlineDevices.length}/{devices.length} Online · Score {securityScore}/100 (Grade {securityGrade})
+                <div className="py-3 flex flex-wrap items-center justify-between gap-3">
+                  <span className="text-slate-500 font-medium">Default Gateway &amp; MAC</span>
+                  <span className="font-semibold font-typewriter text-slate-800 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-200/60">
+                    {activeInterface.gateway_ip} <span className="text-slate-400 font-normal">· {activeInterface.mac_address}</span>
+                  </span>
+                </div>
+                <div className="py-3 flex flex-wrap items-center justify-between gap-3">
+                  <span className="text-slate-500 font-medium">Active LAN Devices &amp; Security</span>
+                  <span className="font-semibold font-typewriter text-emerald-600 bg-emerald-50/60 px-2.5 py-1 rounded-lg border border-emerald-200/50">
+                    {onlineDevices.length}/{devices.length} Online <span className="text-slate-300 mx-1">|</span> Score {securityScore}/100 ({securityGrade})
                   </span>
                 </div>
               </div>
@@ -445,10 +447,10 @@ export default function NocOverviewPage() {
           <div className="bg-white rounded-3xl border border-slate-200 p-5 sm:p-6 space-y-4">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div>
-                <h2 className="text-base font-extrabold text-slate-900">
+                <h2 className="text-xl sm:text-2xl font-heading font-semibold text-slate-900 tracking-tight">
                   Live Host Ping &amp; Signal Quality
                 </h2>
-                <p className="text-xs text-slate-400">
+                <p className="text-xs text-slate-500 font-normal mt-0.5">
                   One-click latency signal bars across active subnet hosts
                 </p>
               </div>
@@ -457,13 +459,13 @@ export default function NocOverviewPage() {
                   type="button"
                   disabled={isScanning}
                   onClick={() => triggerScan("auto")}
-                  className="px-3.5 py-1.5 rounded-full bg-blue-50 hover:bg-blue-100 text-blue-600 font-bold text-xs transition-colors duration-200 cursor-pointer"
+                  className="px-3.5 py-1.5 rounded-full bg-blue-50 hover:bg-blue-100 text-blue-600 font-heading font-medium text-xs transition-colors duration-200 cursor-pointer"
                 >
                   {isScanning ? "Scanning..." : "Scan Subnet"}
                 </button>
                 <Link
                   href="/connectivity"
-                  className="px-3.5 py-1.5 rounded-full bg-[#141B2D] text-white font-bold text-xs hover:bg-slate-800 transition-colors duration-200"
+                  className="px-3.5 py-1.5 rounded-full bg-[#141B2D] text-white font-heading font-medium text-xs hover:bg-slate-800 transition-colors duration-200"
                 >
                   Ping Console →
                 </Link>
@@ -485,7 +487,7 @@ export default function NocOverviewPage() {
                         href={`/connectivity?target=${encodeURIComponent(
                           dev.ip_address
                         )}&autostart=ping`}
-                        className="px-2.5 py-1 rounded-full bg-blue-50 hover:bg-blue-100 text-blue-600 text-[11px] font-bold"
+                        className="px-2.5 py-1 rounded-full bg-blue-50 hover:bg-blue-100 text-blue-600 text-[11px] font-heading font-medium"
                       >
                         Ping
                       </Link>
@@ -493,7 +495,7 @@ export default function NocOverviewPage() {
                         href={`/connectivity?target=${encodeURIComponent(
                           dev.ip_address
                         )}&tab=ports&autostart=scan`}
-                        className="px-2.5 py-1 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-bold"
+                        className="px-2.5 py-1 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-heading font-medium"
                       >
                         Ports
                       </Link>
@@ -512,13 +514,13 @@ export default function NocOverviewPage() {
         <div className="lg:col-span-8 space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div>
-              <h2 className="text-lg font-extrabold text-slate-900">
+              <h2 className="text-xl sm:text-2xl font-heading font-semibold text-slate-900 tracking-tight">
                 LAN Devices{" "}
-                <span className="text-blue-600 font-bold text-sm ml-1">
+                <span className="text-blue-600 font-typewriter font-medium text-sm ml-1">
                   Found {devices.length} devices
                 </span>
               </h2>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-slate-500 font-normal mt-0.5">
                 Layer 2 ARP, Layer 3 ICMP &amp; Layer 4 TCP discovered subnet nodes
               </p>
             </div>
@@ -526,13 +528,13 @@ export default function NocOverviewPage() {
               <button
                 type="button"
                 onClick={() => triggerSeedCampusLab()}
-                className="px-3.5 py-1.5 rounded-full bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold cursor-pointer transition-colors duration-200"
+                className="px-3.5 py-1.5 rounded-full bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-heading font-medium cursor-pointer transition-colors duration-200"
               >
                 Seed Campus Lab
               </button>
               <Link
                 href="/discovery"
-                className="px-4 py-1.5 rounded-full hyper-hero-gradient text-white text-xs font-bold transition-all duration-200 ease-out hover:brightness-105"
+                className="px-4 py-1.5 rounded-full hyper-hero-gradient text-white text-xs font-heading font-medium transition-all duration-200 ease-out hover:brightness-105"
               >
                 Full LAN &amp; Topology →
               </Link>
@@ -555,15 +557,15 @@ export default function NocOverviewPage() {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-base font-extrabold text-slate-900">
+                <h2 className="text-lg sm:text-xl font-heading font-semibold text-slate-900 tracking-tight">
                   Security Posture
                 </h2>
-                <p className="text-xs text-slate-400">
+                <p className="text-xs text-slate-500 font-normal mt-0.5">
                   Feature 5 deterministic rule engine
                 </p>
               </div>
-              <div className="px-3 py-1.5 rounded-2xl bg-blue-50 border border-blue-100 text-right font-mono">
-                <div className="text-sm font-extrabold text-blue-600">
+              <div className="px-3 py-1.5 rounded-2xl bg-blue-50 border border-blue-100 text-right font-typewriter">
+                <div className="text-sm font-semibold text-blue-600">
                   {securityScore}/100 ({securityGrade})
                 </div>
               </div>
@@ -584,15 +586,15 @@ export default function NocOverviewPage() {
                   >
                     <div className="flex items-center justify-between gap-2">
                       <span
-                        className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full border ${badgeCls}`}
+                        className={`text-[10px] font-typewriter font-medium px-2 py-0.5 rounded-full border ${badgeCls}`}
                       >
                         {alert.severity} · {alert.category}
                       </span>
-                      <span className="text-[11px] font-mono font-semibold text-slate-500">
+                      <span className="text-[11px] font-typewriter font-medium text-slate-500">
                         {alert.target_ip}
                       </span>
                     </div>
-                    <div className="text-xs font-bold text-slate-900">
+                    <div className="text-xs font-heading font-medium text-slate-900">
                       {alert.title}
                     </div>
                     <p className="text-[11px] text-slate-500 line-clamp-2">
@@ -604,16 +606,16 @@ export default function NocOverviewPage() {
             </div>
           </div>
 
-          <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+          <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-heading">
             <Link
               href="/security"
-              className="font-bold text-blue-600 hover:underline"
+              className="font-medium text-blue-600 hover:underline"
             >
               Open Security Advisor ({securityAlerts.length}) →
             </Link>
             <Link
               href="/packets"
-              className="font-bold text-slate-600 hover:text-blue-600"
+              className="font-medium text-slate-600 hover:text-blue-600"
             >
               Wireshark Sniffer →
             </Link>

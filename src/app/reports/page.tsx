@@ -261,13 +261,13 @@ export default function DiagnosticReportsPage() {
       <div className="bg-white border border-slate-200 rounded-3xl p-5 sm:p-6 space-y-5">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-xs font-bold mb-1.5">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-xs font-typewriter font-medium mb-1.5">
               <span>FEATURE 4 + BONUS FEATURE 3 · RESULT &amp; REPORT BUILDER</span>
             </div>
-            <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-heading font-semibold text-slate-900 tracking-tight leading-tight">
               Diagnostic Results, Overview &amp; Official PDF Report Exporter
             </h1>
-            <p className="text-xs text-slate-400 mt-0.5">
+            <p className="text-xs text-slate-500 font-normal mt-0.5">
               Compiles Date &amp; Time, Devices Detected, Ping Results, Network Performance Summary &amp; Security Recommendations
             </p>
           </div>
@@ -277,21 +277,21 @@ export default function DiagnosticReportsPage() {
               <button
                 type="button"
                 onClick={handleDownloadPdf}
-                className="px-4 py-2.5 rounded-full hyper-hero-gradient hover:brightness-105 text-white font-bold text-xs transition-all duration-200 ease-out cursor-pointer"
+                className="px-4 py-2.5 rounded-full hyper-hero-gradient hover:brightness-105 text-white font-heading font-medium text-xs transition-all duration-200 ease-out cursor-pointer"
               >
                 Download Official PDF Report
               </button>
               <button
                 type="button"
                 onClick={handleExportCsvLocal}
-                className="px-4 py-2.5 rounded-full bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 font-bold text-xs transition-colors duration-200 cursor-pointer"
+                className="px-4 py-2.5 rounded-full bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 font-heading font-medium text-xs transition-colors duration-200 cursor-pointer"
               >
                 Export CSV
               </button>
               <button
                 type="button"
                 onClick={handleExportJson}
-                className="px-4 py-2.5 rounded-full bg-[#141B2D] hover:bg-slate-800 text-white font-bold text-xs transition-colors duration-200 cursor-pointer"
+                className="px-4 py-2.5 rounded-full bg-[#141B2D] hover:bg-slate-800 text-white font-heading font-medium text-xs transition-colors duration-200 cursor-pointer"
               >
                 {`{ } Export JSON`}
               </button>
@@ -302,20 +302,20 @@ export default function DiagnosticReportsPage() {
         {/* Report Generation Bar */}
         <div className="pt-4 border-t border-slate-100 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
           <div className="flex flex-wrap sm:flex-nowrap flex-1 items-center gap-2.5">
-            <label className="text-xs font-bold text-slate-500 shrink-0">
+            <label className="text-xs font-heading font-medium text-slate-500 shrink-0">
               Report Title:
             </label>
             <input
               type="text"
               value={reportTitle}
               onChange={(e) => setReportTitle(e.target.value)}
-              className="flex-1 bg-[#F8FAFC] border border-slate-200 rounded-full px-4 py-2.5 text-xs font-semibold text-slate-800"
+              className="flex-1 bg-[#F8FAFC] border border-slate-200 rounded-full px-4 py-2.5 text-xs font-heading font-medium text-slate-800"
             />
             <button
               type="button"
               disabled={generating}
               onClick={handleGenerateReport}
-              className="px-5 py-2.5 rounded-full bg-[#141B2D] hover:bg-slate-800 disabled:opacity-50 text-white font-bold text-xs shrink-0 cursor-pointer transition-colors duration-200"
+              className="px-5 py-2.5 rounded-full bg-[#141B2D] hover:bg-slate-800 disabled:opacity-50 text-white font-heading font-semibold text-xs shrink-0 cursor-pointer transition-colors duration-200"
             >
               {generating
                 ? "Generating Snapshot..."
@@ -330,7 +330,7 @@ export default function DiagnosticReportsPage() {
               onChange={(e) => {
                 if (e.target.value) loadReportDetail(Number(e.target.value));
               }}
-              className="bg-[#F8FAFC] border border-slate-200 rounded-full px-4 py-2.5 text-xs font-bold text-blue-600"
+              className="bg-[#F8FAFC] border border-slate-200 rounded-full px-4 py-2.5 text-xs font-typewriter font-medium text-blue-600"
             >
               {reports.map((r) => (
                 <option key={r.id} value={r.id}>
@@ -359,13 +359,13 @@ export default function DiagnosticReportsPage() {
                 value={periodTab}
                 onChange={(v) => setPeriodTab(v)}
               />
-              <span className="px-3.5 py-1.5 rounded-full bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700">
+              <span className="px-3.5 py-1.5 rounded-full bg-slate-50 border border-slate-200 text-xs font-heading font-medium text-slate-700">
                 ↓ Download &amp; QoS ⌄
               </span>
             </div>
 
             <div className="pt-1">
-              <h2 className="text-lg font-extrabold text-slate-900 mb-2">
+              <h2 className="text-xl sm:text-2xl font-heading font-semibold text-slate-900 mb-2">
                 Overview
               </h2>
               <BandwidthThroughputChart data={telemetrySeries} />
@@ -376,48 +376,48 @@ export default function DiagnosticReportsPage() {
           <div className="lg:col-span-5 bg-white border border-slate-200 rounded-3xl p-5 sm:p-6 space-y-4">
             <div className="w-10 h-1 rounded-full bg-slate-300 mx-auto" />
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-extrabold text-slate-900">History</h2>
-              <span className="text-xs font-bold text-slate-400">
+              <h2 className="text-xl sm:text-2xl font-heading font-semibold text-slate-900">History</h2>
+              <span className="text-xs font-typewriter font-medium text-slate-400">
                 Report #{activeReport.id}
               </span>
             </div>
 
             <div className="divide-y divide-slate-100 text-xs sm:text-sm">
               <div className="py-3 flex items-center justify-between">
-                <span className="text-slate-400 font-medium">Ping</span>
-                <span className="font-bold font-mono text-slate-900">
+                <span className="text-slate-400 font-heading font-medium">Ping</span>
+                <span className="font-medium font-typewriter text-slate-900">
                   {activeReport.avg_subnet_latency_ms}ms
                 </span>
               </div>
               <div className="py-3 flex items-center justify-between">
-                <span className="text-slate-400 font-medium">Ip-Address</span>
-                <span className="font-bold font-mono text-slate-900">
+                <span className="text-slate-400 font-heading font-medium">Ip-Address</span>
+                <span className="font-medium font-typewriter text-slate-900">
                   {activeReport.local_ip}
                 </span>
               </div>
               <div className="py-3 flex items-center justify-between">
-                <span className="text-slate-400 font-medium">Subnet CIDR</span>
-                <span className="font-bold font-mono text-blue-600">
+                <span className="text-slate-400 font-heading font-medium">Subnet CIDR</span>
+                <span className="font-medium font-typewriter text-blue-600">
                   {activeReport.subnet_cidr}
                 </span>
               </div>
               <div className="py-3 flex items-center justify-between">
-                <span className="text-slate-400 font-medium">Gateway</span>
-                <span className="font-bold font-mono text-slate-900">
+                <span className="text-slate-400 font-heading font-medium">Gateway</span>
+                <span className="font-medium font-typewriter text-slate-900">
                   {activeReport.gateway_ip}
                 </span>
               </div>
               <div className="py-3 flex items-center justify-between">
-                <span className="text-slate-400 font-medium">Interface</span>
-                <span className="font-bold text-slate-900">
+                <span className="text-slate-400 font-heading font-medium">Interface</span>
+                <span className="font-medium text-slate-900 font-heading">
                   {activeReport.interface_name}
                 </span>
               </div>
               <div className="py-3 flex items-center justify-between">
-                <span className="text-slate-400 font-medium">
+                <span className="text-slate-400 font-heading font-medium">
                   Security Posture
                 </span>
-                <span className="font-extrabold text-emerald-600">
+                <span className="font-semibold text-emerald-600 font-typewriter">
                   {activeReport.health_score}/100 (Grade{" "}
                   {activeReport.security_grade})
                 </span>
@@ -433,13 +433,13 @@ export default function DiagnosticReportsPage() {
           {/* 1. Date and Time & Interface Metadata */}
           <div className="border-b border-slate-100 pb-5 flex flex-col md:flex-row md:items-center justify-between gap-3">
             <div>
-              <span className="text-xs font-mono font-bold text-blue-600">
+              <span className="text-xs font-typewriter font-medium text-blue-600">
                 OFFICIAL DIAGNOSTIC REPORT #{activeReport.id}
               </span>
-              <h2 className="text-xl font-extrabold text-slate-900 mt-0.5">
+              <h2 className="text-xl sm:text-2xl font-heading font-semibold text-slate-900 mt-0.5">
                 {activeReport.title}
               </h2>
-              <div className="text-xs font-mono text-slate-400 mt-1">
+              <div className="text-xs font-typewriter text-slate-500 mt-1">
                 Date &amp; Time:{" "}
                 {activePayload?.generated_at_readable ||
                   new Date(activeReport.created_at).toUTCString()}{" "}
@@ -447,11 +447,11 @@ export default function DiagnosticReportsPage() {
                 {activeReport.local_ip} | CIDR: {activeReport.subnet_cidr}
               </div>
             </div>
-            <div className="px-4 py-2.5 rounded-2xl bg-emerald-50 border border-emerald-200 font-mono text-right shrink-0">
-              <div className="text-[10px] font-bold text-emerald-700">
+            <div className="px-4 py-2.5 rounded-2xl bg-emerald-50 border border-emerald-200 font-typewriter text-right shrink-0">
+              <div className="text-[10px] font-medium text-emerald-700">
                 HEALTH &amp; SECURITY GRADE
               </div>
-              <div className="text-lg font-extrabold text-emerald-700">
+              <div className="text-xl font-semibold text-emerald-700">
                 {activeReport.health_score}/100 ({activeReport.security_grade})
               </div>
             </div>
@@ -459,7 +459,7 @@ export default function DiagnosticReportsPage() {
 
           {/* 2. Network Performance Summary */}
           <div className="space-y-3">
-            <h3 className="text-sm font-extrabold text-blue-600 uppercase tracking-wider">
+            <h3 className="text-xs font-typewriter font-medium text-blue-600 uppercase tracking-wider">
               Section 1 — Executive Network Performance Summary
             </h3>
             <p className="text-xs sm:text-sm text-slate-700 leading-relaxed bg-[#F8FAFC] p-4 rounded-2xl border border-slate-200/80">
@@ -467,34 +467,34 @@ export default function DiagnosticReportsPage() {
             </p>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5 text-xs">
               <div className="p-4 rounded-2xl bg-[#F8FAFC] border border-slate-200/80">
-                <div className="text-slate-400 font-bold text-[11px]">
+                <div className="text-slate-400 font-heading font-medium text-[11px]">
                   DEVICES DETECTED
                 </div>
-                <div className="text-lg font-extrabold text-slate-900 mt-0.5 font-mono">
+                <div className="text-xl sm:text-2xl font-semibold text-slate-900 mt-0.5 font-typewriter">
                   {activeReport.online_devices} / {activeReport.total_devices} Online
                 </div>
               </div>
               <div className="p-4 rounded-2xl bg-[#F8FAFC] border border-slate-200/80">
-                <div className="text-slate-400 font-bold text-[11px]">
+                <div className="text-slate-400 font-heading font-medium text-[11px]">
                   AVERAGE LATENCY
                 </div>
-                <div className="text-lg font-extrabold text-emerald-600 mt-0.5 font-mono">
+                <div className="text-xl sm:text-2xl font-semibold text-emerald-600 mt-0.5 font-typewriter">
                   {activeReport.avg_subnet_latency_ms} ms
                 </div>
               </div>
               <div className="p-4 rounded-2xl bg-[#F8FAFC] border border-slate-200/80">
-                <div className="text-slate-400 font-bold text-[11px]">
+                <div className="text-slate-400 font-heading font-medium text-[11px]">
                   MAXIMUM LATENCY
                 </div>
-                <div className="text-lg font-extrabold text-amber-600 mt-0.5 font-mono">
+                <div className="text-xl sm:text-2xl font-semibold text-amber-600 mt-0.5 font-typewriter">
                   {activeReport.max_subnet_latency_ms} ms
                 </div>
               </div>
               <div className="p-4 rounded-2xl bg-[#F8FAFC] border border-slate-200/80">
-                <div className="text-slate-400 font-bold text-[11px]">
+                <div className="text-slate-400 font-heading font-medium text-[11px]">
                   PACKET LOSS
                 </div>
-                <div className="text-lg font-extrabold text-blue-600 mt-0.5 font-mono">
+                <div className="text-xl sm:text-2xl font-semibold text-blue-600 mt-0.5 font-typewriter">
                   {activeReport.overall_packet_loss_pct}%
                 </div>
               </div>
@@ -503,13 +503,13 @@ export default function DiagnosticReportsPage() {
 
           {/* 3. Devices Detected Table */}
           <div className="space-y-3">
-            <h3 className="text-sm font-extrabold text-blue-600 uppercase tracking-wider">
+            <h3 className="text-xs font-typewriter font-medium text-blue-600 uppercase tracking-wider">
               Section 2 — Devices Detected ({detectedDevices.length} Hosts)
             </h3>
             <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse text-xs font-mono">
+              <table className="w-full text-left border-collapse text-xs font-typewriter">
                 <thead>
-                  <tr className="border-b border-slate-200 text-slate-400 font-bold uppercase text-[11px]">
+                  <tr className="border-b border-slate-200 text-slate-400 font-heading font-medium uppercase text-[11px] tracking-wider">
                     <th className="py-2.5 px-2.5">IP Address</th>
                     <th className="py-2.5 px-2.5">Hostname</th>
                     <th className="py-2.5 px-2.5">MAC Address</th>
@@ -521,16 +521,16 @@ export default function DiagnosticReportsPage() {
                 <tbody className="divide-y divide-slate-100">
                   {detectedDevices.map((d) => (
                     <tr key={d.ip_address} className="hover:bg-slate-50">
-                      <td className="py-2.5 px-2.5 text-blue-600 font-bold">
+                      <td className="py-2.5 px-2.5 text-blue-600 font-medium">
                         {d.ip_address}
                       </td>
-                      <td className="py-2.5 px-2.5 text-slate-900 font-sans font-bold">
+                      <td className="py-2.5 px-2.5 text-slate-900 font-heading font-medium">
                         {d.hostname}
                       </td>
                       <td className="py-2.5 px-2.5 text-slate-600">
                         {d.mac_address}
                       </td>
-                      <td className="py-2.5 px-2.5 text-slate-700 font-sans">
+                      <td className="py-2.5 px-2.5 text-slate-700 font-heading font-medium">
                         {d.vendor}
                       </td>
                       <td className="py-2.5 px-2.5 text-slate-500">
@@ -540,8 +540,8 @@ export default function DiagnosticReportsPage() {
                         <span
                           className={
                             d.is_online
-                              ? "text-emerald-600 font-bold"
-                              : "text-rose-600 font-bold"
+                              ? "text-emerald-600 font-medium"
+                              : "text-rose-600 font-medium"
                           }
                         >
                           ● {d.is_online ? "ONLINE" : "OFFLINE"}
@@ -556,14 +556,14 @@ export default function DiagnosticReportsPage() {
 
           {/* 4. Ping Results & Network Statistics Table */}
           <div className="space-y-3">
-            <h3 className="text-sm font-extrabold text-blue-600 uppercase tracking-wider">
+            <h3 className="text-xs font-typewriter font-medium text-blue-600 uppercase tracking-wider">
               Section 3 — Ping Results &amp; Network QoS Statistics (
               {pingResults.length} Hosts)
             </h3>
             <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse text-xs font-mono">
+              <table className="w-full text-left border-collapse text-xs font-typewriter">
                 <thead>
-                  <tr className="border-b border-slate-200 text-slate-400 font-bold uppercase text-[11px]">
+                  <tr className="border-b border-slate-200 text-slate-400 font-heading font-medium uppercase text-[11px] tracking-wider">
                     <th className="py-2.5 px-2.5">Hostname</th>
                     <th className="py-2.5 px-2.5">IP Address</th>
                     <th className="py-2.5 px-2.5">Min Latency</th>
@@ -577,25 +577,25 @@ export default function DiagnosticReportsPage() {
                 <tbody className="divide-y divide-slate-100">
                   {pingResults.map((p) => (
                     <tr key={p.ip_address} className="hover:bg-slate-50">
-                      <td className="py-2.5 px-2.5 text-slate-900 font-sans font-bold">
+                      <td className="py-2.5 px-2.5 text-slate-900 font-heading font-medium">
                         {p.hostname}
                       </td>
-                      <td className="py-2.5 px-2.5 text-blue-600 font-bold">
+                      <td className="py-2.5 px-2.5 text-blue-600 font-medium">
                         {p.ip_address}
                       </td>
                       <td className="py-2.5 px-2.5 text-slate-600">
                         {p.min_latency_ms} ms
                       </td>
-                      <td className="py-2.5 px-2.5 text-emerald-600 font-bold">
+                      <td className="py-2.5 px-2.5 text-emerald-600 font-medium">
                         {p.avg_latency_ms} ms
                       </td>
-                      <td className="py-2.5 px-2.5 text-amber-600 font-bold">
+                      <td className="py-2.5 px-2.5 text-amber-600 font-medium">
                         {p.max_latency_ms} ms
                       </td>
                       <td className="py-2.5 px-2.5 text-slate-700">
                         {p.jitter_ms} ms
                       </td>
-                      <td className="py-2.5 px-2.5 font-bold text-slate-800">
+                      <td className="py-2.5 px-2.5 font-medium text-slate-800">
                         {p.packet_loss_pct}%
                       </td>
                       <td className="py-2.5 px-2.5">
@@ -613,7 +613,7 @@ export default function DiagnosticReportsPage() {
 
           {/* 5. Open Ports & Security Recommendations Summary */}
           <div className="space-y-3">
-            <h3 className="text-sm font-extrabold text-blue-600 uppercase tracking-wider">
+            <h3 className="text-xs font-typewriter font-medium text-blue-600 uppercase tracking-wider">
               Section 4 — Open Ports &amp; Security Recommendations (
               {secRecs.length} Advisories)
             </h3>
@@ -623,13 +623,13 @@ export default function DiagnosticReportsPage() {
                   key={idx}
                   className="p-4 rounded-2xl bg-[#F8FAFC] border border-slate-200/80 text-xs space-y-1.5"
                 >
-                  <div className="font-mono text-[10px] text-blue-600 font-bold">
+                  <div className="font-typewriter text-[10px] text-blue-600 font-medium">
                     [{s.severity} · {s.category}] Target: {s.target_ip}
                   </div>
-                  <div className="font-extrabold text-slate-900 text-sm">
+                  <div className="font-heading font-semibold text-slate-900 text-sm">
                     {s.title}
                   </div>
-                  <div className="text-slate-600 leading-relaxed">
+                  <div className="text-slate-600 leading-relaxed font-sans">
                     {s.recommendation}
                   </div>
                 </div>

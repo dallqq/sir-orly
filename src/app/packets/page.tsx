@@ -272,7 +272,7 @@ function PacketsWorkspace() {
   useEffect(() => {
     const qFilter = searchParams.get("filter");
     if (qFilter) {
-      setBpfFilter(qFilter);
+      setTimeout(() => setBpfFilter(qFilter), 0);
     }
   }, [searchParams]);
 
@@ -436,13 +436,13 @@ function PacketsWorkspace() {
       <div className="bg-white border border-slate-200 rounded-3xl p-5 sm:p-6 space-y-5">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-xs font-bold mb-1.5">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-xs font-typewriter font-medium mb-1.5">
               <span>COURSE TOPIC 7 &amp; BONUS FEATURE 6 · WIRESHARK ENGINE</span>
             </div>
-            <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-heading font-semibold text-slate-900 tracking-tight leading-tight">
               Wireshark 3-Pane Packet Sniffer &amp; OSI Layer 2–7 Dissector
             </h1>
-            <p className="text-xs text-slate-400 mt-0.5">
+            <p className="text-xs text-slate-500 font-normal mt-0.5">
               Live Scapy packet capture, active socket synthesizer fallback, BPF filtering &amp; native `.pcap` file interoperability
             </p>
           </div>
@@ -454,14 +454,14 @@ function PacketsWorkspace() {
                   href={netpulseApi.getDownloadPcapUrl(activeSession.id)}
                   target="_blank"
                   rel="noreferrer"
-                  className="px-4 py-2 rounded-full bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 text-xs font-bold transition-colors duration-200"
+                  className="px-4 py-2 rounded-full bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 text-xs font-heading font-medium transition-colors duration-200"
                 >
                   Download .pcap
                 </a>
                 <button
                   type="button"
                   onClick={handleOpenWireshark}
-                  className="px-4 py-2 rounded-full bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 text-xs font-bold transition-colors duration-200 cursor-pointer"
+                  className="px-4 py-2 rounded-full bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 text-xs font-heading font-medium transition-colors duration-200 cursor-pointer"
                 >
                   Open in Wireshark
                 </button>
@@ -471,12 +471,12 @@ function PacketsWorkspace() {
             <button
               type="button"
               onClick={handleLoadDemoPcap}
-              className="px-4 py-2 rounded-full bg-[#141B2D] hover:bg-slate-800 text-white text-xs font-bold transition-colors duration-200 cursor-pointer"
+              className="px-4 py-2 rounded-full bg-[#141B2D] hover:bg-slate-800 text-white text-xs font-heading font-medium transition-colors duration-200 cursor-pointer"
             >
               Load Demo PCAP
             </button>
 
-            <label className="px-4 py-2 rounded-full bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 text-xs font-bold transition-colors duration-200 cursor-pointer">
+            <label className="px-4 py-2 rounded-full bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 text-xs font-heading font-medium transition-colors duration-200 cursor-pointer">
               Upload .pcap
               <input
                 type="file"
@@ -491,12 +491,12 @@ function PacketsWorkspace() {
         {/* Capture Controls & BPF Filter Chips */}
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-3 pt-4 border-t border-slate-100 items-center">
           <div className="xl:col-span-6 flex flex-wrap items-center gap-2">
-            <span className="text-xs font-bold text-slate-500">BPF Filter:</span>
+            <span className="text-xs font-heading font-medium text-slate-500">BPF Filter:</span>
             <input
               type="text"
               value={bpfFilter}
               onChange={(e) => setBpfFilter(e.target.value)}
-              className="bg-[#F8FAFC] border border-slate-200 rounded-full px-3.5 py-1.5 text-xs font-mono font-bold text-blue-600 w-44"
+              className="bg-[#F8FAFC] border border-slate-200 rounded-full px-3.5 py-1.5 text-xs font-typewriter font-medium text-blue-600 w-44"
               placeholder="all, tcp, arp, port 80"
             />
             <div className="flex flex-wrap gap-1">
@@ -505,7 +505,7 @@ function PacketsWorkspace() {
                   key={chip}
                   type="button"
                   onClick={() => setBpfFilter(chip)}
-                  className={`px-3 py-1 rounded-full text-[11px] font-mono font-bold transition-colors duration-200 cursor-pointer ${
+                  className={`px-3 py-1 rounded-full text-[11px] font-typewriter font-medium transition-colors duration-200 cursor-pointer ${
                     bpfFilter === chip
                       ? "bg-[#141B2D] text-white"
                       : "bg-slate-100 text-slate-600 hover:bg-slate-200"
@@ -518,12 +518,12 @@ function PacketsWorkspace() {
           </div>
 
           <div className="xl:col-span-3 flex items-center gap-2">
-            <span className="text-xs font-bold text-slate-500">Limit:</span>
+            <span className="text-xs font-heading font-medium text-slate-500">Limit:</span>
             <select
               aria-label="Packet Capture Limit"
               value={packetLimit}
               onChange={(e) => setPacketLimit(Number(e.target.value))}
-              className="bg-[#F8FAFC] border border-slate-200 rounded-full px-3 py-1.5 text-xs font-bold text-slate-800"
+              className="bg-[#F8FAFC] border border-slate-200 rounded-full px-3 py-1.5 text-xs font-typewriter font-medium text-slate-800"
             >
               <option value={15}>15 pkts</option>
               <option value={30}>30 pkts</option>
@@ -534,7 +534,7 @@ function PacketsWorkspace() {
               type="button"
               disabled={isCapturing}
               onClick={handleCapture}
-              className="px-5 py-2 rounded-full hyper-hero-gradient hover:brightness-105 disabled:opacity-50 text-white font-bold text-xs transition-all duration-200 ease-out cursor-pointer"
+              className="px-5 py-2 rounded-full hyper-hero-gradient hover:brightness-105 disabled:opacity-50 text-white font-heading font-semibold text-xs transition-all duration-200 ease-out cursor-pointer"
             >
               {isCapturing ? "Sniffing..." : "Start Capture"}
             </button>
@@ -547,7 +547,7 @@ function PacketsWorkspace() {
               onChange={(e) => {
                 if (e.target.value) loadSessionById(Number(e.target.value));
               }}
-              className="bg-[#F8FAFC] border border-slate-200 rounded-full px-3.5 py-2 text-xs font-semibold text-slate-700 w-full"
+              className="bg-[#F8FAFC] border border-slate-200 rounded-full px-3.5 py-2 text-xs font-heading font-medium text-slate-700 w-full"
             >
               {sessions.map((s) => (
                 <option key={s.id} value={s.id}>
@@ -561,13 +561,13 @@ function PacketsWorkspace() {
         {/* Protocol Distribution Chips + Status Banner */}
         <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-slate-400 font-semibold">
+            <span className="text-slate-400 font-heading font-medium">
               Protocol Breakdown:
             </span>
             {Object.entries(protocolBreakdown).map(([proto, count]) => (
               <span
                 key={proto}
-                className={`px-2.5 py-0.5 rounded-full border text-[11px] font-mono font-bold ${getProtocolBadgeClass(
+                className={`px-2.5 py-0.5 rounded-full border text-[11px] font-typewriter font-medium ${getProtocolBadgeClass(
                   proto
                 )}`}
               >
@@ -576,7 +576,7 @@ function PacketsWorkspace() {
             ))}
           </div>
           {statusBanner && (
-            <span className="font-mono text-blue-600 font-semibold">
+            <span className="font-typewriter text-blue-600 font-medium">
               {statusBanner}
             </span>
           )}
@@ -586,17 +586,17 @@ function PacketsWorkspace() {
       {/* Pane 1 (Top): Color-Coded Packet List Table */}
       <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden">
         <div className="px-5 py-3.5 bg-slate-50/90 border-b border-slate-200/80 flex flex-wrap items-center justify-between gap-2 text-xs">
-          <span className="text-slate-900 font-extrabold">
+          <span className="text-slate-900 font-heading font-semibold text-sm">
             PANE 1 — Captured Packet Summary Table ({packets.length} frames)
           </span>
-          <span className="text-slate-400">
+          <span className="text-slate-400 font-normal">
             Click any packet row to inspect its OSI Layer 2–7 headers &amp; Hex/ASCII bytes below
           </span>
         </div>
 
         <div className="max-h-72 overflow-y-auto">
-          <table className="w-full text-left border-collapse text-xs font-mono">
-            <thead className="sticky top-0 bg-white border-b border-slate-200 text-slate-400 font-bold uppercase text-[11px]">
+          <table className="w-full text-left border-collapse text-xs font-typewriter">
+            <thead className="sticky top-0 bg-white border-b border-slate-200 text-slate-400 font-heading font-medium uppercase text-[11px] tracking-wider">
               <tr>
                 <th className="py-2.5 px-3">No.</th>
                 <th className="py-2.5 px-3">Time</th>
@@ -621,7 +621,7 @@ function PacketsWorkspace() {
                     }`}
                   >
                     <td
-                      className={`py-2 px-3 font-bold ${
+                      className={`py-2 px-3 font-medium ${
                         isSelected ? "text-blue-100" : "text-slate-400"
                       }`}
                     >
@@ -635,7 +635,7 @@ function PacketsWorkspace() {
                       {pkt.timestamp}
                     </td>
                     <td
-                      className={`py-2 px-3 font-bold ${
+                      className={`py-2 px-3 font-medium ${
                         isSelected ? "text-white" : "text-blue-600"
                       }`}
                     >
@@ -643,7 +643,7 @@ function PacketsWorkspace() {
                       {pkt.src_port ? `:${pkt.src_port}` : ""}
                     </td>
                     <td
-                      className={`py-2 px-3 font-bold ${
+                      className={`py-2 px-3 font-medium ${
                         isSelected ? "text-white" : "text-emerald-600"
                       }`}
                     >
@@ -652,7 +652,7 @@ function PacketsWorkspace() {
                     </td>
                     <td className="py-2 px-3">
                       <span
-                        className={`px-2 py-0.5 rounded-full border text-[10px] font-bold ${
+                        className={`px-2 py-0.5 rounded-full border text-[10px] font-medium ${
                           isSelected
                             ? "bg-white/20 text-white border-white/30"
                             : getProtocolBadgeClass(pkt.protocol)
@@ -688,16 +688,16 @@ function PacketsWorkspace() {
         {/* Pane 2: OSI Layer 2, 3, 4, 7 Dissection Tree */}
         <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden">
           <div className="px-5 py-3.5 bg-slate-50/90 border-b border-slate-200/80 text-xs flex items-center justify-between">
-            <span className="text-slate-900 font-extrabold">
+            <span className="text-slate-900 font-heading font-semibold text-sm">
               PANE 2 — OSI &amp; TCP/IP Protocol Dissection Tree{" "}
               {selectedPacket ? `(Packet #${selectedPacket.index})` : ""}
             </span>
-            <span className="text-[11px] text-slate-400">
+            <span className="text-[11px] text-slate-400 font-typewriter">
               Click headers to expand/collapse
             </span>
           </div>
           {selectedPacket ? (
-            <div className="p-5 space-y-3 text-xs font-mono max-h-80 overflow-y-auto">
+            <div className="p-5 space-y-3 text-xs font-typewriter max-h-80 overflow-y-auto">
               {(
                 [
                   ["layer_2_datalink", "border-indigo-200 bg-indigo-50/30 text-indigo-900"],
@@ -721,24 +721,24 @@ function PacketsWorkspace() {
                     <button
                       type="button"
                       onClick={() => toggleLayer(layerKey)}
-                      className="w-full px-4 py-2.5 flex items-center justify-between text-left font-bold cursor-pointer hover:bg-white/60 transition"
+                      className="w-full px-4 py-2.5 flex items-center justify-between text-left font-heading font-medium cursor-pointer hover:bg-white/60 transition"
                     >
-                      <span className="flex items-center gap-2 font-sans">
+                      <span className="flex items-center gap-2">
                         <span className="text-blue-600">
                           {isCollapsed ? "▸" : "▾"}
                         </span>{" "}
                         {title}
                       </span>
-                      <span className="text-[10px] text-slate-500 font-mono">
+                      <span className="text-[10px] text-slate-500 font-typewriter">
                         {fieldEntries.length} fields
                       </span>
                     </button>
                     {!isCollapsed && (
-                      <div className="px-4 pb-3 pt-1.5 border-t border-slate-200/60 bg-white/80 space-y-1 text-[11px]">
+                      <div className="px-4 pb-3 pt-1.5 border-t border-slate-200/60 bg-white/80 space-y-1 text-[11px] font-typewriter">
                         {fieldEntries.map(([k, v]) => (
                           <div key={k} className="flex justify-between gap-4">
                             <span className="text-slate-500">{k}:</span>
-                            <span className="text-slate-900 font-bold text-right truncate">
+                            <span className="text-slate-900 font-medium text-right truncate">
                               {String(v)}
                             </span>
                           </div>
@@ -759,17 +759,17 @@ function PacketsWorkspace() {
         {/* Pane 3: Hexadecimal & ASCII Byte Viewer */}
         <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden flex flex-col">
           <div className="px-5 py-3.5 bg-slate-50/90 border-b border-slate-200/80 flex justify-between text-xs">
-            <span className="text-slate-900 font-extrabold">
+            <span className="text-slate-900 font-heading font-semibold text-sm">
               PANE 3 — Raw Hexadecimal &amp; ASCII Frame Bytes
             </span>
             {selectedPacket && (
-              <span className="font-mono font-bold text-blue-600">
+              <span className="font-typewriter font-medium text-blue-600 text-xs">
                 {selectedPacket.length} Bytes
               </span>
             )}
           </div>
           <div className="p-5 flex-1 bg-[#141B2D] text-sky-300">
-            <pre className="text-[11px] leading-relaxed font-mono overflow-x-auto max-h-72 overflow-y-auto">
+            <pre className="text-[11px] leading-relaxed font-typewriter overflow-x-auto max-h-72 overflow-y-auto">
               {selectedPacket?.hex_dump || "0000  No packet selected"}
             </pre>
           </div>

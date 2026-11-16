@@ -74,14 +74,14 @@ export function LiveLatencyAreaChart({ data }: { data: TelemetryPoint[] }) {
     <div className="w-full select-none">
       <div className="flex flex-wrap items-center justify-between gap-2 text-xs mb-3">
         <div className="flex items-center gap-4">
-          <span className="inline-flex items-center gap-1.5 font-semibold text-slate-700">
+          <span className="inline-flex items-center gap-1.5 font-heading font-medium text-slate-700">
             <span className="h-2.5 w-2.5 rounded-full bg-blue-600" /> Avg RTT (ms)
           </span>
-          <span className="inline-flex items-center gap-1.5 font-semibold text-slate-500">
+          <span className="inline-flex items-center gap-1.5 font-heading font-medium text-slate-500">
             <span className="h-2.5 w-2.5 rounded-full bg-sky-300 border border-blue-500" /> Peak Envelope (ms)
           </span>
         </div>
-        <span className="font-mono text-[11px] text-slate-400">
+        <span className="font-typewriter text-[11px] text-slate-400">
           Click any node to inspect interval · Scale: {maxVal.toFixed(0)} ms
         </span>
       </div>
@@ -130,7 +130,8 @@ export function LiveLatencyAreaChart({ data }: { data: TelemetryPoint[] }) {
                 y={y + 4}
                 fill="#94A3B8"
                 fontSize="10.5"
-                fontWeight="600"
+                fontWeight="500"
+                fontFamily="var(--font-typewriter)"
               >
                 {val} ms
               </text>
@@ -182,7 +183,8 @@ export function LiveLatencyAreaChart({ data }: { data: TelemetryPoint[] }) {
               textAnchor="middle"
               fill="#FFFFFF"
               fontSize="10.5"
-              fontWeight="700"
+              fontWeight="500"
+              fontFamily="var(--font-typewriter)"
             >
               {activePt.avg_rtt_ms}ms
             </text>
@@ -308,7 +310,7 @@ export function BandwidthThroughputChart({ data }: { data: TelemetryPoint[] }) {
 export function HostLatencyBarChart({ stats }: { stats: HostQoSStats[] }) {
   if (stats.length === 0) {
     return (
-      <div className="p-6 text-center text-xs text-slate-400 font-mono">
+      <div className="p-6 text-center text-xs text-slate-400 font-typewriter">
         Run a Ping Test or Subnet Scan to compare per-host latency bars.
       </div>
     );
@@ -339,13 +341,13 @@ export function HostLatencyBarChart({ stats }: { stats: HostQoSStats[] }) {
         return (
           <div key={s.ip_address} className="space-y-1.5">
             <div className="flex justify-between items-center text-xs">
-              <span className="font-bold text-slate-800 truncate">
+              <span className="font-heading font-medium text-slate-800 truncate">
                 {s.hostname}{" "}
-                <span className="text-slate-400 font-mono font-normal">
+                <span className="text-slate-400 font-typewriter font-normal">
                   ({s.ip_address})
                 </span>
               </span>
-              <span className="font-mono text-[11px] font-semibold text-blue-600 shrink-0">
+              <span className="font-typewriter text-[11px] font-medium text-blue-600 shrink-0">
                 {isLoss
                   ? "100% Loss"
                   : `${s.avg_latency_ms}ms avg · ${s.max_latency_ms}ms peak`}
@@ -415,14 +417,14 @@ export function InteractiveSubnetTopology({
       <div className="px-5 py-3.5 bg-slate-50/90 border-b border-slate-200/80 flex flex-wrap items-center justify-between gap-2 text-xs">
         <div className="flex items-center gap-2.5">
           <span className="w-2.5 h-2.5 rounded-full bg-blue-600" />
-          <span className="text-slate-900 font-bold">
+          <span className="text-slate-900 font-heading font-semibold text-sm">
             Interactive Layer 2/3 Subnet Topology Map
           </span>
-          <span className="text-slate-500 font-mono">
+          <span className="text-slate-500 font-typewriter text-xs">
             ({devices.length} Discovered Nodes)
           </span>
         </div>
-        <div className="flex items-center gap-3 text-[11px] font-semibold">
+        <div className="flex items-center gap-3 text-[11px] font-heading font-medium">
           <span className="text-emerald-600">● Optimal (&lt;50ms)</span>
           <span className="text-amber-600">● Elevated (50–150ms)</span>
           <span className="text-rose-600">● Offline / Loss</span>
@@ -681,8 +683,8 @@ export function OsiProtocolDonutChart({
     <div className="w-full space-y-3">
       {title && (
         <div className="flex items-center justify-between text-xs">
-          <span className="text-slate-700 font-bold">{title}</span>
-          <span className="text-blue-600 font-mono font-bold">
+          <span className="text-slate-800 font-heading font-semibold text-sm">{title}</span>
+          <span className="text-blue-600 font-typewriter font-medium text-xs">
             {total} Total Frames
           </span>
         </div>
@@ -714,9 +716,9 @@ export function OsiProtocolDonutChart({
               />
             ))}
           </svg>
-          <div className="absolute inset-0 flex flex-col items-center justify-center text-center font-mono pointer-events-none">
-            <span className="text-xl font-extrabold text-slate-900">{total}</span>
-            <span className="text-[10px] font-semibold text-slate-400 uppercase">
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-center font-typewriter pointer-events-none">
+            <span className="text-2xl font-semibold text-slate-900">{total}</span>
+            <span className="text-[10px] font-medium text-slate-400 uppercase tracking-wider">
               Packets
             </span>
           </div>
@@ -725,15 +727,15 @@ export function OsiProtocolDonutChart({
         <div className="w-full sm:flex-1 space-y-2 text-xs">
           {slices.map((s) => (
             <div key={s.name} className="flex items-center justify-between gap-2">
-              <span className="flex items-center gap-2 truncate font-semibold text-slate-700">
+              <span className="flex items-center gap-2 truncate font-heading font-medium text-slate-700">
                 <span
                   className="h-2.5 w-2.5 rounded-full shrink-0"
                   style={{ backgroundColor: s.color }}
                 />
                 <span>{s.name}</span>
               </span>
-              <span className="font-mono text-slate-500">
-                <strong className="text-slate-900">{s.count}</strong> ({s.percentage}%)
+              <span className="font-typewriter text-slate-500">
+                <strong className="text-slate-900 font-medium">{s.count}</strong> ({s.percentage}%)
               </span>
             </div>
           ))}

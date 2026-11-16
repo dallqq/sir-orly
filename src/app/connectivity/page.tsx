@@ -184,13 +184,15 @@ function ConnectivityWorkspace() {
     const qAuto = searchParams.get("autostart");
 
     if (qTarget) {
-      setTargetIp(qTarget);
-      setPortTargetIp(qTarget);
+      setTimeout(() => {
+        setTargetIp((prev) => (prev !== qTarget ? qTarget : prev));
+        setPortTargetIp((prev) => (prev !== qTarget ? qTarget : prev));
+      }, 0);
     }
     if (qTab === "ports") {
-      setActiveTab("ports");
+      setTimeout(() => setActiveTab("ports"), 0);
     } else if (qTab === "ping") {
-      setActiveTab("ping");
+      setTimeout(() => setActiveTab("ping"), 0);
     }
 
     const key = `${qTarget}-${qTab}-${qAuto}`;
@@ -225,13 +227,13 @@ function ConnectivityWorkspace() {
       {/* Page Header & Segmented Mode Switcher */}
       <div className="bg-white rounded-3xl border border-slate-200 p-5 sm:p-6 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-xs font-bold mb-1.5">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-xs font-typewriter font-medium mb-1.5">
             <span>FEATURES 2 &amp; 3 + BONUS PORT SCANNER</span>
           </div>
-          <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-heading font-semibold text-slate-900 tracking-tight leading-tight">
             Ping Signal Analyzer, QoS Telemetry &amp; Socket Port Scanner
           </h1>
-          <p className="text-xs text-slate-400 mt-0.5">
+          <p className="text-xs text-slate-500 font-normal mt-0.5">
             3-Tier ICMP / OS Ping / TCP Handshake RTT engine, Jitter &amp; Loss calculator, and Async Banner Grabber
           </p>
         </div>
@@ -257,10 +259,10 @@ function ConnectivityWorkspace() {
               <div className="bg-white rounded-3xl border border-slate-200 p-5 sm:p-6 space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h2 className="text-lg font-extrabold text-slate-900">
+                    <h2 className="text-xl sm:text-2xl font-heading font-semibold text-slate-900 tracking-tight">
                       Ping Targets
                     </h2>
-                    <p className="text-xs text-slate-400">
+                    <p className="text-xs text-slate-500 font-normal mt-0.5">
                       Click any host to select or trigger an instant ping test
                     </p>
                   </div>
@@ -282,7 +284,7 @@ function ConnectivityWorkspace() {
                     value={pingFilter}
                     onChange={(e) => setPingFilter(e.target.value)}
                     placeholder="Search IP or hostname..."
-                    className="w-full bg-[#F8FAFC] border border-slate-200 focus:border-blue-500 focus:bg-white rounded-full px-4 py-2.5 text-xs text-slate-800 outline-none transition-colors duration-200"
+                    className="w-full bg-[#F8FAFC] border border-slate-200 focus:border-blue-500 focus:bg-white rounded-full px-4 py-2.5 text-xs font-typewriter text-slate-800 outline-none transition-colors duration-200"
                   />
                 </div>
 
@@ -308,17 +310,17 @@ function ConnectivityWorkspace() {
               {/* Ping Parameters Card */}
               <div className="bg-white rounded-3xl border border-slate-200 p-5 sm:p-6 space-y-4">
                 <div>
-                  <h3 className="text-base font-extrabold text-slate-900">
+                  <h3 className="text-base sm:text-lg font-heading font-medium text-slate-900">
                     Custom Ping Parameters
                   </h3>
-                  <p className="text-xs text-slate-400">
+                  <p className="text-xs text-slate-500 font-normal mt-0.5">
                     Supports single IP or comma-separated multi-host batch testing
                   </p>
                 </div>
 
                 <div className="space-y-3 text-xs">
                   <div>
-                    <label className="block text-slate-500 font-semibold mb-1">
+                    <label className="block text-slate-500 font-heading font-medium mb-1">
                       Target IP(s) or Hostname:
                     </label>
                     <input
@@ -326,20 +328,20 @@ function ConnectivityWorkspace() {
                       value={targetIp}
                       onChange={(e) => setTargetIp(e.target.value)}
                       placeholder="192.168.1.1, 192.168.1.10"
-                      className="w-full bg-[#F8FAFC] border border-slate-200 rounded-2xl px-4 py-2.5 font-mono font-bold text-blue-600 focus:outline-none focus:border-blue-500"
+                      className="w-full bg-[#F8FAFC] border border-slate-200 rounded-2xl px-4 py-2.5 font-typewriter font-medium text-blue-600 focus:outline-none focus:border-blue-500"
                     />
                   </div>
 
                   <div className="grid grid-cols-3 gap-2.5">
                     <div>
-                      <label className="block text-slate-500 font-semibold mb-1">
+                      <label className="block text-slate-500 font-heading font-medium mb-1">
                         Packets:
                       </label>
                       <select
                         aria-label="Packet Count"
                         value={pingCount}
                         onChange={(e) => setPingCount(Number(e.target.value))}
-                        className="w-full bg-[#F8FAFC] border border-slate-200 rounded-xl px-2.5 py-2 font-bold text-slate-800"
+                        className="w-full bg-[#F8FAFC] border border-slate-200 rounded-xl px-2.5 py-2 font-typewriter font-medium text-slate-800"
                       >
                         <option value={4}>4 pkts</option>
                         <option value={8}>8 pkts</option>
@@ -348,14 +350,14 @@ function ConnectivityWorkspace() {
                     </div>
 
                     <div>
-                      <label className="block text-slate-500 font-semibold mb-1">
+                      <label className="block text-slate-500 font-heading font-medium mb-1">
                         Payload:
                       </label>
                       <select
                         aria-label="Payload Bytes"
                         value={packetSize}
                         onChange={(e) => setPacketSize(Number(e.target.value))}
-                        className="w-full bg-[#F8FAFC] border border-slate-200 rounded-xl px-2.5 py-2 font-bold text-slate-800"
+                        className="w-full bg-[#F8FAFC] border border-slate-200 rounded-xl px-2.5 py-2 font-typewriter font-medium text-slate-800"
                       >
                         <option value={32}>32 Bytes</option>
                         <option value={64}>64 Bytes</option>
@@ -364,14 +366,14 @@ function ConnectivityWorkspace() {
                     </div>
 
                     <div>
-                      <label className="block text-slate-500 font-semibold mb-1">
+                      <label className="block text-slate-500 font-heading font-medium mb-1">
                         Protocol:
                       </label>
                       <select
                         aria-label="Ping Protocol"
                         value={protocol}
                         onChange={(e) => setProtocol(e.target.value)}
-                        className="w-full bg-[#F8FAFC] border border-slate-200 rounded-xl px-2.5 py-2 font-bold text-blue-600"
+                        className="w-full bg-[#F8FAFC] border border-slate-200 rounded-xl px-2.5 py-2 font-typewriter font-medium text-blue-600"
                       >
                         <option value="auto">Auto Hybrid</option>
                         <option value="icmp">ICMP Echo</option>
@@ -384,7 +386,7 @@ function ConnectivityWorkspace() {
                     type="button"
                     disabled={isPinging}
                     onClick={() => handleRunPing()}
-                    className="w-full py-3 rounded-full hyper-hero-gradient hover:brightness-105 disabled:opacity-50 text-white font-bold text-xs transition-all duration-200 ease-out cursor-pointer"
+                    className="w-full py-3 rounded-full hyper-hero-gradient hover:brightness-105 disabled:opacity-50 text-white font-heading font-semibold text-xs transition-all duration-200 ease-out cursor-pointer"
                   >
                     {isPinging
                       ? "Streaming Echo Replies..."
@@ -400,18 +402,18 @@ function ConnectivityWorkspace() {
               <div className="bg-white rounded-3xl border border-slate-200 p-5 sm:p-6 space-y-4">
                 <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                   <div>
-                    <h2 className="text-base font-extrabold text-slate-900">
+                    <h2 className="text-lg sm:text-xl font-heading font-semibold text-slate-900 tracking-tight">
                       Live ICMP / TCP Sequence Stream ({terminalFeed.length} replies)
                     </h2>
-                    <p className="text-xs text-slate-400">
-                      Target: <span className="font-mono font-bold text-blue-600">{targetIp}</span>
+                    <p className="text-xs text-slate-500 font-normal mt-0.5">
+                      Target: <span className="font-typewriter font-medium text-blue-600">{targetIp}</span>
                     </p>
                   </div>
                   {terminalFeed.length > 0 && (
                     <button
                       type="button"
                       onClick={clearPingStream}
-                      className="px-3 py-1 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold cursor-pointer"
+                      className="px-3 py-1 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-heading font-medium cursor-pointer"
                     >
                       Clear
                     </button>
@@ -421,7 +423,7 @@ function ConnectivityWorkspace() {
                 <div className="space-y-2 max-h-72 overflow-y-auto">
                   {terminalFeed.length === 0 ? (
                     <div className="py-12 text-center space-y-2 bg-[#F8FAFC] rounded-2xl border border-dashed border-slate-200">
-                      <div className="text-sm font-bold text-slate-700">
+                      <div className="text-sm font-heading font-medium text-slate-700">
                         Ready to Stream Ping Sequence
                       </div>
                       <p className="text-xs text-slate-400 max-w-sm mx-auto">
@@ -432,11 +434,11 @@ function ConnectivityWorkspace() {
                     terminalFeed.map((item, idx) => (
                       <div
                         key={`${item.ip_address}-${item.seq}-${idx}`}
-                        className="flex flex-wrap items-center justify-between gap-2 px-4 py-2.5 rounded-2xl bg-[#F8FAFC] border border-slate-200/80 text-xs font-mono"
+                        className="flex flex-wrap items-center justify-between gap-2 px-4 py-2.5 rounded-2xl bg-[#F8FAFC] border border-slate-200/80 text-xs font-typewriter"
                       >
                         <div className="flex items-center gap-2.5">
                           <span
-                            className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                            className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${
                               item.status === "SUCCESS"
                                 ? "bg-emerald-50 text-emerald-600 border border-emerald-200"
                                 : "bg-rose-50 text-rose-600 border border-rose-200"
@@ -444,7 +446,7 @@ function ConnectivityWorkspace() {
                           >
                             {item.status}
                           </span>
-                          <span className="font-bold text-slate-900">
+                          <span className="font-medium text-slate-900">
                             {item.ip_address}
                           </span>
                           <span className="text-slate-400 font-sans">
@@ -456,7 +458,7 @@ function ConnectivityWorkspace() {
                         </div>
                         <div className="flex items-center gap-2.5">
                           <span
-                            className={`font-bold ${
+                            className={`font-medium ${
                               item.rtt_ms != null
                                 ? "text-blue-600"
                                 : "text-rose-500"
@@ -481,10 +483,10 @@ function ConnectivityWorkspace() {
               <div className="bg-white rounded-3xl border border-slate-200 p-5 sm:p-6 space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h2 className="text-base font-extrabold text-slate-900">
+                    <h2 className="text-lg sm:text-xl font-heading font-semibold text-slate-900 tracking-tight">
                       Average vs. Peak Latency Comparison
                     </h2>
-                    <p className="text-xs text-slate-400">
+                    <p className="text-xs text-slate-500 font-normal mt-0.5">
                       Visual QoS distribution across measured subnet hosts
                     </p>
                   </div>
@@ -498,22 +500,22 @@ function ConnectivityWorkspace() {
           <div className="bg-white rounded-3xl border border-slate-200 p-5 sm:p-6 space-y-4">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div>
-                <h2 className="text-base font-extrabold text-slate-900">
+                <h2 className="text-lg sm:text-xl font-heading font-semibold text-slate-900 tracking-tight">
                   Feature 3: Network Statistics Table (Per-Host QoS Telemetry)
                 </h2>
-                <p className="text-xs text-slate-400">
+                <p className="text-xs text-slate-500 font-normal mt-0.5">
                   Displays Hostname, IP Address, Minimum Latency, Average Latency, Maximum Latency, Jitter, and Packet Loss %
                 </p>
               </div>
-              <span className="px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-xs font-mono font-bold">
+              <span className="px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-xs font-typewriter font-medium">
                 {qosStats.length} Hosts Measured
               </span>
             </div>
 
             <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse text-xs font-mono">
+              <table className="w-full text-left border-collapse text-xs font-typewriter">
                 <thead>
-                  <tr className="border-b border-slate-200 text-slate-400 font-bold uppercase text-[11px]">
+                  <tr className="border-b border-slate-200 text-slate-400 font-heading font-medium uppercase text-[11px] tracking-wider">
                     <th className="py-3 px-2.5">Hostname</th>
                     <th className="py-3 px-2.5">IP Address</th>
                     <th className="py-3 px-2.5">Min Latency</th>
@@ -528,27 +530,27 @@ function ConnectivityWorkspace() {
                 <tbody className="divide-y divide-slate-100">
                   {qosStats.map((s) => (
                     <tr key={s.ip_address} className="hover:bg-slate-50/90">
-                      <td className="py-3 px-2.5 text-slate-900 font-sans font-bold">
+                      <td className="py-3 px-2.5 text-slate-900 font-heading font-medium">
                         {s.hostname}
                       </td>
-                      <td className="py-3 px-2.5 text-blue-600 font-bold">
+                      <td className="py-3 px-2.5 text-blue-600 font-medium">
                         {s.ip_address}
                       </td>
                       <td className="py-3 px-2.5 text-slate-600">
                         {s.min_latency_ms} ms
                       </td>
-                      <td className="py-3 px-2.5 text-emerald-600 font-bold">
+                      <td className="py-3 px-2.5 text-emerald-600 font-medium">
                         {s.avg_latency_ms} ms
                       </td>
-                      <td className="py-3 px-2.5 text-amber-600 font-bold">
+                      <td className="py-3 px-2.5 text-amber-600 font-medium">
                         {s.max_latency_ms} ms
                       </td>
-                      <td className="py-3 px-2.5 text-slate-700 font-semibold">
+                      <td className="py-3 px-2.5 text-slate-700 font-medium">
                         {s.jitter_ms} ms
                       </td>
                       <td className="py-3 px-2.5">
                         <span
-                          className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
+                          className={`px-2.5 py-0.5 rounded-full text-[11px] font-medium ${
                             s.packet_loss_pct >= 50
                               ? "bg-rose-50 text-rose-600 border border-rose-200"
                               : s.packet_loss_pct > 0
@@ -559,7 +561,7 @@ function ConnectivityWorkspace() {
                           {s.packet_loss_pct}%
                         </span>
                       </td>
-                      <td className="py-3 px-2.5 text-slate-500">
+                      <td className="py-3 px-2.5 text-slate-500 font-typewriter">
                         {s.packets_received}/{s.packets_sent}
                       </td>
                       <td className="py-3 px-2.5">
@@ -581,26 +583,26 @@ function ConnectivityWorkspace() {
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 border-b border-slate-100 pb-5">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 flex-1">
               <div>
-                <label className="block text-xs font-bold text-slate-500 mb-1">
+                <label className="block text-xs font-heading font-medium text-slate-500 mb-1">
                   Target Host IP:
                 </label>
                 <input
                   type="text"
                   value={portTargetIp}
                   onChange={(e) => setPortTargetIp(e.target.value)}
-                  className="w-full bg-[#F8FAFC] border border-slate-200 rounded-2xl px-4 py-2.5 text-xs font-mono font-bold text-blue-600"
+                  className="w-full bg-[#F8FAFC] border border-slate-200 rounded-2xl px-4 py-2.5 text-xs font-typewriter font-medium text-blue-600"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-500 mb-1">
+                <label className="block text-xs font-heading font-medium text-slate-500 mb-1">
                   Port Scan Preset:
                 </label>
                 <select
                   aria-label="Port Scan Preset"
                   value={portPreset}
                   onChange={(e) => setPortPreset(e.target.value)}
-                  className="w-full bg-[#F8FAFC] border border-slate-200 rounded-2xl px-4 py-2.5 text-xs font-bold text-slate-800"
+                  className="w-full bg-[#F8FAFC] border border-slate-200 rounded-2xl px-4 py-2.5 text-xs font-heading font-medium text-slate-800"
                 >
                   <option value="quick">Quick Top 25 Enterprise Ports</option>
                   <option value="standard">Standard Well-Known Ports (20–1024)</option>
@@ -610,19 +612,19 @@ function ConnectivityWorkspace() {
 
               {portPreset === "custom" ? (
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 mb-1">
+                  <label className="block text-xs font-heading font-medium text-slate-500 mb-1">
                     Custom Ports (e.g. 21-25,80,443,8000):
                   </label>
                   <input
                     type="text"
                     value={customPorts}
                     onChange={(e) => setCustomPorts(e.target.value)}
-                    className="w-full bg-[#F8FAFC] border border-slate-200 rounded-2xl px-4 py-2.5 text-xs font-mono text-slate-800"
+                    className="w-full bg-[#F8FAFC] border border-slate-200 rounded-2xl px-4 py-2.5 text-xs font-typewriter text-slate-800"
                   />
                 </div>
               ) : (
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 mb-1">
+                  <label className="block text-xs font-heading font-medium text-slate-500 mb-1">
                     Quick-Select Discovered Host:
                   </label>
                   <select
@@ -631,7 +633,7 @@ function ConnectivityWorkspace() {
                     onChange={(e) => {
                       if (e.target.value) setPortTargetIp(e.target.value);
                     }}
-                    className="w-full bg-[#F8FAFC] border border-slate-200 rounded-2xl px-4 py-2.5 text-xs font-semibold text-slate-700"
+                    className="w-full bg-[#F8FAFC] border border-slate-200 rounded-2xl px-4 py-2.5 text-xs font-heading font-medium text-slate-700"
                   >
                     <option value="">-- Choose from {devices.length} hosts --</option>
                     {devices.map((d) => (
@@ -648,7 +650,7 @@ function ConnectivityWorkspace() {
               type="button"
               disabled={isScanningPorts}
               onClick={() => handleRunPortScan()}
-              className="px-6 py-3 rounded-full hyper-hero-gradient hover:brightness-105 disabled:opacity-50 text-white font-bold text-xs transition-all duration-200 ease-out cursor-pointer shrink-0"
+              className="px-6 py-3 rounded-full hyper-hero-gradient hover:brightness-105 disabled:opacity-50 text-white font-heading font-semibold text-xs transition-all duration-200 ease-out cursor-pointer shrink-0"
             >
               {isScanningPorts
                 ? "Scanning TCP Sockets..."
@@ -657,9 +659,9 @@ function ConnectivityWorkspace() {
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-xs font-mono">
+            <table className="w-full text-left border-collapse text-xs font-typewriter">
               <thead>
-                <tr className="border-b border-slate-200 text-slate-400 font-bold uppercase text-[11px]">
+                <tr className="border-b border-slate-200 text-slate-400 font-heading font-medium uppercase text-[11px] tracking-wider">
                   <th className="py-3 px-2.5">Host IP</th>
                   <th className="py-3 px-2.5">Port / Proto</th>
                   <th className="py-3 px-2.5">State</th>
@@ -675,18 +677,18 @@ function ConnectivityWorkspace() {
                     key={`${p.ip_address}-${p.port}-${idx}`}
                     className="hover:bg-slate-50/90"
                   >
-                    <td className="py-3 px-2.5 text-blue-600 font-bold">
+                    <td className="py-3 px-2.5 text-blue-600 font-medium">
                       {p.ip_address}
                     </td>
-                    <td className="py-3 px-2.5 text-slate-900 font-bold">
+                    <td className="py-3 px-2.5 text-slate-900 font-medium">
                       {p.port} / {p.protocol}
                     </td>
                     <td className="py-3 px-2.5">
-                      <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 text-[10px] font-bold">
+                      <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 text-[10px] font-medium">
                         {p.state}
                       </span>
                     </td>
-                    <td className="py-3 px-2.5 text-slate-800 font-sans font-bold">
+                    <td className="py-3 px-2.5 text-slate-800 font-heading font-medium">
                       {p.service_name}
                     </td>
                     <td className="py-3 px-2.5 text-slate-500 max-w-xs truncate">
@@ -697,7 +699,7 @@ function ConnectivityWorkspace() {
                     </td>
                     <td className="py-3 px-2.5">
                       <span
-                        className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                        className={`px-2.5 py-0.5 rounded-full text-[10px] font-medium ${
                           p.risk_level === "CRITICAL"
                             ? "bg-rose-50 text-rose-600 border border-rose-200"
                             : p.risk_level === "HIGH"
@@ -723,7 +725,7 @@ export default function ConnectivityPage() {
   return (
     <Suspense
       fallback={
-        <div className="p-8 text-center font-mono text-xs text-slate-400">
+        <div className="p-8 text-center font-typewriter text-xs text-slate-400">
           Loading Connectivity &amp; QoS Engine...
         </div>
       }

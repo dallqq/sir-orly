@@ -168,25 +168,25 @@ export default function SecurityAdvisorPage() {
       {/* Feature 5 Security Posture Banner */}
       <div className="bg-white border border-slate-200 rounded-3xl p-5 sm:p-6 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-xs font-bold mb-1.5">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-[11px] font-typewriter font-medium uppercase tracking-wider mb-2">
             <span>FEATURE 5 + BONUS FEATURES 4 &amp; 8 · SECURITY ADVISOR</span>
           </div>
-          <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-heading font-semibold text-slate-900 tracking-tight leading-tight">
             Automated Network Security Recommendations &amp; Alert Center
           </h1>
-          <p className="text-xs text-slate-400 mt-0.5">
+          <p className="text-xs text-slate-500 font-normal mt-1">
             Deterministic audit of Weak Connectivity Alerts, Unreachable Hosts, Basic Firewall Rules &amp; Password Reminders
           </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
-          <div className="px-4 py-2.5 rounded-2xl bg-[#F8FAFC] border border-slate-200/80 text-right font-mono">
-            <div className="text-[10px] font-bold text-slate-400 uppercase">
+          <div className="px-4 py-2.5 rounded-2xl bg-[#F8FAFC] border border-slate-200/80 text-right">
+            <div className="text-[10px] font-heading font-medium text-slate-400 uppercase tracking-wider">
               Posture Score
             </div>
-            <div className="text-xl font-extrabold text-blue-600">
+            <div className="text-2xl font-semibold text-blue-600 font-typewriter">
               {securityScore}/100{" "}
-              <span className="text-emerald-600">(Grade {securityGrade})</span>
+              <span className="text-emerald-600 font-typewriter font-medium text-base">(Grade {securityGrade})</span>
             </div>
           </div>
 
@@ -194,7 +194,7 @@ export default function SecurityAdvisorPage() {
             type="button"
             disabled={evaluating}
             onClick={handleReEvaluate}
-            className="px-5 py-3 rounded-full hyper-hero-gradient hover:brightness-105 disabled:opacity-50 text-white font-bold text-xs transition-all duration-200 ease-out cursor-pointer"
+            className="px-5 py-3 rounded-full hyper-hero-gradient hover:brightness-105 disabled:opacity-50 text-white font-heading font-semibold text-xs tracking-wide transition-all duration-200 ease-out cursor-pointer"
           >
             {evaluating ? "Evaluating..." : "Re-Evaluate Rules"}
           </button>

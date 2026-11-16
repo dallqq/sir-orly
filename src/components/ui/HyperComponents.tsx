@@ -129,7 +129,8 @@ export function HyperSpeedGauge({
               y={pos.y + 4}
               textAnchor="middle"
               fontSize="11"
-              fontWeight="700"
+              fontWeight="500"
+              fontFamily="var(--font-typewriter)"
               fill={isReached ? "#0F172A" : "#94A3B8"}
               className="transition-colors duration-200"
             >
@@ -169,14 +170,14 @@ export function HyperSpeedGauge({
       {/* Readout */}
       <div className="-mt-3 text-center">
         <div className="inline-flex items-baseline gap-1.5">
-          <span className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 font-mono">
+          <span className="text-3xl sm:text-4xl font-semibold tracking-tight text-slate-900 font-typewriter">
             {value.toFixed(2)}
           </span>
-          <span className="text-xs font-bold uppercase tracking-wider text-blue-600">
+          <span className="text-xs font-semibold uppercase tracking-wider text-blue-600 font-heading">
             {label}
           </span>
         </div>
-        <div className="text-[11px] font-medium text-slate-500 mt-0.5 flex items-center justify-center gap-1.5">
+        <div className="text-[11px] font-normal text-slate-500 mt-0.5 flex items-center justify-center gap-1.5">
           {isRunning && (
             <span className="h-2 w-2 rounded-full bg-blue-600 animate-pulse" />
           )}
@@ -317,7 +318,7 @@ export function MetricWaveCard({
           <div className="flex items-center gap-2">
             {icon && (
               <span
-                className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold ${
+                className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-medium ${
                   featured
                     ? "bg-white/20 text-white"
                     : "bg-blue-50 text-blue-600 border border-blue-100"
@@ -327,7 +328,7 @@ export function MetricWaveCard({
               </span>
             )}
             <span
-              className={`text-xs font-medium ${
+              className={`text-xs font-heading font-medium ${
                 featured ? "text-blue-100" : "text-slate-500"
               }`}
             >
@@ -336,7 +337,7 @@ export function MetricWaveCard({
           </div>
           {subtitle && (
             <span
-              className={`text-[10px] font-mono px-2 py-0.5 rounded-full font-semibold ${
+              className={`text-[10px] font-typewriter px-2 py-0.5 rounded-full font-medium ${
                 featured
                   ? "bg-white/20 text-white"
                   : "bg-slate-100 text-slate-600"
@@ -349,7 +350,7 @@ export function MetricWaveCard({
 
         <div className="flex items-baseline gap-1 pt-0.5">
           <span
-            className={`text-xl sm:text-2xl font-extrabold tracking-tight ${
+            className={`text-2xl sm:text-3xl font-semibold tracking-tight font-typewriter ${
               featured ? "text-white" : "text-slate-900"
             }`}
           >
@@ -357,7 +358,7 @@ export function MetricWaveCard({
           </span>
           {unit && (
             <span
-              className={`text-xs sm:text-sm font-semibold ${
+              className={`text-xs sm:text-sm font-heading font-medium ${
                 featured ? "text-blue-100" : "text-slate-500"
               }`}
             >
@@ -401,7 +402,7 @@ export function SegmentedPillControl<T extends string>({
             key={opt.id}
             type="button"
             onClick={() => onChange(opt.id)}
-            className={`rounded-full font-semibold transition-all duration-200 ease-out cursor-pointer flex items-center gap-1.5 ${
+            className={`rounded-full font-heading font-medium transition-all duration-200 ease-out cursor-pointer flex items-center gap-1.5 ${
               size === "sm" ? "px-3.5 py-1.5 text-xs" : "px-4 py-2 text-xs sm:text-sm"
             } ${
               active
@@ -413,7 +414,7 @@ export function SegmentedPillControl<T extends string>({
             <span>{opt.label}</span>
             {opt.count !== undefined && (
               <span
-                className={`text-[10px] font-mono px-1.5 py-0.5 rounded-full ${
+                className={`text-[10px] font-typewriter px-1.5 py-0.5 rounded-full ${
                   active
                     ? "bg-blue-500 text-white"
                     : "bg-slate-200/80 text-slate-600"
@@ -530,7 +531,7 @@ export function PingTargetRow({
           }`}
         />
         <div className="min-w-0">
-          <div className="font-bold text-sm text-slate-900 font-mono truncate">
+          <div className="font-typewriter font-medium text-sm text-slate-900 truncate">
             {ip}
           </div>
           <div className="text-xs text-slate-400 truncate">
@@ -542,7 +543,7 @@ export function PingTargetRow({
 
       <div className="flex items-center gap-3 ml-auto">
         <div className="flex items-center gap-2">
-          <span className={`text-xs sm:text-sm font-bold font-mono ${rttColor}`}>
+          <span className={`text-xs sm:text-sm font-typewriter font-medium ${rttColor}`}>
             {isOnline && rttMs !== null ? `${rttMs} ms` : "Timeout"}
           </span>
           <SignalStrengthBars rttMs={rttMs} isOnline={isOnline} />
@@ -666,7 +667,7 @@ export function LanDeviceCard({
           <div className="min-w-0">
             <div className="flex items-center gap-1.5">
               <h3
-                className={`font-bold text-base truncate ${
+                className={`font-heading font-semibold text-base truncate ${
                   featured ? "text-white" : "text-slate-900"
                 }`}
               >
@@ -674,7 +675,7 @@ export function LanDeviceCard({
               </h3>
               {device.is_gateway && (
                 <span
-                  className={`text-[10px] font-mono px-2 py-0.5 rounded-full font-bold ${
+                  className={`text-[10px] font-typewriter px-2 py-0.5 rounded-full font-medium ${
                     featured
                       ? "bg-white/20 text-white"
                       : "bg-blue-100 text-blue-700"
@@ -685,7 +686,7 @@ export function LanDeviceCard({
               )}
               {device.is_local_host && (
                 <span
-                  className={`text-[10px] font-mono px-2 py-0.5 rounded-full font-bold ${
+                  className={`text-[10px] font-typewriter px-2 py-0.5 rounded-full font-medium ${
                     featured
                       ? "bg-white/20 text-white"
                       : "bg-emerald-100 text-emerald-700"
@@ -696,7 +697,7 @@ export function LanDeviceCard({
               )}
             </div>
             <div
-              className={`text-xs font-mono mt-0.5 truncate ${
+              className={`text-xs font-typewriter mt-0.5 truncate ${
                 featured ? "text-blue-100" : "text-slate-400"
               }`}
             >
@@ -728,13 +729,13 @@ export function LanDeviceCard({
       >
         <div>
           <div
-            className={`text-[11px] ${
+            className={`text-[11px] font-heading font-medium ${
               featured ? "text-blue-200" : "text-slate-400"
             }`}
           >
             Status
           </div>
-          <div className="font-semibold flex items-center gap-1.5 mt-0.5">
+          <div className="font-medium flex items-center gap-1.5 mt-0.5">
             <span
               className={`w-2 h-2 rounded-full ${
                 device.is_online ? "bg-emerald-400" : "bg-rose-400"
@@ -748,14 +749,14 @@ export function LanDeviceCard({
 
         <div>
           <div
-            className={`text-[11px] ${
+            className={`text-[11px] font-heading font-medium ${
               featured ? "text-blue-200" : "text-slate-400"
             }`}
           >
             Activity / RTT
           </div>
           <div
-            className={`font-semibold font-mono mt-0.5 truncate ${
+            className={`font-medium font-typewriter mt-0.5 truncate ${
               featured ? "text-white" : "text-slate-800"
             }`}
           >
@@ -772,14 +773,14 @@ export function LanDeviceCard({
 
         <div>
           <div
-            className={`text-[11px] ${
+            className={`text-[11px] font-heading font-medium ${
               featured ? "text-blue-200" : "text-slate-400"
             }`}
           >
             Open Ports
           </div>
           <div
-            className={`font-semibold font-mono mt-0.5 truncate ${
+            className={`font-medium font-typewriter mt-0.5 truncate ${
               featured ? "text-white" : "text-slate-800"
             }`}
           >
@@ -796,7 +797,7 @@ export function LanDeviceCard({
           href={`/connectivity?target=${encodeURIComponent(
             device.ip_address
           )}&autostart=ping`}
-          className={`px-3 py-1 rounded-full text-[11px] font-semibold transition ${
+          className={`px-3 py-1 rounded-full text-[11px] font-medium transition ${
             featured
               ? "bg-white text-blue-700 hover:bg-blue-50"
               : "bg-blue-50 text-blue-600 hover:bg-blue-100"
@@ -808,7 +809,7 @@ export function LanDeviceCard({
           href={`/connectivity?target=${encodeURIComponent(
             device.ip_address
           )}&tab=ports&autostart=scan`}
-          className={`px-3 py-1 rounded-full text-[11px] font-semibold transition ${
+          className={`px-3 py-1 rounded-full text-[11px] font-medium transition ${
             featured
               ? "bg-white/20 text-white hover:bg-white/30"
               : "bg-slate-100 text-slate-700 hover:bg-slate-200"
@@ -820,7 +821,7 @@ export function LanDeviceCard({
           href={`/packets?filter=${encodeURIComponent(
             `host ${device.ip_address}`
           )}`}
-          className={`px-3 py-1 rounded-full text-[11px] font-semibold transition ${
+          className={`px-3 py-1 rounded-full text-[11px] font-medium transition ${
             featured
               ? "bg-white/20 text-white hover:bg-white/30"
               : "bg-slate-100 text-slate-700 hover:bg-slate-200"
@@ -899,15 +900,15 @@ export function ConnectionEdgeCaseBanner({
       {connectionState === "NETWORK_OFFLINE" && (
         <div className="rounded-3xl bg-rose-50/90 border border-rose-200 p-4 flex flex-col md:flex-row md:items-center justify-between gap-3">
           <div className="flex items-start gap-3">
-            <div className="w-9 h-9 rounded-2xl bg-rose-500 text-white flex items-center justify-center font-bold text-xs shrink-0">
+            <div className="w-9 h-9 rounded-2xl bg-rose-500 text-white flex items-center justify-center font-heading font-medium text-xs shrink-0">
               LAN
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-xs font-extrabold uppercase tracking-wider text-rose-700">
+                <span className="text-xs font-heading font-semibold uppercase tracking-wider text-rose-700">
                   Network Adapter Disconnected
                 </span>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-rose-200/80 text-rose-800">
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-typewriter font-medium bg-rose-200/80 text-rose-800">
                   OFFLINE
                 </span>
               </div>
@@ -920,14 +921,14 @@ export function ConnectionEdgeCaseBanner({
             <button
               type="button"
               onClick={onRetryConnection}
-              className="px-3.5 py-2 rounded-full bg-white hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-bold transition cursor-pointer"
+              className="px-3.5 py-2 rounded-full bg-white hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-medium transition cursor-pointer"
             >
               Re-Check Link
             </button>
             <button
               type="button"
               onClick={onSeedSimulation}
-              className="px-3.5 py-2 rounded-full bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition cursor-pointer"
+              className="px-3.5 py-2 rounded-full bg-rose-600 hover:bg-rose-700 text-white text-xs font-medium transition cursor-pointer"
             >
               Load Lab Topology
             </button>
@@ -938,15 +939,15 @@ export function ConnectionEdgeCaseBanner({
       {connectionState === "BACKEND_OFFLINE" && (
         <div className="rounded-3xl bg-amber-50/95 border border-amber-200/90 p-4 flex flex-col lg:flex-row lg:items-center justify-between gap-3">
           <div className="flex items-start gap-3">
-            <div className="w-9 h-9 rounded-2xl bg-amber-500 text-white flex items-center justify-center font-bold text-xs shrink-0">
+            <div className="w-9 h-9 rounded-2xl bg-amber-500 text-white flex items-center justify-center font-heading font-medium text-xs shrink-0">
               API
             </div>
             <div>
               <div className="flex flex-wrap items-center gap-2">
-                <span className="text-xs font-extrabold uppercase tracking-wider text-amber-900">
+                <span className="text-xs font-heading font-semibold uppercase tracking-wider text-amber-900">
                   Backend Standby Mode
                 </span>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-200/80 text-amber-900">
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-typewriter font-medium bg-amber-200/80 text-amber-900">
                   PORT 8000
                 </span>
               </div>
@@ -959,14 +960,14 @@ export function ConnectionEdgeCaseBanner({
             <button
               type="button"
               onClick={onRetryConnection}
-              className="px-4 py-2 rounded-full bg-white hover:bg-amber-100 text-amber-900 border border-amber-300 text-xs font-bold transition cursor-pointer"
+              className="px-4 py-2 rounded-full bg-white hover:bg-amber-100 text-amber-900 border border-amber-300 text-xs font-medium transition cursor-pointer"
             >
               Connect to API
             </button>
             <button
               type="button"
               onClick={onSeedSimulation}
-              className="px-4 py-2 rounded-full bg-[#141B2D] hover:bg-slate-800 text-white text-xs font-bold transition cursor-pointer"
+              className="px-4 py-2 rounded-full bg-[#141B2D] hover:bg-slate-800 text-white text-xs font-medium transition cursor-pointer"
             >
               Refresh Topology
             </button>
@@ -977,11 +978,11 @@ export function ConnectionEdgeCaseBanner({
       {connectionState === "LAN_ONLY" && (
         <div className="rounded-3xl bg-blue-50/90 border border-blue-200 p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-3 text-xs text-blue-900">
-            <span className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-xs shrink-0">
+            <span className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center font-heading font-medium text-xs shrink-0">
               LAN
             </span>
             <div>
-              <span className="font-bold">
+              <span className="font-heading font-semibold">
                 LAN Connected ({activeInterfaceName} · {localIp}) — Upstream WAN Offline:
               </span>{" "}
               <span className="text-blue-800/90">
@@ -992,7 +993,7 @@ export function ConnectionEdgeCaseBanner({
           <button
             type="button"
             onClick={onRetryConnection}
-            className="px-3 py-1.5 rounded-full bg-white text-blue-700 border border-blue-200 text-xs font-bold shrink-0 cursor-pointer"
+            className="px-3 py-1.5 rounded-full bg-white text-blue-700 border border-blue-200 text-xs font-medium shrink-0 cursor-pointer"
           >
             Verify Route
           </button>
@@ -1002,7 +1003,7 @@ export function ConnectionEdgeCaseBanner({
       {apiOnline && (
         <div className="bg-white border border-slate-200/80 rounded-2xl px-4 py-2.5 flex flex-wrap items-center justify-between gap-3 text-xs">
           <div className="flex flex-wrap items-center gap-3">
-            <span className="inline-flex items-center gap-1.5 font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200/80 px-2.5 py-1 rounded-full">
+            <span className="inline-flex items-center gap-1.5 font-medium text-emerald-700 bg-emerald-50 border border-emerald-200/80 px-2.5 py-1 rounded-full">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
               API Connected (Port 8000)
             </span>
@@ -1031,17 +1032,17 @@ export function ConnectionEdgeCaseBanner({
             </span>
           </div>
 
-          <div className="flex items-center gap-3 font-mono text-[11px] text-slate-500">
+          <div className="flex items-center gap-3 font-typewriter text-[11px] text-slate-500">
             <span>
-              NIC: <strong className="text-slate-800">{activeInterfaceName}</strong>
+              NIC: <strong className="text-slate-800 font-medium">{activeInterfaceName}</strong>
             </span>
             <span>·</span>
             <span>
-              IP: <strong className="text-blue-600">{localIp}</strong>
+              IP: <strong className="text-blue-600 font-medium">{localIp}</strong>
             </span>
             <span>·</span>
             <span>
-              CIDR: <strong className="text-slate-800">{subnetCidr}</strong>
+              CIDR: <strong className="text-slate-800 font-medium">{subnetCidr}</strong>
             </span>
           </div>
         </div>
