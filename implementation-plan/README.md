@@ -74,3 +74,5 @@ Read and execute the files in this folder in the following order:
    The master actionable checklist (`- [ ]`) broken down into **9 sequential phases** from project initialization to final verification and submission packaging.
 4. [**`04-AGENTIC-SKILLS-WORKFLOW.md`**](./04-AGENTIC-SKILLS-WORKFLOW.md)  
    Guide to the custom Antigravity Agentic Skills located in [`.agents/skills/`](../.agents/skills/) and how to invoke each skill/subagent for each phase of development.
+5. [**`05-REQUIREMENTS-GAP-ANALYSIS-AND-FIX-CHECKLIST.md`**](./05-REQUIREMENTS-GAP-ANALYSIS-AND-FIX-CHECKLIST.md)  
+   Comprehensive audit comparing the 6-page CCS 234 Final Project requirements & grading rubric against the current codebase, with an actionable step-by-step fix checklist.

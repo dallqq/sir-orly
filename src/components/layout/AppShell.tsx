@@ -30,7 +30,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const currentRoute =
     ROUTE_INFO[pathname] ||
     ROUTE_INFO["/" + pathname.split("/")[1]] || {
-      label: "Insert Name",
+      label: "NetPulse NOC",
       sub: "Live Network Telemetry & Diagnostics",
     };
 
@@ -81,7 +81,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               </div>
               <div className="flex flex-col justify-center">
                 <span className="font-heading font-bold tracking-tight text-slate-900 text-sm sm:text-base leading-none">
-                  Insert Name
+                  NetPulse
                 </span>
                 <div className="text-[11px] font-heading font-medium text-slate-400 mt-1 leading-none hidden md:block">
                   {currentRoute.label}
@@ -178,21 +178,20 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
                   )}
                   <span
-                    className={`relative inline-flex rounded-full h-2 w-2 ${
-                      wsConnected
-                        ? "bg-emerald-500"
-                        : apiOnline
+                    className={`relative inline-flex rounded-full h-2 w-2 ${wsConnected
+                      ? "bg-emerald-500"
+                      : apiOnline
                         ? "bg-blue-500"
                         : "bg-slate-400"
-                    }`}
+                      }`}
                   />
                 </span>
                 <span className="font-semibold text-[11px] text-slate-700 tracking-tight">
                   {wsConnected
                     ? "LIVE 2s"
                     : apiOnline
-                    ? "API ONLINE"
-                    : "OFFLINE"}
+                      ? "API ONLINE"
+                      : "OFFLINE"}
                 </span>
               </div>
 
@@ -225,9 +224,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               title="Refresh & Sync Backend Telemetry"
             >
               <svg
-                className={`w-3.5 h-3.5 transition-transform duration-500 ease-out ${
-                  isRefreshing ? "animate-spin text-blue-600" : "group-hover:rotate-180"
-                }`}
+                className={`w-3.5 h-3.5 transition-transform duration-500 ease-out ${isRefreshing ? "animate-spin text-blue-600" : "group-hover:rotate-180"
+                  }`}
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -332,11 +330,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 href={item.href}
                 title={item.label}
                 aria-label={item.label}
-                className={`w-11 h-11 rounded-full flex items-center justify-center transition-all duration-200 ease-out ${
-                  isActive
-                    ? "hyper-hero-gradient text-white scale-105 shadow-md shadow-blue-500/25"
-                    : "text-slate-400 hover:text-white bg-white/5 hover:bg-white/10"
-                }`}
+                className={`w-11 h-11 rounded-full flex items-center justify-center transition-all duration-200 ease-out ${isActive
+                  ? "hyper-hero-gradient text-white scale-105 shadow-md shadow-blue-500/25"
+                  : "text-slate-400 hover:text-white bg-white/5 hover:bg-white/10"
+                  }`}
               >
                 {item.icon(isActive)}
               </Link>

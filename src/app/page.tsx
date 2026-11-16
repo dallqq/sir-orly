@@ -153,7 +153,7 @@ export default function NocOverviewPage() {
                   <div className="text-[11px] text-slate-400">Server / NIC</div>
                   <div className="text-xs font-heading font-medium text-slate-900 truncate">
                     {activeInterface.interface_name !== "--"
-                      ? `HYPERNET · ${activeInterface.interface_name}`
+                      ? `NETPULSE · ${activeInterface.interface_name}`
                       : "--"}
                   </div>
                 </div>

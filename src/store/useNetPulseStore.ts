@@ -244,7 +244,7 @@ export async function refreshAllNetworkData(preferredNic?: string, showToastOnSu
         jitterMs: avgJitter,
         serverName:
           activeNic.interface_name !== "--"
-            ? `HYPERNET · ${activeNic.interface_name.toUpperCase()}`
+            ? `NETPULSE · ${activeNic.interface_name.toUpperCase()}`
             : "--",
         locationLabel:
           activeNic.local_ip !== "--"

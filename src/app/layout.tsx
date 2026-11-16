@@ -3,7 +3,7 @@ import { AppShell } from "@/components/layout/AppShell";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "HyperPulse NOC — Network Monitoring & Performance Analysis System",
+  title: "NetPulse NOC — Network Monitoring & Performance Analysis System",
   description:
     "CCS 234 Final Project: Python FastAPI + Next.js 16 Real-Time Network Discovery, Speed & Ping Diagnostics, Wireshark Packet Analysis, and Security Advisor.",
 };
