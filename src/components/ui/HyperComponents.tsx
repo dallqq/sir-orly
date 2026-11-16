@@ -305,43 +305,38 @@ export function MetricWaveCard({
   return (
     <div
       onClick={onClick}
-      className={`group relative rounded-3xl p-4 sm:p-5 transition-all duration-200 ease-out flex flex-col justify-between overflow-hidden border ${
-        onClick ? "cursor-pointer hover:border-blue-400" : ""
-      } ${
-        featured
+      className={`group relative rounded-3xl p-4 sm:p-5 transition-all duration-200 ease-out flex flex-col justify-between overflow-hidden border ${onClick ? "cursor-pointer hover:border-blue-400" : ""
+        } ${featured
           ? "hyper-hero-gradient text-white border-blue-600"
           : "bg-white text-slate-900 border-slate-200/90 hover:border-slate-300"
-      }`}
+        }`}
     >
       <div className="space-y-1.5">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             {icon && (
               <span
-                className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-medium ${
-                  featured
-                    ? "bg-white/20 text-white"
-                    : "bg-blue-50 text-blue-600 border border-blue-100"
-                }`}
+                className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-medium ${featured
+                  ? "bg-white/20 text-white"
+                  : "bg-blue-50 text-blue-600 border border-blue-100"
+                  }`}
               >
                 {icon}
               </span>
             )}
             <span
-              className={`text-xs font-heading font-medium ${
-                featured ? "text-blue-100" : "text-slate-500"
-              }`}
+              className={`text-xs font-heading font-medium ${featured ? "text-blue-100" : "text-slate-500"
+                }`}
             >
               {title}
             </span>
           </div>
           {subtitle && (
             <span
-              className={`text-[10px] font-typewriter px-2 py-0.5 rounded-full font-medium ${
-                featured
-                  ? "bg-white/20 text-white"
-                  : "bg-slate-100 text-slate-600"
-              }`}
+              className={`text-[10px] font-typewriter px-2 py-0.5 rounded-full font-medium ${featured
+                ? "bg-white/20 text-white"
+                : "bg-slate-100 text-slate-600"
+                }`}
             >
               {subtitle}
             </span>
@@ -350,17 +345,15 @@ export function MetricWaveCard({
 
         <div className="flex items-baseline gap-1 pt-0.5">
           <span
-            className={`text-2xl sm:text-3xl font-semibold tracking-tight font-typewriter ${
-              featured ? "text-white" : "text-slate-900"
-            }`}
+            className={`text-2xl sm:text-3xl font-semibold tracking-tight font-typewriter ${featured ? "text-white" : "text-slate-900"
+              }`}
           >
             {value}
           </span>
           {unit && (
             <span
-              className={`text-xs sm:text-sm font-heading font-medium ${
-                featured ? "text-blue-100" : "text-slate-500"
-              }`}
+              className={`text-xs sm:text-sm font-heading font-medium ${featured ? "text-blue-100" : "text-slate-500"
+                }`}
             >
               {unit}
             </span>
@@ -402,23 +395,20 @@ export function SegmentedPillControl<T extends string>({
             key={opt.id}
             type="button"
             onClick={() => onChange(opt.id)}
-            className={`rounded-full font-heading font-medium transition-all duration-200 ease-out cursor-pointer flex items-center gap-1.5 ${
-              size === "sm" ? "px-3.5 py-1.5 text-xs" : "px-4 py-2 text-xs sm:text-sm"
-            } ${
-              active
+            className={`rounded-full font-heading font-medium transition-all duration-200 ease-out cursor-pointer flex items-center gap-1.5 ${size === "sm" ? "px-3.5 py-1.5 text-xs" : "px-4 py-2 text-xs sm:text-sm"
+              } ${active
                 ? "bg-[#141B2D] text-white"
                 : "text-slate-500 hover:text-slate-900 hover:bg-slate-100/70"
-            }`}
+              }`}
           >
             {opt.icon && <span>{opt.icon}</span>}
             <span>{opt.label}</span>
             {opt.count !== undefined && (
               <span
-                className={`text-[10px] font-typewriter px-1.5 py-0.5 rounded-full ${
-                  active
-                    ? "bg-blue-500 text-white"
-                    : "bg-slate-200/80 text-slate-600"
-                }`}
+                className={`text-[10px] font-typewriter px-1.5 py-0.5 rounded-full ${active
+                  ? "bg-blue-500 text-white"
+                  : "bg-slate-200/80 text-slate-600"
+                  }`}
               >
                 {opt.count}
               </span>
@@ -447,9 +437,8 @@ export function SignalStrengthBars({
           <span
             key={idx}
             style={{ height: `${h}px` }}
-            className={`w-[3.5px] rounded-full ${
-              idx === 0 ? "bg-rose-500" : "bg-slate-200"
-            }`}
+            className={`w-[3.5px] rounded-full ${idx === 0 ? "bg-rose-500" : "bg-slate-200"
+              }`}
           />
         ))}
       </div>
@@ -461,8 +450,8 @@ export function SignalStrengthBars({
     rttMs < 55
       ? "bg-emerald-500"
       : rttMs < 90
-      ? "bg-amber-500"
-      : "bg-rose-500";
+        ? "bg-amber-500"
+        : "bg-rose-500";
 
   return (
     <div
@@ -473,9 +462,8 @@ export function SignalStrengthBars({
         <span
           key={idx}
           style={{ height: `${h}px` }}
-          className={`w-[3.5px] rounded-full transition-colors duration-200 ${
-            idx < activeBars ? colorClass : "bg-slate-200"
-          }`}
+          className={`w-[3.5px] rounded-full transition-colors duration-200 ${idx < activeBars ? colorClass : "bg-slate-200"
+            }`}
         />
       ))}
     </div>
@@ -508,27 +496,24 @@ export function PingTargetRow({
     !isOnline || rttMs === null
       ? "text-rose-500"
       : rttMs < 55
-      ? "text-emerald-500"
-      : rttMs < 90
-      ? "text-amber-500"
-      : "text-rose-500";
+        ? "text-emerald-500"
+        : rttMs < 90
+          ? "text-amber-500"
+          : "text-rose-500";
 
   return (
     <div
       onClick={onSelect}
-      className={`flex flex-wrap sm:flex-nowrap items-center justify-between gap-3 py-3.5 px-4 transition-colors duration-150 ${
-        onSelect ? "cursor-pointer" : ""
-      } ${
-        selected
+      className={`flex flex-wrap sm:flex-nowrap items-center justify-between gap-3 py-3.5 px-4 transition-colors duration-150 ${onSelect ? "cursor-pointer" : ""
+        } ${selected
           ? "bg-blue-50/80"
           : "hover:bg-slate-50/90"
-      }`}
+        }`}
     >
       <div className="min-w-0 flex items-center gap-3">
         <div
-          className={`w-2.5 h-2.5 rounded-full shrink-0 ${
-            isOnline ? "bg-emerald-500" : "bg-rose-500"
-          }`}
+          className={`w-2.5 h-2.5 rounded-full shrink-0 ${isOnline ? "bg-emerald-500" : "bg-rose-500"
+            }`}
         />
         <div className="min-w-0">
           <div className="font-typewriter font-medium text-sm text-slate-900 truncate">
@@ -634,68 +619,60 @@ export function LanDeviceCard({
   return (
     <div
       onClick={() => onSelect?.(device)}
-      className={`rounded-3xl p-5 transition-all duration-200 ease-out border ${
-        onSelect ? "cursor-pointer hover:border-blue-400" : ""
-      } ${
-        featured
+      className={`rounded-3xl p-5 transition-all duration-200 ease-out border ${onSelect ? "cursor-pointer hover:border-blue-400" : ""
+        } ${featured
           ? "hyper-hero-gradient text-white border-blue-600"
           : "bg-white text-slate-900 border-slate-200/90 hover:border-slate-300"
-      }`}
+        }`}
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-start gap-3 min-w-0">
           <div
-            className={`w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 ${
-              featured
-                ? "bg-white/15"
-                : "bg-blue-50/90 border border-blue-100"
-            }`}
+            className={`w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 ${featured
+              ? "bg-white/15"
+              : "bg-blue-50/90 border border-blue-100"
+              }`}
           >
             {renderDeviceSvg()}
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-1.5">
               <h3
-                className={`font-heading font-semibold text-base truncate ${
-                  featured ? "text-white" : "text-slate-900"
-                }`}
+                className={`font-heading font-semibold text-base truncate ${featured ? "text-white" : "text-slate-900"
+                  }`}
               >
                 {device.hostname}
               </h3>
               {device.is_gateway && (
                 <span
-                  className={`text-[10px] font-typewriter px-2 py-0.5 rounded-full font-medium ${
-                    featured
-                      ? "bg-white/20 text-white"
-                      : "bg-blue-100 text-blue-700"
-                  }`}
+                  className={`text-[10px] font-typewriter px-2 py-0.5 rounded-full font-medium ${featured
+                    ? "bg-white/20 text-white"
+                    : "bg-blue-100 text-blue-700"
+                    }`}
                 >
                   GW
                 </span>
               )}
               {device.is_local_host && (
                 <span
-                  className={`text-[10px] font-typewriter px-2 py-0.5 rounded-full font-medium ${
-                    featured
-                      ? "bg-white/20 text-white"
-                      : "bg-emerald-100 text-emerald-700"
-                  }`}
+                  className={`text-[10px] font-typewriter px-2 py-0.5 rounded-full font-medium ${featured
+                    ? "bg-white/20 text-white"
+                    : "bg-emerald-100 text-emerald-700"
+                    }`}
                 >
                   LOCAL
                 </span>
               )}
             </div>
             <div
-              className={`text-xs font-typewriter mt-0.5 truncate ${
-                featured ? "text-blue-100" : "text-slate-400"
-              }`}
+              className={`text-xs font-typewriter mt-0.5 truncate ${featured ? "text-blue-100" : "text-slate-400"
+                }`}
             >
               {device.ip_address || "--"} · {device.mac_address || "--"}
             </div>
             <div
-              className={`text-[11px] truncate ${
-                featured ? "text-blue-200" : "text-slate-400"
-              }`}
+              className={`text-[11px] truncate ${featured ? "text-blue-200" : "text-slate-400"
+                }`}
             >
               {device.vendor || "--"}{device.os_guess ? ` (${device.os_guess})` : ""}
             </div>
@@ -712,23 +689,20 @@ export function LanDeviceCard({
       </div>
 
       <div
-        className={`grid grid-cols-3 gap-2 pt-4 mt-3 border-t text-xs ${
-          featured ? "border-white/15" : "border-slate-100"
-        }`}
+        className={`grid grid-cols-3 gap-2 pt-4 mt-3 border-t text-xs ${featured ? "border-white/15" : "border-slate-100"
+          }`}
       >
         <div>
           <div
-            className={`text-[11px] font-heading font-medium ${
-              featured ? "text-blue-200" : "text-slate-400"
-            }`}
+            className={`text-[11px] font-heading font-medium ${featured ? "text-blue-200" : "text-slate-400"
+              }`}
           >
             Status
           </div>
           <div className="font-medium flex items-center gap-1.5 mt-0.5">
             <span
-              className={`w-2 h-2 rounded-full ${
-                device.is_online ? "bg-emerald-400" : "bg-rose-400"
-              }`}
+              className={`w-2 h-2 rounded-full ${device.is_online ? "bg-emerald-400" : "bg-rose-400"
+                }`}
             />
             <span className={featured ? "text-white" : "text-slate-800"}>
               {device.is_online ? "Online" : "Offline"}
@@ -738,23 +712,20 @@ export function LanDeviceCard({
 
         <div>
           <div
-            className={`text-[11px] font-heading font-medium ${
-              featured ? "text-blue-200" : "text-slate-400"
-            }`}
+            className={`text-[11px] font-heading font-medium ${featured ? "text-blue-200" : "text-slate-400"
+              }`}
           >
             Activity / RTT
           </div>
           <div
-            className={`font-medium font-typewriter mt-0.5 truncate ${
-              featured ? "text-white" : "text-slate-800"
-            }`}
+            className={`font-medium font-typewriter mt-0.5 truncate ${featured ? "text-white" : "text-slate-800"
+              }`}
           >
             {device.last_rtt_ms != null ? `${device.last_rtt_ms} ms` : "--"}{" "}
             {device.discovery_method && (
               <span
-                className={`text-[10px] font-sans ${
-                  featured ? "text-blue-100" : "text-slate-400"
-                }`}
+                className={`text-[10px] font-sans ${featured ? "text-blue-100" : "text-slate-400"
+                  }`}
               >
                 ({device.discovery_method})
               </span>
@@ -764,16 +735,14 @@ export function LanDeviceCard({
 
         <div>
           <div
-            className={`text-[11px] font-heading font-medium ${
-              featured ? "text-blue-200" : "text-slate-400"
-            }`}
+            className={`text-[11px] font-heading font-medium ${featured ? "text-blue-200" : "text-slate-400"
+              }`}
           >
             Open Ports
           </div>
           <div
-            className={`font-medium font-typewriter mt-0.5 truncate ${
-              featured ? "text-white" : "text-slate-800"
-            }`}
+            className={`font-medium font-typewriter mt-0.5 truncate ${featured ? "text-white" : "text-slate-800"
+              }`}
           >
             {device.open_ports_summary || "--"}
           </div>
@@ -788,11 +757,10 @@ export function LanDeviceCard({
           href={`/connectivity?target=${encodeURIComponent(
             device.ip_address
           )}&autostart=ping`}
-          className={`px-3 py-1 rounded-full text-[11px] font-medium transition ${
-            featured
-              ? "bg-white text-blue-700 hover:bg-blue-50"
-              : "bg-blue-50 text-blue-600 hover:bg-blue-100"
-          }`}
+          className={`px-3 py-1 rounded-full text-[11px] font-medium transition ${featured
+            ? "bg-white text-blue-700 hover:bg-blue-50"
+            : "bg-blue-50 text-blue-600 hover:bg-blue-100"
+            }`}
         >
           Ping
         </Link>
@@ -800,11 +768,10 @@ export function LanDeviceCard({
           href={`/connectivity?target=${encodeURIComponent(
             device.ip_address
           )}&tab=ports&autostart=scan`}
-          className={`px-3 py-1 rounded-full text-[11px] font-medium transition ${
-            featured
-              ? "bg-white/20 text-white hover:bg-white/30"
-              : "bg-slate-100 text-slate-700 hover:bg-slate-200"
-          }`}
+          className={`px-3 py-1 rounded-full text-[11px] font-medium transition ${featured
+            ? "bg-white/20 text-white hover:bg-white/30"
+            : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+            }`}
         >
           Ports
         </Link>
@@ -812,11 +779,10 @@ export function LanDeviceCard({
           href={`/packets?filter=${encodeURIComponent(
             `host ${device.ip_address}`
           )}`}
-          className={`px-3 py-1 rounded-full text-[11px] font-medium transition ${
-            featured
-              ? "bg-white/20 text-white hover:bg-white/30"
-              : "bg-slate-100 text-slate-700 hover:bg-slate-200"
-          }`}
+          className={`px-3 py-1 rounded-full text-[11px] font-medium transition ${featured
+            ? "bg-white/20 text-white hover:bg-white/30"
+            : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+            }`}
         >
           Sniff
         </Link>
@@ -852,19 +818,29 @@ export function ConnectionEdgeCaseBanner({
   onRetryConnection: () => void;
   onDismissNotice: () => void;
 }) {
+  const hasEdgeCase = Boolean(
+    statusNotice ||
+    connectionState === "NETWORK_OFFLINE" ||
+    connectionState === "BACKEND_OFFLINE" ||
+    connectionState === "LAN_ONLY"
+  );
+
+  if (!hasEdgeCase) {
+    return null;
+  }
+
   return (
     <div className="space-y-3">
       {statusNotice && (
         <div
-          className={`rounded-2xl px-4 py-3 border flex items-center justify-between gap-3 transition-all duration-200 ${
-            statusNotice.type === "success"
-              ? "bg-emerald-50 border-emerald-200 text-emerald-900"
-              : statusNotice.type === "warning"
+          className={`rounded-2xl px-4 py-3 border flex items-center justify-between gap-3 transition-all duration-200 ${statusNotice.type === "success"
+            ? "bg-emerald-50 border-emerald-200 text-emerald-900"
+            : statusNotice.type === "warning"
               ? "bg-amber-50 border-amber-200 text-amber-900"
               : statusNotice.type === "error"
-              ? "bg-rose-50 border-rose-200 text-rose-900"
-              : "bg-blue-50 border-blue-200 text-blue-900"
-          }`}
+                ? "bg-rose-50 border-rose-200 text-rose-900"
+                : "bg-blue-50 border-blue-200 text-blue-900"
+            }`}
         >
           <div className="flex items-center gap-3 min-w-0 text-xs">
             <span className="w-2 h-2 rounded-full bg-current shrink-0" />
@@ -972,54 +948,6 @@ export function ConnectionEdgeCaseBanner({
           >
             Verify Route
           </button>
-        </div>
-      )}
-
-      {apiOnline && (
-        <div className="bg-white border border-slate-200/80 rounded-2xl px-4 py-2.5 flex flex-wrap items-center justify-between gap-3 text-xs">
-          <div className="flex flex-wrap items-center gap-3">
-            <span className="inline-flex items-center gap-1.5 font-medium text-emerald-700 bg-emerald-50 border border-emerald-200/80 px-2.5 py-1 rounded-full">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              API Connected (Port 8000)
-            </span>
-            <span
-              className={`inline-flex items-center gap-1.5 font-medium px-2.5 py-1 rounded-full border ${
-                wsConnected
-                  ? "bg-blue-50 text-blue-700 border-blue-200/80"
-                  : "bg-slate-100 text-slate-600 border-slate-200"
-              }`}
-            >
-              <span
-                className={`w-1.5 h-1.5 rounded-full ${
-                  wsConnected ? "bg-blue-600 animate-pulse" : "bg-slate-400"
-                }`}
-              />
-              {wsConnected ? "WebSocket Live Stream" : "WebSocket Standby"}
-            </span>
-            <span
-              className={`inline-flex items-center gap-1.5 font-medium px-2.5 py-1 rounded-full border ${
-                internetReachable
-                  ? "bg-emerald-50/70 text-emerald-700 border-emerald-200/60"
-                  : "bg-amber-50 text-amber-700 border-amber-200"
-              }`}
-            >
-              {internetReachable ? "WAN Connected" : "Local LAN Active"}
-            </span>
-          </div>
-
-          <div className="flex items-center gap-3 font-typewriter text-[11px] text-slate-500">
-            <span>
-              NIC: <strong className="text-slate-800 font-medium">{activeInterfaceName}</strong>
-            </span>
-            <span>·</span>
-            <span>
-              IP: <strong className="text-blue-600 font-medium">{localIp}</strong>
-            </span>
-            <span>·</span>
-            <span>
-              CIDR: <strong className="text-slate-800 font-medium">{subnetCidr}</strong>
-            </span>
-          </div>
         </div>
       )}
     </div>

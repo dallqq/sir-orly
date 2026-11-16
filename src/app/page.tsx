@@ -51,21 +51,21 @@ export default function NocOverviewPage() {
   const avgLatency =
     validRtts.length > 0
       ? Number(
-          (
-            validRtts.reduce((acc, s) => acc + s.avg_latency_ms, 0) /
-            validRtts.length
-          ).toFixed(1)
-        )
+        (
+          validRtts.reduce((acc, s) => acc + s.avg_latency_ms, 0) /
+          validRtts.length
+        ).toFixed(1)
+      )
       : null;
 
   const avgJitter =
     validRtts.length > 0
       ? Number(
-          (
-            validRtts.reduce((acc, s) => acc + s.jitter_ms, 0) /
-            validRtts.length
-          ).toFixed(1)
-        )
+        (
+          validRtts.reduce((acc, s) => acc + s.jitter_ms, 0) /
+          validRtts.length
+        ).toFixed(1)
+      )
       : null;
 
   const downloadGb = totalMbRecv > 0 ? Number((totalMbRecv / 1024).toFixed(1)) : 0;
@@ -104,12 +104,12 @@ export default function NocOverviewPage() {
     speedBenchmark.isRunning
       ? speedBenchmark.gaugeValue
       : selectedFeatureMetric === "download"
-      ? speedBenchmark.downloadMbps
-      : selectedFeatureMetric === "upload"
-      ? speedBenchmark.uploadMbps
-      : selectedFeatureMetric === "ping"
-      ? (avgLatency ?? 0)
-      : (avgJitter ?? 0);
+        ? speedBenchmark.downloadMbps
+        : selectedFeatureMetric === "upload"
+          ? speedBenchmark.uploadMbps
+          : selectedFeatureMetric === "ping"
+            ? (avgLatency ?? 0)
+            : (avgJitter ?? 0);
 
   const activeGaugeUnit =
     selectedFeatureMetric === "ping" || selectedFeatureMetric === "jitter"
@@ -218,11 +218,10 @@ export default function NocOverviewPage() {
                   ? stopSpeedBenchmark()
                   : runSpeedBenchmark()
               }
-              className={`w-full py-3.5 rounded-full font-heading font-semibold text-sm transition-all duration-200 ease-out cursor-pointer ${
-                speedBenchmark.isRunning
-                  ? "bg-rose-500 hover:bg-rose-600 text-white"
-                  : "hyper-hero-gradient hover:brightness-105 text-white"
-              }`}
+              className={`w-full py-3.5 rounded-full font-heading font-semibold text-sm transition-all duration-200 ease-out cursor-pointer ${speedBenchmark.isRunning
+                ? "bg-rose-500 hover:bg-rose-600 text-white"
+                : "hyper-hero-gradient hover:brightness-105 text-white"
+                }`}
             >
               {speedBenchmark.isRunning
                 ? `Stop Test (${speedBenchmark.progressPct}%)`
@@ -278,33 +277,60 @@ export default function NocOverviewPage() {
             {/* Top Row: Remaining Quota / Subnet Capacity + Add Quota / Export PDF Button */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
               <div className="flex flex-wrap items-center gap-6 sm:gap-8">
+                {/* Metric 1: Remaining Telemetry Quota */}
                 <div>
-                  <div className="text-xs font-heading font-medium text-slate-400">
-                    Remaining Telemetry Quota
+                  <div className="text-[11px] font-heading font-semibold uppercase tracking-wider text-slate-400">
+                    Remaining Quota
                   </div>
-                  <div className="text-3xl sm:text-4xl font-semibold font-typewriter text-slate-900 tracking-tight mt-0.5">
-                    {quotaGb} GB
+                  <div className="flex items-baseline gap-1 mt-0.5">
+                    <span className="text-2xl sm:text-3xl font-bold font-typewriter text-slate-900 tracking-tight">
+                      {quotaGb}
+                    </span>
+                    <span className="text-xs font-heading font-semibold text-slate-400 uppercase">
+                      GB
+                    </span>
                   </div>
                 </div>
+
+                <div className="h-8 w-px bg-slate-200/80 hidden sm:block self-center" />
+
+                {/* Metric 2: Download */}
                 <div>
-                  <div className="text-xs font-heading font-medium text-slate-400">
+                  <div className="text-[11px] font-heading font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
                     Download
                   </div>
-                  <div className="text-2xl sm:text-3xl font-semibold font-typewriter text-slate-900 mt-0.5">
-                    {downloadGb} GB
+                  <div className="flex items-baseline gap-1 mt-0.5">
+                    <span className="text-2xl sm:text-3xl font-bold font-typewriter text-slate-900 tracking-tight">
+                      {downloadGb.toFixed(1)}
+                    </span>
+                    <span className="text-xs font-heading font-semibold text-slate-400 uppercase">
+                      GB
+                    </span>
                   </div>
                 </div>
+
+                <div className="h-8 w-px bg-slate-200/80 hidden sm:block self-center" />
+
+                {/* Metric 3: Upload */}
                 <div>
-                  <div className="text-xs font-heading font-medium text-slate-400">
+                  <div className="text-[11px] font-heading font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
                     Upload
                   </div>
-                  <div className="text-2xl sm:text-3xl font-semibold font-typewriter text-slate-900 mt-0.5">
-                    {uploadGb} GB
+                  <div className="flex items-baseline gap-1 mt-0.5">
+                    <span className="text-2xl sm:text-3xl font-bold font-typewriter text-slate-900 tracking-tight">
+                      {uploadGb.toFixed(1)}
+                    </span>
+                    <span className="text-xs font-heading font-semibold text-slate-400 uppercase">
+                      GB
+                    </span>
                   </div>
                 </div>
               </div>
 
-              <div className="flex items-center gap-2">
+              {/* Action Buttons */}
+              <div className="flex items-center gap-2 shrink-0">
                 <button
                   type="button"
                   onClick={() => {
@@ -315,17 +341,38 @@ export default function NocOverviewPage() {
                       "Added +32 GB to active monitoring quota allocation."
                     );
                   }}
-                  className="px-4 py-2 rounded-full bg-blue-50 hover:bg-blue-100 text-blue-600 font-heading font-medium text-xs transition-colors duration-200 cursor-pointer"
+                  className="h-9 px-3.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-600 font-heading font-semibold text-xs border border-blue-200/60 transition-colors duration-200 cursor-pointer flex items-center gap-1.5 shadow-2xs"
                 >
-                  Add Quota +
+                  <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                    <line x1="12" y1="5" x2="12" y2="19" />
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                  </svg>
+                  <span>Add Quota</span>
                 </button>
                 <button
                   type="button"
                   disabled={generatingPdf}
                   onClick={handleQuickReport}
-                  className="px-4 py-2 rounded-full bg-[#141B2D] hover:bg-slate-800 text-white font-heading font-medium text-xs transition-colors duration-200 cursor-pointer"
+                  className="h-9 px-4 rounded-xl bg-[#141B2D] hover:bg-slate-800 disabled:opacity-50 text-white font-heading font-semibold text-xs transition-colors duration-200 cursor-pointer flex items-center gap-1.5 shadow-2xs"
                 >
-                  {generatingPdf ? "Building PDF..." : "Export PDF"}
+                  {generatingPdf ? (
+                    <>
+                      <svg className="w-3.5 h-3.5 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                        <circle cx="12" cy="12" r="10" strokeOpacity="0.25" />
+                        <path d="M12 2a10 10 0 0 1 10 10" />
+                      </svg>
+                      <span>Exporting...</span>
+                    </>
+                  ) : (
+                    <>
+                      <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        <polyline points="7 10 12 15 17 10" />
+                        <line x1="12" y1="15" x2="12" y2="3" />
+                      </svg>
+                      <span>Export PDF</span>
+                    </>
+                  )}
                 </button>
               </div>
             </div>
@@ -349,33 +396,30 @@ export default function NocOverviewPage() {
                 <button
                   type="button"
                   onClick={() => setChartTab("analysis")}
-                  className={`px-3 py-1 rounded-full text-xs font-heading font-medium transition-all duration-200 ease-out cursor-pointer ${
-                    chartTab === "analysis"
-                      ? "bg-blue-600 text-white"
-                      : "text-slate-600 hover:text-slate-900"
-                  }`}
+                  className={`px-3 py-1 rounded-full text-xs font-heading font-medium transition-all duration-200 ease-out cursor-pointer ${chartTab === "analysis"
+                    ? "bg-blue-600 text-white"
+                    : "text-slate-600 hover:text-slate-900"
+                    }`}
                 >
                   Analysis
                 </button>
                 <button
                   type="button"
                   onClick={() => setChartTab("overview")}
-                  className={`px-3 py-1 rounded-full text-xs font-heading font-medium transition-all duration-200 ease-out cursor-pointer ${
-                    chartTab === "overview"
-                      ? "bg-blue-600 text-white"
-                      : "text-slate-600 hover:text-slate-900"
-                  }`}
+                  className={`px-3 py-1 rounded-full text-xs font-heading font-medium transition-all duration-200 ease-out cursor-pointer ${chartTab === "overview"
+                    ? "bg-blue-600 text-white"
+                    : "text-slate-600 hover:text-slate-900"
+                    }`}
                 >
                   Overview Bars
                 </button>
                 <button
                   type="button"
                   onClick={() => setChartTab("protocol")}
-                  className={`px-3 py-1 rounded-full text-xs font-heading font-medium transition-all duration-200 ease-out cursor-pointer ${
-                    chartTab === "protocol"
-                      ? "bg-blue-600 text-white"
-                      : "text-slate-600 hover:text-slate-900"
-                  }`}
+                  className={`px-3 py-1 rounded-full text-xs font-heading font-medium transition-all duration-200 ease-out cursor-pointer ${chartTab === "protocol"
+                    ? "bg-blue-600 text-white"
+                    : "text-slate-600 hover:text-slate-900"
+                    }`}
                 >
                   OSI Layers
                 </button>
@@ -389,8 +433,8 @@ export default function NocOverviewPage() {
                   {chartTab === "analysis"
                     ? "Analysis — Real-Time Latency & Jitter Stream"
                     : chartTab === "overview"
-                    ? "Overview — Weekly Downlink & Capacity Bars"
-                    : "OSI Layer 2–7 Protocol Breakdown"}
+                      ? "Overview — Weekly Downlink & Capacity Bars"
+                      : "OSI Layer 2–7 Protocol Breakdown"}
                 </h2>
                 <span className="text-xs font-typewriter text-blue-600 font-medium">
                   {timeRange.toUpperCase()} WINDOW
@@ -614,8 +658,8 @@ export default function NocOverviewPage() {
                     alert.severity === "CRITICAL"
                       ? "bg-rose-50 text-rose-600 border-rose-200"
                       : alert.severity === "HIGH"
-                      ? "bg-amber-50 text-amber-700 border-amber-200"
-                      : "bg-blue-50 text-blue-600 border-blue-200";
+                        ? "bg-amber-50 text-amber-700 border-amber-200"
+                        : "bg-blue-50 text-blue-600 border-blue-200";
                   return (
                     <div
                       key={alert.id || idx}

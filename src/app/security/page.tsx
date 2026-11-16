@@ -54,7 +54,7 @@ export default function SecurityAdvisorPage() {
       .then((res) => {
         if (res.outbox.length > 0) setOutbox(res.outbox);
       })
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   const handleReEvaluate = async () => {
@@ -209,10 +209,10 @@ export default function SecurityAdvisorPage() {
               alert.severity === "CRITICAL"
                 ? "bg-rose-50 text-rose-600 border-rose-200"
                 : alert.severity === "HIGH"
-                ? "bg-amber-50 text-amber-700 border-amber-200"
-                : alert.severity === "MEDIUM"
-                ? "bg-blue-50 text-blue-600 border-blue-200"
-                : "bg-emerald-50 text-emerald-600 border-emerald-200";
+                  ? "bg-amber-50 text-amber-700 border-amber-200"
+                  : alert.severity === "MEDIUM"
+                    ? "bg-blue-50 text-blue-600 border-blue-200"
+                    : "bg-emerald-50 text-emerald-600 border-emerald-200";
 
             return (
               <div

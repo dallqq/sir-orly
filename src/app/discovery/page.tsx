@@ -80,69 +80,108 @@ export default function NetworkDiscoveryPage() {
         </div>
 
         {/* 5 Feature 1 Mandatory Telemetry Cards (Local IP, CIDR Range, Subnet Mask, Gateway, MAC) */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
-          <div className="p-4 rounded-2xl bg-[#F8FAFC] border border-slate-200/80">
-            <div className="text-[11px] font-heading font-medium uppercase tracking-wider text-slate-400">
-              Detected Local IP
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-3.5">
+          <div className="p-3.5 sm:p-4 rounded-2xl bg-[#F8FAFC] border border-slate-200/80 overflow-hidden min-w-0 flex flex-col justify-between">
+            <div>
+              <div className="text-[11px] font-heading font-semibold uppercase tracking-wider text-slate-400 truncate">
+                Detected Local IP
+              </div>
+              <div
+                className="text-base sm:text-lg xl:text-xl font-bold font-typewriter text-blue-600 mt-1 truncate tracking-tight"
+                title={activeInterface.local_ip || "--"}
+              >
+                {activeInterface.local_ip || "--"}
+              </div>
             </div>
-            <div className="text-xl sm:text-2xl font-semibold font-typewriter text-blue-600 mt-1">
-              {activeInterface.local_ip || "--"}
-            </div>
-            <div className="text-[11px] text-slate-500 mt-0.5 truncate">
+            <div className="text-[11px] text-slate-500 mt-1 truncate">
               NIC: {activeInterface.interface_name || "--"}
             </div>
           </div>
 
-          <div className="p-4 rounded-2xl bg-[#F8FAFC] border border-slate-200/80">
-            <div className="text-[11px] font-heading font-medium uppercase tracking-wider text-slate-400">
-              Network Range (CIDR)
+          <div className="p-3.5 sm:p-4 rounded-2xl bg-[#F8FAFC] border border-slate-200/80 overflow-hidden min-w-0 flex flex-col justify-between">
+            <div>
+              <div className="text-[11px] font-heading font-semibold uppercase tracking-wider text-slate-400 truncate">
+                Network Range (CIDR)
+              </div>
+              <div
+                className="text-base sm:text-lg xl:text-xl font-bold font-typewriter text-slate-900 mt-1 truncate tracking-tight"
+                title={activeInterface.subnet_cidr || "--"}
+              >
+                {activeInterface.subnet_cidr || "--"}
+              </div>
             </div>
-            <div className="text-xl sm:text-2xl font-semibold font-typewriter text-slate-900 mt-1">
-              {activeInterface.subnet_cidr || "--"}
-            </div>
-            <div className="text-[11px] font-typewriter text-slate-500 mt-0.5 truncate">
+            <div
+              className="text-[10px] sm:text-[11px] font-typewriter text-slate-500 mt-1 truncate"
+              title={
+                activeInterface.first_usable_ip && activeInterface.last_usable_ip && activeInterface.first_usable_ip !== "--"
+                  ? `${activeInterface.first_usable_ip} – ${activeInterface.last_usable_ip}`
+                  : "--"
+              }
+            >
               {activeInterface.first_usable_ip && activeInterface.last_usable_ip && activeInterface.first_usable_ip !== "--"
                 ? `${activeInterface.first_usable_ip} – ${activeInterface.last_usable_ip}`
                 : "--"}
             </div>
           </div>
 
-          <div className="p-4 rounded-2xl bg-[#F8FAFC] border border-slate-200/80">
-            <div className="text-[11px] font-heading font-medium uppercase tracking-wider text-slate-400">
-              Subnet Mask
+          <div className="p-3.5 sm:p-4 rounded-2xl bg-[#F8FAFC] border border-slate-200/80 overflow-hidden min-w-0 flex flex-col justify-between">
+            <div>
+              <div className="text-[11px] font-heading font-semibold uppercase tracking-wider text-slate-400 truncate">
+                Subnet Mask
+              </div>
+              <div
+                className="text-base sm:text-lg xl:text-xl font-bold font-typewriter text-slate-900 mt-1 truncate tracking-tight"
+                title={activeInterface.netmask || "--"}
+              >
+                {activeInterface.netmask || "--"}
+              </div>
             </div>
-            <div className="text-xl sm:text-2xl font-semibold font-typewriter text-slate-900 mt-1">
-              {activeInterface.netmask || "--"}
-            </div>
-            <div className="text-[11px] text-slate-500 mt-0.5">
+            <div className="text-[11px] text-slate-500 mt-1 truncate">
               {activeInterface.usable_hosts > 0
                 ? `${activeInterface.usable_hosts} Usable Host IPs`
                 : "--"}
             </div>
           </div>
 
-          <div className="p-4 rounded-2xl bg-[#F8FAFC] border border-slate-200/80">
-            <div className="text-[11px] font-heading font-medium uppercase tracking-wider text-slate-400">
-              Default Gateway
+          <div className="p-3.5 sm:p-4 rounded-2xl bg-[#F8FAFC] border border-slate-200/80 overflow-hidden min-w-0 flex flex-col justify-between">
+            <div>
+              <div className="text-[11px] font-heading font-semibold uppercase tracking-wider text-slate-400 truncate">
+                Default Gateway
+              </div>
+              <div
+                className="text-base sm:text-lg xl:text-xl font-bold font-typewriter text-emerald-600 mt-1 truncate tracking-tight"
+                title={activeInterface.gateway_ip || "--"}
+              >
+                {activeInterface.gateway_ip || "--"}
+              </div>
             </div>
-            <div className="text-xl sm:text-2xl font-semibold font-typewriter text-emerald-600 mt-1">
-              {activeInterface.gateway_ip || "--"}
-            </div>
-            <div className="text-[11px] font-typewriter text-slate-500 mt-0.5 truncate">
+            <div
+              className="text-[10px] sm:text-[11px] font-typewriter text-slate-500 mt-1 truncate"
+              title={
+                activeInterface.broadcast_address && activeInterface.broadcast_address !== "--"
+                  ? `Bcast: ${activeInterface.broadcast_address}`
+                  : "--"
+              }
+            >
               {activeInterface.broadcast_address && activeInterface.broadcast_address !== "--"
                 ? `Bcast: ${activeInterface.broadcast_address}`
                 : "--"}
             </div>
           </div>
 
-          <div className="p-4 rounded-2xl bg-[#F8FAFC] border border-slate-200/80">
-            <div className="text-[11px] font-heading font-medium uppercase tracking-wider text-slate-400">
-              Local MAC Address
+          <div className="p-3.5 sm:p-4 rounded-2xl bg-[#F8FAFC] border border-slate-200/80 overflow-hidden min-w-0 flex flex-col justify-between">
+            <div>
+              <div className="text-[11px] font-heading font-semibold uppercase tracking-wider text-slate-400 truncate">
+                Local MAC Address
+              </div>
+              <div
+                className="text-base sm:text-lg xl:text-xl font-bold font-typewriter text-slate-900 mt-1 truncate tracking-tight"
+                title={activeInterface.mac_address || "--"}
+              >
+                {activeInterface.mac_address || "--"}
+              </div>
             </div>
-            <div className="text-xl sm:text-2xl font-semibold font-typewriter text-slate-900 mt-1">
-              {activeInterface.mac_address || "--"}
-            </div>
-            <div className="text-[11px] text-slate-500 mt-0.5">
+            <div className="text-[11px] text-slate-500 mt-1 truncate">
               Speed: {activeInterface.speed_mbps ? `${activeInterface.speed_mbps} Mbps` : "--"}
             </div>
           </div>
@@ -310,11 +349,10 @@ export default function NetworkDiscoveryPage() {
                   <div className="py-2.5 flex justify-between">
                     <span className="text-slate-400 font-heading font-medium">Status</span>
                     <span
-                      className={`font-medium ${
-                        activeSelected.is_online
-                          ? "text-emerald-600"
-                          : "text-rose-600"
-                      }`}
+                      className={`font-medium ${activeSelected.is_online
+                        ? "text-emerald-600"
+                        : "text-rose-600"
+                        }`}
                     >
                       ● {activeSelected.is_online ? "Online" : "Offline"}
                     </span>
@@ -465,11 +503,10 @@ export default function NetworkDiscoveryPage() {
                     <tr key={dev.ip_address} className="hover:bg-slate-50/90">
                       <td className="py-3 px-2.5">
                         <span
-                          className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-medium ${
-                            dev.is_online
-                              ? "bg-emerald-50 text-emerald-600 border border-emerald-200"
-                              : "bg-rose-50 text-rose-600 border border-rose-200"
-                          }`}
+                          className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-medium ${dev.is_online
+                            ? "bg-emerald-50 text-emerald-600 border border-emerald-200"
+                            : "bg-rose-50 text-rose-600 border border-rose-200"
+                            }`}
                         >
                           ● {dev.is_online ? "ONLINE" : "OFFLINE"}
                         </span>

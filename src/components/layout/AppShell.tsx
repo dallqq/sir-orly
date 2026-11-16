@@ -278,7 +278,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           width: "100%",
         }}
       >
-        <div className="noc-container py-6 sm:py-8 space-y-6">
+        <div className="noc-container pt-4 sm:pt-5 pb-28 space-y-6">
           {/* Global Edge-Case & Connection State Banner */}
           <ConnectionEdgeCaseBanner
             connectionState={connectionState}
@@ -299,11 +299,27 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </div>
       </main>
 
-      {/* Sticky Bottom Navigation Dock (Placed below the content, sticky) */}
-      <footer className="noc-bottom-bar">
+      {/* Floating Bottom Navigation Dock (No Underlying Full-Width Container) */}
+      <aside
+        aria-label="Bottom Navigation Dock"
+        style={{
+          position: "fixed",
+          bottom: "1.5rem",
+          left: 0,
+          right: 0,
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          pointerEvents: "none",
+          zIndex: 40,
+        }}
+      >
         <nav
           aria-label="Navigation Dock"
-          className="noc-pill-dock"
+          className="noc-pill-dock shadow-2xl"
+          style={{
+            pointerEvents: "auto",
+          }}
         >
           {NAV_ITEMS.map((item) => {
             const isActive =
@@ -327,7 +343,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             );
           })}
         </nav>
-      </footer>
+      </aside>
     </div>
   );
 }

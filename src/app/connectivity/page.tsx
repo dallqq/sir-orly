@@ -136,7 +136,7 @@ function ConnectivityWorkspace() {
       .then((r) => {
         if (r.results.length > 0) setPortResults(r.results);
       })
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   // Handle cross-page contextual URL parameters (?target=IP&tab=ports&autostart=ping|scan)
@@ -406,11 +406,10 @@ function ConnectivityWorkspace() {
                       >
                         <div className="flex items-center gap-2.5">
                           <span
-                            className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${
-                              item.status === "SUCCESS"
-                                ? "bg-emerald-50 text-emerald-600 border border-emerald-200"
-                                : "bg-rose-50 text-rose-600 border border-rose-200"
-                            }`}
+                            className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${item.status === "SUCCESS"
+                              ? "bg-emerald-50 text-emerald-600 border border-emerald-200"
+                              : "bg-rose-50 text-rose-600 border border-rose-200"
+                              }`}
                           >
                             {item.status}
                           </span>
@@ -426,11 +425,10 @@ function ConnectivityWorkspace() {
                         </div>
                         <div className="flex items-center gap-2.5">
                           <span
-                            className={`font-medium ${
-                              item.rtt_ms != null
-                                ? "text-blue-600"
-                                : "text-rose-500"
-                            }`}
+                            className={`font-medium ${item.rtt_ms != null
+                              ? "text-blue-600"
+                              : "text-rose-500"
+                              }`}
                           >
                             {item.rtt_ms != null
                               ? `${item.rtt_ms} ms${item.ttl != null ? ` (TTL=${item.ttl})` : ""}`
@@ -526,13 +524,12 @@ function ConnectivityWorkspace() {
                         <td className="py-3 px-2.5">
                           {s.packet_loss_pct != null ? (
                             <span
-                              className={`px-2.5 py-0.5 rounded-full text-[11px] font-medium ${
-                                s.packet_loss_pct >= 50
-                                  ? "bg-rose-50 text-rose-600 border border-rose-200"
-                                  : s.packet_loss_pct > 0
+                              className={`px-2.5 py-0.5 rounded-full text-[11px] font-medium ${s.packet_loss_pct >= 50
+                                ? "bg-rose-50 text-rose-600 border border-rose-200"
+                                : s.packet_loss_pct > 0
                                   ? "bg-amber-50 text-amber-700 border border-amber-200"
                                   : "bg-emerald-50 text-emerald-600 border border-emerald-200"
-                              }`}
+                                }`}
                             >
                               {s.packet_loss_pct}%
                             </span>
@@ -687,13 +684,12 @@ function ConnectivityWorkspace() {
                       </td>
                       <td className="py-3 px-2.5">
                         <span
-                          className={`px-2.5 py-0.5 rounded-full text-[10px] font-medium ${
-                            p.risk_level === "CRITICAL"
-                              ? "bg-rose-50 text-rose-600 border border-rose-200"
-                              : p.risk_level === "HIGH"
+                          className={`px-2.5 py-0.5 rounded-full text-[10px] font-medium ${p.risk_level === "CRITICAL"
+                            ? "bg-rose-50 text-rose-600 border border-rose-200"
+                            : p.risk_level === "HIGH"
                               ? "bg-amber-50 text-amber-700 border border-amber-200"
                               : "bg-blue-50 text-blue-600 border border-blue-200"
-                          }`}
+                            }`}
                         >
                           {p.risk_level || "--"}
                         </span>
