@@ -7,10 +7,7 @@ import {
   SignalStrengthBars,
 } from "@/components/ui/HyperComponents";
 import { PingSequenceReply, PortScanResult, netpulseApi } from "@/lib/api";
-import {
-  FALLBACK_PORT_RESULTS,
-  useNetPulseStore,
-} from "@/store/useNetPulseStore";
+import { useNetPulseStore } from "@/store/useNetPulseStore";
 import { useSearchParams } from "next/navigation";
 import React, {
   Suspense,
@@ -36,7 +33,7 @@ function ConnectivityWorkspace() {
     searchParams.get("tab") === "ports" ? "ports" : "ping"
   );
   const [targetIp, setTargetIp] = useState<string>(
-    () => searchParams.get("target") || "192.168.1.1"
+    () => searchParams.get("target") || ""
   );
   const [pingFilter, setPingFilter] = useState<string>("");
   const [pingCount, setPingCount] = useState<number>(4);
@@ -47,22 +44,24 @@ function ConnectivityWorkspace() {
 
   // Bonus Feature 5: Async Socket Port Scanner state
   const [portTargetIp, setPortTargetIp] = useState<string>(
-    () => searchParams.get("target") || "192.168.1.10"
+    () => searchParams.get("target") || ""
   );
   const [portPreset, setPortPreset] = useState<string>("quick");
   const [customPorts, setCustomPorts] = useState<string>(
     "21,22,23,80,135,443,445,3306,3389,8000"
   );
   const [isScanningPorts, setIsScanningPorts] = useState<boolean>(false);
-  const [portResults, setPortResults] = useState<PortScanResult[]>(
-    FALLBACK_PORT_RESULTS
-  );
+  const [portResults, setPortResults] = useState<PortScanResult[]>([]);
 
   const autoTriggeredRef = useRef<string>("");
 
   const handleRunPing = useCallback(
     async (overrideTarget?: string) => {
-      const ipToTest = (overrideTarget || targetIp).trim() || "127.0.0.1";
+      const ipToTest = (overrideTarget || targetIp).trim();
+      if (!ipToTest) {
+        postStatusNotice("info", "No Target Specified", "Please enter or select a target IP address.");
+        return;
+      }
       setIsPinging(true);
       clearPingStream();
       try {
@@ -80,42 +79,10 @@ function ConnectivityWorkspace() {
           "Ping Sequence Completed",
           `Received ${allSamples.filter((s) => s.status === "SUCCESS").length}/${allSamples.length} replies from ${ipToTest}.`
         );
-      } catch {
-        // Offline simulation fallback so ping works even when backend is stopped
-        const targets = ipToTest
-          .split(",")
-          .map((t) => t.trim())
-          .filter(Boolean);
-        const simulated: PingSequenceReply[] = [];
-        for (const t of targets) {
-          const matchDev = devices.find((d) => d.ip_address === t);
-          const isUnreachable = matchDev ? !matchDev.is_online : false;
-          const baseRtt = matchDev?.last_rtt_ms ?? 14.2;
-          for (let seq = 1; seq <= pingCount; seq++) {
-            await new Promise((r) => setTimeout(r, 110));
-            const rtt = isUnreachable
-              ? null
-              : Number((baseRtt + Math.sin(seq * 1.3) * 1.4).toFixed(2));
-            simulated.push({
-              ip_address: t,
-              hostname: matchDev?.hostname || `host-${t.replace(/\./g, "-")}.hyper.net`,
-              seq,
-              count: pingCount,
-              bytes: packetSize,
-              rtt_ms: rtt,
-              ttl: isUnreachable ? null : 64,
-              status: isUnreachable ? "TIMEOUT" : "SUCCESS",
-              protocol: protocol === "tcp" ? "TCP_PING" : "ICMP",
-              timestamp: new Date().toISOString(),
-            });
-          }
-        }
-        setLocalReplies(simulated);
-        postStatusNotice(
-          "info",
-          "Ping Sequence Completed (Simulated)",
-          `Tested ${ipToTest} (${pingCount} packets) in local interactive simulation mode.`
-        );
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : "Failed to execute ping sequence.";
+        setLocalReplies([]);
+        postStatusNotice("error", "Ping Execution Failed", msg);
       } finally {
         setIsPinging(false);
       }
@@ -125,7 +92,6 @@ function ConnectivityWorkspace() {
       pingCount,
       packetSize,
       protocol,
-      devices,
       clearPingStream,
       refreshAllNetworkData,
       postStatusNotice,
@@ -134,7 +100,11 @@ function ConnectivityWorkspace() {
 
   const handleRunPortScan = useCallback(
     async (overrideTarget?: string) => {
-      const ipToScan = (overrideTarget || portTargetIp).trim() || "127.0.0.1";
+      const ipToScan = (overrideTarget || portTargetIp).trim();
+      if (!ipToScan) {
+        postStatusNotice("info", "No Target Specified", "Please enter or select a target IP address for port scanning.");
+        return;
+      }
       setIsScanningPorts(true);
       try {
         const res = await netpulseApi.scanPorts({
@@ -149,17 +119,9 @@ function ConnectivityWorkspace() {
           "Socket Port Scan Completed",
           `Found ${res.results.length} open TCP ports on ${ipToScan}.`
         );
-      } catch {
-        await new Promise((r) => setTimeout(r, 450));
-        const filtered = FALLBACK_PORT_RESULTS.filter(
-          (p) => p.ip_address === ipToScan
-        );
-        setPortResults(filtered.length > 0 ? filtered : FALLBACK_PORT_RESULTS);
-        postStatusNotice(
-          "info",
-          "Socket Port Scan Completed (Simulated)",
-          `Inspected well-known ports and service banners for ${ipToScan}.`
-        );
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : "Failed to complete port scan.";
+        postStatusNotice("error", "Port Scan Failed", msg);
       } finally {
         setIsScanningPorts(false);
       }
@@ -290,20 +252,26 @@ function ConnectivityWorkspace() {
 
                 {/* Clean Divided Host List with 4-Bar Signal Strength */}
                 <div className="divide-y divide-slate-100 rounded-2xl border border-slate-100 max-h-80 overflow-y-auto">
-                  {filteredPingTargets.map((dev) => (
-                    <PingTargetRow
-                      key={dev.ip_address}
-                      ip={dev.ip_address}
-                      hostname={dev.hostname}
-                      rttMs={dev.last_rtt_ms}
-                      isOnline={dev.is_online}
-                      selected={targetIp === dev.ip_address}
-                      onSelect={() => {
-                        setTargetIp(dev.ip_address);
-                        handleRunPing(dev.ip_address);
-                      }}
-                    />
-                  ))}
+                  {filteredPingTargets.length === 0 ? (
+                    <div className="py-8 text-center text-xs text-slate-400">
+                      No ping targets available. Run a LAN discovery sweep to find active hosts.
+                    </div>
+                  ) : (
+                    filteredPingTargets.map((dev) => (
+                      <PingTargetRow
+                        key={dev.ip_address}
+                        ip={dev.ip_address}
+                        hostname={dev.hostname}
+                        rttMs={dev.last_rtt_ms}
+                        isOnline={dev.is_online}
+                        selected={targetIp === dev.ip_address}
+                        onSelect={() => {
+                          setTargetIp(dev.ip_address);
+                          handleRunPing(dev.ip_address);
+                        }}
+                      />
+                    ))
+                  )}
                 </div>
               </div>
 
@@ -327,7 +295,7 @@ function ConnectivityWorkspace() {
                       type="text"
                       value={targetIp}
                       onChange={(e) => setTargetIp(e.target.value)}
-                      placeholder="192.168.1.1, 192.168.1.10"
+                      placeholder="e.g. 192.168.1.1, 8.8.8.8"
                       className="w-full bg-[#F8FAFC] border border-slate-200 rounded-2xl px-4 py-2.5 font-typewriter font-medium text-blue-600 focus:outline-none focus:border-blue-500"
                     />
                   </div>
@@ -465,7 +433,7 @@ function ConnectivityWorkspace() {
                             }`}
                           >
                             {item.rtt_ms != null
-                              ? `${item.rtt_ms} ms (TTL=${item.ttl ?? 64})`
+                              ? `${item.rtt_ms} ms${item.ttl != null ? ` (TTL=${item.ttl})` : ""}`
                               : "Timeout (100% loss)"}
                           </span>
                           <SignalStrengthBars
@@ -528,50 +496,62 @@ function ConnectivityWorkspace() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  {qosStats.map((s) => (
-                    <tr key={s.ip_address} className="hover:bg-slate-50/90">
-                      <td className="py-3 px-2.5 text-slate-900 font-heading font-medium">
-                        {s.hostname}
-                      </td>
-                      <td className="py-3 px-2.5 text-blue-600 font-medium">
-                        {s.ip_address}
-                      </td>
-                      <td className="py-3 px-2.5 text-slate-600">
-                        {s.min_latency_ms} ms
-                      </td>
-                      <td className="py-3 px-2.5 text-emerald-600 font-medium">
-                        {s.avg_latency_ms} ms
-                      </td>
-                      <td className="py-3 px-2.5 text-amber-600 font-medium">
-                        {s.max_latency_ms} ms
-                      </td>
-                      <td className="py-3 px-2.5 text-slate-700 font-medium">
-                        {s.jitter_ms} ms
-                      </td>
-                      <td className="py-3 px-2.5">
-                        <span
-                          className={`px-2.5 py-0.5 rounded-full text-[11px] font-medium ${
-                            s.packet_loss_pct >= 50
-                              ? "bg-rose-50 text-rose-600 border border-rose-200"
-                              : s.packet_loss_pct > 0
-                              ? "bg-amber-50 text-amber-700 border border-amber-200"
-                              : "bg-emerald-50 text-emerald-600 border border-emerald-200"
-                          }`}
-                        >
-                          {s.packet_loss_pct}%
-                        </span>
-                      </td>
-                      <td className="py-3 px-2.5 text-slate-500 font-typewriter">
-                        {s.packets_received}/{s.packets_sent}
-                      </td>
-                      <td className="py-3 px-2.5">
-                        <SignalStrengthBars
-                          rttMs={s.avg_latency_ms}
-                          isOnline={s.packet_loss_pct < 100}
-                        />
+                  {qosStats.length === 0 ? (
+                    <tr>
+                      <td colSpan={9} className="py-8 text-center text-slate-400 font-sans">
+                        No network QoS statistics recorded yet. Execute a ping test above to populate telemetry.
                       </td>
                     </tr>
-                  ))}
+                  ) : (
+                    qosStats.map((s) => (
+                      <tr key={s.ip_address} className="hover:bg-slate-50/90">
+                        <td className="py-3 px-2.5 text-slate-900 font-heading font-medium">
+                          {s.hostname || "--"}
+                        </td>
+                        <td className="py-3 px-2.5 text-blue-600 font-medium">
+                          {s.ip_address || "--"}
+                        </td>
+                        <td className="py-3 px-2.5 text-slate-600">
+                          {s.min_latency_ms != null ? `${s.min_latency_ms} ms` : "--"}
+                        </td>
+                        <td className="py-3 px-2.5 text-emerald-600 font-medium">
+                          {s.avg_latency_ms != null ? `${s.avg_latency_ms} ms` : "--"}
+                        </td>
+                        <td className="py-3 px-2.5 text-amber-600 font-medium">
+                          {s.max_latency_ms != null ? `${s.max_latency_ms} ms` : "--"}
+                        </td>
+                        <td className="py-3 px-2.5 text-slate-700 font-medium">
+                          {s.jitter_ms != null ? `${s.jitter_ms} ms` : "--"}
+                        </td>
+                        <td className="py-3 px-2.5">
+                          {s.packet_loss_pct != null ? (
+                            <span
+                              className={`px-2.5 py-0.5 rounded-full text-[11px] font-medium ${
+                                s.packet_loss_pct >= 50
+                                  ? "bg-rose-50 text-rose-600 border border-rose-200"
+                                  : s.packet_loss_pct > 0
+                                  ? "bg-amber-50 text-amber-700 border border-amber-200"
+                                  : "bg-emerald-50 text-emerald-600 border border-emerald-200"
+                              }`}
+                            >
+                              {s.packet_loss_pct}%
+                            </span>
+                          ) : (
+                            "--"
+                          )}
+                        </td>
+                        <td className="py-3 px-2.5 text-slate-500 font-typewriter">
+                          {s.packets_sent != null ? `${s.packets_received}/${s.packets_sent}` : "--"}
+                        </td>
+                        <td className="py-3 px-2.5">
+                          <SignalStrengthBars
+                            rttMs={s.avg_latency_ms}
+                            isOnline={s.packet_loss_pct != null ? s.packet_loss_pct < 100 : false}
+                          />
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>
@@ -590,6 +570,7 @@ function ConnectivityWorkspace() {
                   type="text"
                   value={portTargetIp}
                   onChange={(e) => setPortTargetIp(e.target.value)}
+                  placeholder="e.g. 192.168.1.1"
                   className="w-full bg-[#F8FAFC] border border-slate-200 rounded-2xl px-4 py-2.5 text-xs font-typewriter font-medium text-blue-600"
                 />
               </div>
@@ -672,46 +653,54 @@ function ConnectivityWorkspace() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {portResults.map((p, idx) => (
-                  <tr
-                    key={`${p.ip_address}-${p.port}-${idx}`}
-                    className="hover:bg-slate-50/90"
-                  >
-                    <td className="py-3 px-2.5 text-blue-600 font-medium">
-                      {p.ip_address}
-                    </td>
-                    <td className="py-3 px-2.5 text-slate-900 font-medium">
-                      {p.port} / {p.protocol}
-                    </td>
-                    <td className="py-3 px-2.5">
-                      <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 text-[10px] font-medium">
-                        {p.state}
-                      </span>
-                    </td>
-                    <td className="py-3 px-2.5 text-slate-800 font-heading font-medium">
-                      {p.service_name}
-                    </td>
-                    <td className="py-3 px-2.5 text-slate-500 max-w-xs truncate">
-                      {p.banner}
-                    </td>
-                    <td className="py-3 px-2.5 text-blue-600 text-[11px] font-sans font-medium">
-                      {p.osi_layer}
-                    </td>
-                    <td className="py-3 px-2.5">
-                      <span
-                        className={`px-2.5 py-0.5 rounded-full text-[10px] font-medium ${
-                          p.risk_level === "CRITICAL"
-                            ? "bg-rose-50 text-rose-600 border border-rose-200"
-                            : p.risk_level === "HIGH"
-                            ? "bg-amber-50 text-amber-700 border border-amber-200"
-                            : "bg-blue-50 text-blue-600 border border-blue-200"
-                        }`}
-                      >
-                        {p.risk_level}
-                      </span>
+                {portResults.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="py-8 text-center text-slate-400 font-sans">
+                      No open ports scanned yet. Enter a host IP and click &ldquo;Launch Socket Port Scan&rdquo;.
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  portResults.map((p, idx) => (
+                    <tr
+                      key={`${p.ip_address}-${p.port}-${idx}`}
+                      className="hover:bg-slate-50/90"
+                    >
+                      <td className="py-3 px-2.5 text-blue-600 font-medium">
+                        {p.ip_address || "--"}
+                      </td>
+                      <td className="py-3 px-2.5 text-slate-900 font-medium">
+                        {p.port} / {p.protocol}
+                      </td>
+                      <td className="py-3 px-2.5">
+                        <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 text-[10px] font-medium">
+                          {p.state || "--"}
+                        </span>
+                      </td>
+                      <td className="py-3 px-2.5 text-slate-800 font-heading font-medium">
+                        {p.service_name || "--"}
+                      </td>
+                      <td className="py-3 px-2.5 text-slate-500 max-w-xs truncate">
+                        {p.banner || "--"}
+                      </td>
+                      <td className="py-3 px-2.5 text-blue-600 text-[11px] font-sans font-medium">
+                        {p.osi_layer || "--"}
+                      </td>
+                      <td className="py-3 px-2.5">
+                        <span
+                          className={`px-2.5 py-0.5 rounded-full text-[10px] font-medium ${
+                            p.risk_level === "CRITICAL"
+                              ? "bg-rose-50 text-rose-600 border border-rose-200"
+                              : p.risk_level === "HIGH"
+                              ? "bg-amber-50 text-amber-700 border border-amber-200"
+                              : "bg-blue-50 text-blue-600 border border-blue-200"
+                          }`}
+                        >
+                          {p.risk_level || "--"}
+                        </span>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>

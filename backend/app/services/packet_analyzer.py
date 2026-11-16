@@ -268,7 +268,7 @@ def synthesize_live_socket_packets(limit: int = 35, bpf_filter: str = "") -> lis
     """Automatic Fallback when Npcap is absent: synthesize Scapy packets from live `psutil.net_connections`."""
     from scapy.all import IP, TCP, Ether, Raw  # type: ignore[import-untyped]
 
-    packets = build_sample_lan_packets()
+    packets: list[Any] = []
     try:
         conns = psutil.net_connections(kind="inet")
         base_t = time.time()
@@ -412,7 +412,7 @@ def load_pcap_session(session: Session, session_id: int) -> dict[str, Any]:
 
     path = Path(cap.file_path)
     if not path.exists():
-        pkts = build_sample_lan_packets()
+        pkts = []
     else:
         pkts = list(rdpcap(str(path)))
 

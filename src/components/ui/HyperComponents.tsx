@@ -207,7 +207,7 @@ export function MiniWaveSparkline({
   const padY = 6;
   const innerW = width - padX * 2;
   const innerH = height - padY * 2;
-  const safePts = points.length > 1 ? points : [30, 50, 40, 65, 55, 75];
+  const safePts = points && points.length > 1 ? points : [0, 0];
   const minVal = Math.min(...safePts);
   const maxVal = Math.max(minVal + 1, ...safePts);
 
@@ -544,7 +544,7 @@ export function PingTargetRow({
       <div className="flex items-center gap-3 ml-auto">
         <div className="flex items-center gap-2">
           <span className={`text-xs sm:text-sm font-typewriter font-medium ${rttColor}`}>
-            {isOnline && rttMs !== null ? `${rttMs} ms` : "Timeout"}
+            {rttMs !== null ? `${rttMs} ms` : isOnline ? "--" : "Timeout"}
           </span>
           <SignalStrengthBars rttMs={rttMs} isOnline={isOnline} />
         </div>
@@ -585,21 +585,10 @@ export function LanDeviceCard({
     iconType = "camera";
   }
 
-  const seed = device.ip_address
-    .split(".")
-    .reduce((acc, part) => acc + (parseInt(part, 10) || 1), 0);
-  const wavePoints = device.is_online
-    ? [
-        24 + (seed % 20),
-        38 + ((seed * 3) % 28),
-        29 + ((seed * 7) % 22),
-        52 + ((seed * 5) % 30),
-        34 + ((seed * 2) % 26),
-        64 + ((seed * 11) % 25),
-        41 + ((seed * 13) % 32),
-        58 + ((seed * 17) % 28),
-      ]
-    : [12, 12, 12, 12, 12, 12, 12, 12];
+  const wavePoints =
+    device.is_online && device.last_rtt_ms != null && device.last_rtt_ms > 0
+      ? [device.last_rtt_ms, device.last_rtt_ms]
+      : [0, 0];
 
   const renderDeviceSvg = () => {
     const strokeCol = featured ? "#FFFFFF" : "#1E6BFF";
@@ -701,14 +690,14 @@ export function LanDeviceCard({
                 featured ? "text-blue-100" : "text-slate-400"
               }`}
             >
-              {device.ip_address} · {device.mac_address}
+              {device.ip_address || "--"} · {device.mac_address || "--"}
             </div>
             <div
               className={`text-[11px] truncate ${
                 featured ? "text-blue-200" : "text-slate-400"
               }`}
             >
-              {device.vendor} ({device.os_guess})
+              {device.vendor || "--"}{device.os_guess ? ` (${device.os_guess})` : ""}
             </div>
           </div>
         </div>
@@ -760,14 +749,16 @@ export function LanDeviceCard({
               featured ? "text-white" : "text-slate-800"
             }`}
           >
-            {device.last_rtt_ms != null ? `${device.last_rtt_ms} ms` : "—"}{" "}
-            <span
-              className={`text-[10px] font-sans ${
-                featured ? "text-blue-100" : "text-slate-400"
-              }`}
-            >
-              ({device.discovery_method})
-            </span>
+            {device.last_rtt_ms != null ? `${device.last_rtt_ms} ms` : "--"}{" "}
+            {device.discovery_method && (
+              <span
+                className={`text-[10px] font-sans ${
+                  featured ? "text-blue-100" : "text-slate-400"
+                }`}
+              >
+                ({device.discovery_method})
+              </span>
+            )}
           </div>
         </div>
 
@@ -784,7 +775,7 @@ export function LanDeviceCard({
               featured ? "text-white" : "text-slate-800"
             }`}
           >
-            {device.open_ports_summary || "Standard"}
+            {device.open_ports_summary || "--"}
           </div>
         </div>
       </div>
@@ -848,7 +839,6 @@ export function ConnectionEdgeCaseBanner({
   subnetCidr,
   statusNotice,
   onRetryConnection,
-  onSeedSimulation,
   onDismissNotice,
 }: {
   connectionState: ConnectionStateMode;
@@ -860,7 +850,6 @@ export function ConnectionEdgeCaseBanner({
   subnetCidr: string;
   statusNotice: StatusNotice | null;
   onRetryConnection: () => void;
-  onSeedSimulation: () => void;
   onDismissNotice: () => void;
 }) {
   return (
@@ -925,13 +914,6 @@ export function ConnectionEdgeCaseBanner({
             >
               Re-Check Link
             </button>
-            <button
-              type="button"
-              onClick={onSeedSimulation}
-              className="px-3.5 py-2 rounded-full bg-rose-600 hover:bg-rose-700 text-white text-xs font-medium transition cursor-pointer"
-            >
-              Load Lab Topology
-            </button>
           </div>
         </div>
       )}
@@ -963,13 +945,6 @@ export function ConnectionEdgeCaseBanner({
               className="px-4 py-2 rounded-full bg-white hover:bg-amber-100 text-amber-900 border border-amber-300 text-xs font-medium transition cursor-pointer"
             >
               Connect to API
-            </button>
-            <button
-              type="button"
-              onClick={onSeedSimulation}
-              className="px-4 py-2 rounded-full bg-[#141B2D] hover:bg-slate-800 text-white text-xs font-medium transition cursor-pointer"
-            >
-              Refresh Topology
             </button>
           </div>
         </div>

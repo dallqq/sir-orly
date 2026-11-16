@@ -51,383 +51,24 @@ export type ConnectionStateMode =
   | "RECONNECTING";
 
 const DEFAULT_NIC: NetworkInterfaceInfo = {
-  interface_name: "Wi-Fi",
-  local_ip: "192.168.254.104",
-  netmask: "255.255.255.0",
-  mac_address: "00:D4:9E:B7:E7:D8",
-  gateway_ip: "192.168.254.254",
-  subnet_cidr: "192.168.254.0/24",
-  true_cidr: "192.168.254.0/24",
-  network_address: "192.168.254.0",
-  broadcast_address: "192.168.254.255",
-  first_usable_ip: "192.168.254.1",
-  last_usable_ip: "192.168.254.254",
-  usable_hosts: 254,
+  interface_name: "--",
+  local_ip: "--",
+  netmask: "--",
+  mac_address: "--",
+  gateway_ip: "--",
+  subnet_cidr: "--",
+  true_cidr: "--",
+  network_address: "--",
+  broadcast_address: "--",
+  first_usable_ip: "--",
+  last_usable_ip: "--",
+  usable_hosts: 0,
   is_large_subnet_capped: false,
-  is_up: true,
+  is_up: false,
   is_virtual: false,
-  speed_mbps: 866,
-  score: 180,
+  speed_mbps: 0,
+  score: 0,
 };
-
-export const FALLBACK_CAMPUS_DEVICES: DiscoveredDevice[] = [
-  {
-    id: 1,
-    ip_address: "192.168.254.254",
-    mac_address: "00:1A:2B:3C:4D:01",
-    hostname: "wvsu-cict-core-gw.local",
-    vendor: "Cisco Systems",
-    os_guess: "Cisco IOS XE (Gateway Router)",
-    interface_name: "Wi-Fi",
-    subnet_cidr: "192.168.254.0/24",
-    is_online: true,
-    is_gateway: true,
-    is_local_host: false,
-    discovery_method: "ARP_L2",
-    last_rtt_ms: 1.42,
-    open_ports_summary: "53, 80, 443",
-  },
-  {
-    id: 2,
-    ip_address: "192.168.254.1",
-    mac_address: "18:E8:29:AA:11:02",
-    hostname: "cict-lab-switch-01.local",
-    vendor: "Ubiquiti Networks",
-    os_guess: "UniFi Switch OS (Layer 2/3)",
-    interface_name: "Wi-Fi",
-    subnet_cidr: "192.168.254.0/24",
-    is_online: true,
-    is_gateway: false,
-    is_local_host: false,
-    discovery_method: "ARP_L2",
-    last_rtt_ms: 2.15,
-    open_ports_summary: "22, 80, 443",
-  },
-  {
-    id: 3,
-    ip_address: "192.168.254.104",
-    mac_address: "00:D4:9E:B7:E7:D8",
-    hostname: "DALLAS",
-    vendor: "Intel Corporate",
-    os_guess: "Windows 11 NOC Console (Local Host)",
-    interface_name: "Wi-Fi",
-    subnet_cidr: "192.168.254.0/24",
-    is_online: true,
-    is_gateway: false,
-    is_local_host: true,
-    discovery_method: "LOCAL_NIC",
-    last_rtt_ms: 0.25,
-    open_ports_summary: "3000, 8000",
-  },
-  {
-    id: 4,
-    ip_address: "192.168.254.10",
-    mac_address: "00:1E:67:99:20:10",
-    hostname: "cict-portal-web01.local",
-    vendor: "Intel Corporate",
-    os_guess: "Ubuntu Server 24.04 LTS",
-    interface_name: "Wi-Fi",
-    subnet_cidr: "192.168.254.0/24",
-    is_online: true,
-    is_gateway: false,
-    is_local_host: false,
-    discovery_method: "TCP_L4",
-    last_rtt_ms: 4.8,
-    open_ports_summary: "22, 80, 443, 3306",
-  },
-  {
-    id: 5,
-    ip_address: "192.168.254.25",
-    mac_address: "F8:BC:12:44:55:25",
-    hostname: "lab-fileserver-smb.local",
-    vendor: "Dell Inc.",
-    os_guess: "Windows Server 2022",
-    interface_name: "Wi-Fi",
-    subnet_cidr: "192.168.254.0/24",
-    is_online: true,
-    is_gateway: false,
-    is_local_host: false,
-    discovery_method: "TCP_L4",
-    last_rtt_ms: 11.3,
-    open_ports_summary: "135, 139, 445, 3389",
-  },
-  {
-    id: 6,
-    ip_address: "192.168.254.50",
-    mac_address: "24:0A:C4:88:77:50",
-    hostname: "hallway-ipcam-legacy.local",
-    vendor: "Espressif Inc. (IoT)",
-    os_guess: "Embedded Linux (IoT Camera)",
-    interface_name: "Wi-Fi",
-    subnet_cidr: "192.168.254.0/24",
-    is_online: true,
-    is_gateway: false,
-    is_local_host: false,
-    discovery_method: "TCP_L4",
-    last_rtt_ms: 96.4,
-    open_ports_summary: "21, 23, 80, 8080",
-  },
-  {
-    id: 7,
-    ip_address: "192.168.254.108",
-    mac_address: "3C:22:FB:12:34:6C",
-    hostname: "faculty-macbook-pro.local",
-    vendor: "Apple, Inc.",
-    os_guess: "macOS Sequoia",
-    interface_name: "Wi-Fi",
-    subnet_cidr: "192.168.254.0/24",
-    is_online: true,
-    is_gateway: false,
-    is_local_host: false,
-    discovery_method: "TCP_L4",
-    last_rtt_ms: 8.65,
-    open_ports_summary: "22",
-  },
-  {
-    id: 8,
-    ip_address: "192.168.254.204",
-    mac_address: "14:CC:20:70:80:CC",
-    hostname: "printer-admin-office.local",
-    vendor: "TP-Link Technologies",
-    os_guess: "Network Print Server",
-    interface_name: "Wi-Fi",
-    subnet_cidr: "192.168.254.0/24",
-    is_online: false,
-    is_gateway: false,
-    is_local_host: false,
-    discovery_method: "ARP_CACHE",
-    last_rtt_ms: null,
-    open_ports_summary: "",
-  },
-];
-
-export const FALLBACK_QOS_STATS: HostQoSStats[] = [
-  {
-    ip_address: "192.168.254.254",
-    hostname: "wvsu-cict-core-gw.local",
-    packets_sent: 8,
-    packets_received: 8,
-    packet_loss_pct: 0,
-    min_latency_ms: 1.1,
-    avg_latency_ms: 1.42,
-    max_latency_ms: 2.1,
-    jitter_ms: 0.28,
-    last_ttl: 64,
-    ping_method: "TCP_PING",
-  },
-  {
-    ip_address: "192.168.254.1",
-    hostname: "cict-lab-switch-01.local",
-    packets_sent: 8,
-    packets_received: 8,
-    packet_loss_pct: 0,
-    min_latency_ms: 1.8,
-    avg_latency_ms: 2.15,
-    max_latency_ms: 3.1,
-    jitter_ms: 0.35,
-    last_ttl: 64,
-    ping_method: "TCP_PING",
-  },
-  {
-    ip_address: "192.168.254.10",
-    hostname: "cict-portal-web01.local",
-    packets_sent: 8,
-    packets_received: 8,
-    packet_loss_pct: 0,
-    min_latency_ms: 3.9,
-    avg_latency_ms: 4.8,
-    max_latency_ms: 6.4,
-    jitter_ms: 0.62,
-    last_ttl: 64,
-    ping_method: "TCP_PING",
-  },
-  {
-    ip_address: "192.168.254.25",
-    hostname: "lab-fileserver-smb.local",
-    packets_sent: 8,
-    packets_received: 8,
-    packet_loss_pct: 0,
-    min_latency_ms: 9.2,
-    avg_latency_ms: 11.3,
-    max_latency_ms: 15.8,
-    jitter_ms: 1.45,
-    last_ttl: 128,
-    ping_method: "TCP_PING",
-  },
-  {
-    ip_address: "192.168.254.50",
-    hostname: "hallway-ipcam-legacy.local",
-    packets_sent: 8,
-    packets_received: 7,
-    packet_loss_pct: 12.5,
-    min_latency_ms: 78.4,
-    avg_latency_ms: 96.4,
-    max_latency_ms: 142.0,
-    jitter_ms: 18.2,
-    last_ttl: 64,
-    ping_method: "TCP_PING",
-  },
-  {
-    ip_address: "192.168.254.108",
-    hostname: "faculty-macbook-pro.local",
-    packets_sent: 8,
-    packets_received: 8,
-    packet_loss_pct: 0,
-    min_latency_ms: 6.8,
-    avg_latency_ms: 8.65,
-    max_latency_ms: 12.4,
-    jitter_ms: 1.1,
-    last_ttl: 64,
-    ping_method: "TCP_PING",
-  },
-  {
-    ip_address: "192.168.254.204",
-    hostname: "printer-admin-office.local",
-    packets_sent: 4,
-    packets_received: 0,
-    packet_loss_pct: 100,
-    min_latency_ms: 0,
-    avg_latency_ms: 0,
-    max_latency_ms: 0,
-    jitter_ms: 0,
-    last_ttl: null,
-    ping_method: "TIMEOUT",
-  },
-];
-
-export const FALLBACK_SECURITY_ALERTS: SecurityAlert[] = [
-  {
-    id: 1,
-    category: "FIREWALL",
-    severity: "CRITICAL",
-    target_ip: "192.168.254.50",
-    hostname: "hallway-ipcam-legacy.local",
-    title: "Unencrypted Telnet (Port 23) & FTP (Port 21) Exposed",
-    description:
-      "Legacy cleartext management protocols detected on IoT camera node, allowing credential interception on the subnet.",
-    recommendation:
-      "Disable Telnet/FTP daemons immediately and restrict management access to SSH (Port 22) or HTTPS (Port 443) via VLAN ACLs.",
-    remediation_command:
-      'netsh advfirewall firewall add rule name="Block-Legacy-Telnet-FTP" dir=in action=block protocol=TCP localport=21,23',
-    is_resolved: false,
-  },
-  {
-    id: 2,
-    category: "CONNECTIVITY",
-    severity: "HIGH",
-    target_ip: "192.168.254.50",
-    hostname: "hallway-ipcam-legacy.local",
-    title: "Elevated Latency (96.4 ms) & 12.5% Packet Loss Detected",
-    description:
-      "Wireless link degradation or duplex mismatch causing frame retransmissions and high jitter (18.2 ms).",
-    recommendation:
-      "Inspect AP signal strength, verify switch port duplex settings, and prioritize real-time traffic via DSCP QoS tagging.",
-    remediation_command: "ping -n 25 -l 512 192.168.254.50",
-    is_resolved: false,
-  },
-  {
-    id: 3,
-    category: "AVAILABILITY",
-    severity: "HIGH",
-    target_ip: "192.168.254.204",
-    hostname: "printer-admin-office.local",
-    title: "Previously Discovered Subnet Host Unreachable (100% Loss)",
-    description:
-      "Host 192.168.254.204 failed all ICMP Echo and TCP SYN probes across the latest diagnostic window.",
-    recommendation:
-      "Verify physical power and NIC link LEDs, check DHCP lease reservation, and clear stale ARP cache entries.",
-    remediation_command: "arp -d 192.168.254.204 && ping -n 4 192.168.254.204",
-    is_resolved: false,
-  },
-  {
-    id: 4,
-    category: "AUTHENTICATION",
-    severity: "MEDIUM",
-    target_ip: "192.168.254.25",
-    hostname: "lab-fileserver-smb.local",
-    title: "SMB (Port 445) & RDP (Port 3389) Credential Hardening Advisory",
-    description:
-      "Remote administration and file sharing services are active on the subnet and require strict authentication policies.",
-    recommendation:
-      "Enforce Network Level Authentication (NLA) for RDP, disable SMBv1, and rotate administrative passwords every 90 days.",
-    remediation_command:
-      "Set-SmbServerConfiguration -EnableSMB1Protocol $false -Force",
-    is_resolved: false,
-  },
-];
-
-export const FALLBACK_PORT_RESULTS: PortScanResult[] = [
-  {
-    ip_address: "192.168.254.254",
-    port: 53,
-    protocol: "TCP",
-    state: "OPEN",
-    service_name: "domain (DNS)",
-    banner: "Cisco IOS DNS Forwarder Ready",
-    osi_layer: "Layer 7 (Application) / Layer 4 (Transport)",
-    risk_level: "LOW",
-  },
-  {
-    ip_address: "192.168.254.254",
-    port: 443,
-    protocol: "TCP",
-    state: "OPEN",
-    service_name: "https",
-    banner: "HTTP/1.1 200 OK (Gateway Web Admin TLSv1.3)",
-    osi_layer: "Layer 7 (Application) / Layer 6 (Presentation TLS)",
-    risk_level: "LOW",
-  },
-  {
-    ip_address: "192.168.254.10",
-    port: 22,
-    protocol: "TCP",
-    state: "OPEN",
-    service_name: "ssh",
-    banner: "SSH-2.0-OpenSSH_9.6p1 Ubuntu-3ubuntu13",
-    osi_layer: "Layer 7 (Application)",
-    risk_level: "LOW",
-  },
-  {
-    ip_address: "192.168.254.10",
-    port: 3306,
-    protocol: "TCP",
-    state: "OPEN",
-    service_name: "mysql",
-    banner: "8.0.36-0ubuntu0.24.04.1 (MySQL Community Server)",
-    osi_layer: "Layer 7 (Application) / Layer 5 (Session)",
-    risk_level: "HIGH",
-  },
-  {
-    ip_address: "192.168.254.25",
-    port: 445,
-    protocol: "TCP",
-    state: "OPEN",
-    service_name: "microsoft-ds (SMB)",
-    banner: "SMBv3.1.1 Windows Server 2022 File Share",
-    osi_layer: "Layer 7 (Application) / Layer 5 (Session)",
-    risk_level: "HIGH",
-  },
-  {
-    ip_address: "192.168.254.25",
-    port: 3389,
-    protocol: "TCP",
-    state: "OPEN",
-    service_name: "ms-wbt-server (RDP)",
-    banner: "Microsoft Terminal Services (NLA Enabled)",
-    osi_layer: "Layer 7 (Application) / Layer 6 (Presentation)",
-    risk_level: "HIGH",
-  },
-  {
-    ip_address: "192.168.254.50",
-    port: 23,
-    protocol: "TCP",
-    state: "OPEN",
-    service_name: "telnet",
-    banner: "BusyBox v1.35.0 Telnetd — Login Prompt",
-    osi_layer: "Layer 7 (Application — Cleartext)",
-    risk_level: "CRITICAL",
-  },
-];
 
 let globalListeners: Array<() => void> = [];
 
@@ -477,34 +118,26 @@ let state: GlobalStoreState = {
   interfaces: [DEFAULT_NIC],
   devices: [],
   qosStats: [],
-  securityScore: 92,
-  securityGrade: "A",
+  securityScore: 0,
+  securityGrade: "--",
   securityAlerts: [],
   pingStream: [],
-  telemetrySeries: [
-    { time: "09:35", avg_rtt_ms: 11.8, max_rtt_ms: 18.2, jitter_ms: 1.4, tx_kbps: 420, rx_kbps: 540 },
-    { time: "09:36", avg_rtt_ms: 12.4, max_rtt_ms: 21.0, jitter_ms: 1.6, tx_kbps: 485, rx_kbps: 690 },
-    { time: "09:37", avg_rtt_ms: 11.2, max_rtt_ms: 16.5, jitter_ms: 1.2, tx_kbps: 512, rx_kbps: 610 },
-    { time: "09:38", avg_rtt_ms: 13.5, max_rtt_ms: 24.0, jitter_ms: 1.9, tx_kbps: 548, rx_kbps: 820 },
-    { time: "09:39", avg_rtt_ms: 12.0, max_rtt_ms: 19.4, jitter_ms: 1.5, tx_kbps: 522, rx_kbps: 740 },
-    { time: "09:40", avg_rtt_ms: 11.6, max_rtt_ms: 17.8, jitter_ms: 1.3, tx_kbps: 560, rx_kbps: 890 },
-    { time: "09:41", avg_rtt_ms: 12.1, max_rtt_ms: 18.9, jitter_ms: 1.5, tx_kbps: 542, rx_kbps: 920 },
-  ],
-  txKbps: 420,
-  rxKbps: 680,
-  totalMbSent: 989.3,
-  totalMbRecv: 7000.5,
+  telemetrySeries: [],
+  txKbps: 0,
+  rxKbps: 0,
+  totalMbSent: 0,
+  totalMbRecv: 0,
   speedBenchmark: {
     isRunning: false,
     phase: "IDLE",
     progressPct: 0,
-    gaugeValue: 54.28,
-    downloadMbps: 54.28,
-    uploadMbps: 52.24,
-    pingMs: 2,
-    jitterMs: 1,
-    serverName: "192.168.254.254 (Gateway Router)",
-    locationLabel: "Wi-Fi · Subnet 192.168.254.0/24",
+    gaugeValue: 0,
+    downloadMbps: 0,
+    uploadMbps: 0,
+    pingMs: 0,
+    jitterMs: 0,
+    serverName: "--",
+    locationLabel: "--",
   },
 };
 
@@ -580,16 +213,13 @@ export async function refreshAllNetworkData(preferredNic?: string, showToastOnSu
         ? Math.round(
             validStats.reduce((a, b) => a + b.avg_latency_ms, 0) / validStats.length
           )
-        : state.speedBenchmark.pingMs;
+        : 0;
     const avgJitter =
       validStats.length > 0
-        ? Math.max(
-            1,
-            Math.round(
-              validStats.reduce((a, b) => a + b.jitter_ms, 0) / validStats.length
-            )
+        ? Math.round(
+            validStats.reduce((a, b) => a + b.jitter_ms, 0) / validStats.length
           )
-        : state.speedBenchmark.jitterMs;
+        : 0;
 
     setState({
       apiOnline: true,
@@ -610,10 +240,16 @@ export async function refreshAllNetworkData(preferredNic?: string, showToastOnSu
       securityAlerts: secRes.recommendations,
       speedBenchmark: {
         ...state.speedBenchmark,
-        pingMs: avgPing || 12,
-        jitterMs: avgJitter || 4,
-        serverName: `HYPERNET · ${activeNic.interface_name.toUpperCase()}`,
-        locationLabel: `${activeNic.local_ip} (${activeNic.subnet_cidr})`,
+        pingMs: avgPing,
+        jitterMs: avgJitter,
+        serverName:
+          activeNic.interface_name !== "--"
+            ? `HYPERNET · ${activeNic.interface_name.toUpperCase()}`
+            : "--",
+        locationLabel:
+          activeNic.local_ip !== "--"
+            ? `${activeNic.local_ip} (${activeNic.subnet_cidr})`
+            : "--",
       },
     });
 
@@ -625,23 +261,16 @@ export async function refreshAllNetworkData(preferredNic?: string, showToastOnSu
       );
     }
   } catch {
-    // If backend is unreachable and no devices are loaded yet, populate rich simulation baseline
-    const shouldSeedLocal = state.devices.length === 0;
     setState({
       apiOnline: false,
       isCheckingApi: false,
       wsConnected: false,
-      devices: shouldSeedLocal ? FALLBACK_CAMPUS_DEVICES : state.devices,
-      qosStats: shouldSeedLocal ? FALLBACK_QOS_STATS : state.qosStats,
-      securityAlerts: shouldSeedLocal ? FALLBACK_SECURITY_ALERTS : state.securityAlerts,
-      securityScore: shouldSeedLocal ? 84 : state.securityScore,
-      securityGrade: shouldSeedLocal ? "B" : state.securityGrade,
     });
     if (showToastOnSuccess) {
       postStatusNotice(
         "warning",
         "Backend API Unreachable (Port 8000)",
-        "Running in interactive local simulation mode. Start FastAPI on port 8000 for live OS socket telemetry."
+        "FastAPI backend is offline. Start backend on port 8000 for live network telemetry."
       );
     }
   }
@@ -682,40 +311,36 @@ function connectTelemetryWebSocket() {
             msg.data.hosts || [];
           const maxHostRtt = hosts.reduce(
             (acc, h) => Math.max(acc, h.max_latency_ms || 0),
-            summary.avg_latency_ms || 3.2
+            summary.avg_latency_ms || 0
           );
           const avgJitter =
             hosts.length > 0
               ? Number(
                   (
-                    hosts.reduce((acc, h) => acc + (h.jitter_ms || 0.5), 0) /
+                    hosts.reduce((acc, h) => acc + (h.jitter_ms || 0), 0) /
                     hosts.length
                   ).toFixed(2)
                 )
-              : 0.85;
+              : 0;
 
           const nextPoint: TelemetryPoint = {
             time: nowStr,
-            avg_rtt_ms: summary.avg_latency_ms || 2.4,
+            avg_rtt_ms: summary.avg_latency_ms || 0,
             max_rtt_ms: Number(maxHostRtt.toFixed(2)),
             jitter_ms: avgJitter,
-            tx_kbps: bw.tx_kbps ?? 180,
-            rx_kbps: bw.rx_kbps ?? 420,
+            tx_kbps: bw.tx_kbps ?? 0,
+            rx_kbps: bw.rx_kbps ?? 0,
           };
 
-          // Update live speedometer gently when not running an explicit benchmark
-          const liveRxMbps = Number(
-            Math.max(12.4, Math.min(98.5, ((bw.rx_kbps || 480) / 1000) * 18 + 38)).toFixed(2)
-          );
-          const liveTxMbps = Number(
-            Math.max(8.2, Math.min(92.0, ((bw.tx_kbps || 220) / 1000) * 16 + 32)).toFixed(2)
-          );
+          // Calculate live throughput in Mbps directly from real bandwidth readings
+          const liveRxMbps = Number(((bw.rx_kbps || 0) / 1000).toFixed(2));
+          const liveTxMbps = Number(((bw.tx_kbps || 0) / 1000).toFixed(2));
 
           setState({
             txKbps: bw.tx_kbps ?? state.txKbps,
             rxKbps: bw.rx_kbps ?? state.rxKbps,
-            totalMbSent: bw.total_mb_sent || state.totalMbSent,
-            totalMbRecv: bw.total_mb_recv || state.totalMbRecv,
+            totalMbSent: bw.total_mb_sent ?? state.totalMbSent,
+            totalMbRecv: bw.total_mb_recv ?? state.totalMbRecv,
             lastSyncAt: nowStr,
             telemetrySeries: [...state.telemetrySeries.slice(-23), nextPoint],
             speedBenchmark: state.speedBenchmark.isRunning
@@ -725,8 +350,8 @@ function connectTelemetryWebSocket() {
                   gaugeValue: liveRxMbps,
                   downloadMbps: liveRxMbps,
                   uploadMbps: liveTxMbps,
-                  pingMs: Math.max(1, Math.round(summary.avg_latency_ms || 12)),
-                  jitterMs: Math.max(1, Math.round(avgJitter * 4)),
+                  pingMs: Math.round(summary.avg_latency_ms || 0),
+                  jitterMs: Math.round(avgJitter),
                 },
           });
         } else if (msg.type === "scan_progress" && msg.data) {
@@ -828,19 +453,10 @@ export function useNetPulseStore() {
           `Scanned ${targetCidr} (${scanMode.toUpperCase()}) on ${state.activeInterface.interface_name}.`
         );
       } catch {
-        // Graceful fallback when backend is offline
-        await new Promise((r) => setTimeout(r, 650));
-        setState({
-          devices: FALLBACK_CAMPUS_DEVICES,
-          qosStats: FALLBACK_QOS_STATS,
-          securityAlerts: FALLBACK_SECURITY_ALERTS,
-          securityScore: 84,
-          securityGrade: "B",
-        });
         postStatusNotice(
-          "info",
-          "Discovery Sweep Completed (Local Simulation)",
-          `Populated ${FALLBACK_CAMPUS_DEVICES.length} subnet hosts for ${targetCidr} while backend is on standby.`
+          "error",
+          "Subnet Discovery Failed",
+          `Unable to complete scan on ${targetCidr}. Ensure backend is active and reachable.`
         );
       } finally {
         setState({ isScanning: false, scanProgressPct: 100, scanStage: "COMPLETED" });
@@ -848,39 +464,6 @@ export function useNetPulseStore() {
     },
     []
   );
-
-  const triggerSeedCampusLab = useCallback(async () => {
-    setState({
-      isScanning: true,
-      scanProgressPct: 30,
-      scanStage: "SEEDING_CAMPUS_LAB",
-    });
-    try {
-      await netpulseApi.seedCampusLab();
-      await refreshAllNetworkData(state.activeInterface.interface_name);
-      postStatusNotice(
-        "success",
-        "Campus Lab Topology Loaded",
-        "Seeded 8 enterprise routers, switches, servers, IoT hosts, QoS stats, and security advisories."
-      );
-    } catch {
-      await new Promise((r) => setTimeout(r, 500));
-      setState({
-        devices: FALLBACK_CAMPUS_DEVICES,
-        qosStats: FALLBACK_QOS_STATS,
-        securityAlerts: FALLBACK_SECURITY_ALERTS,
-        securityScore: 84,
-        securityGrade: "B",
-      });
-      postStatusNotice(
-        "info",
-        "Campus Lab Loaded (Offline Demo Mode)",
-        "Seeded 8 simulated Campus Lab hosts, QoS metrics, and security alerts locally."
-      );
-    } finally {
-      setState({ isScanning: false, scanProgressPct: 100, scanStage: "COMPLETED" });
-    }
-  }, []);
 
   const runSpeedBenchmark = useCallback(async () => {
     if (benchmarkTimer) {
@@ -893,67 +476,80 @@ export function useNetPulseStore() {
         ...state.speedBenchmark,
         isRunning: true,
         phase: "PING",
-        progressPct: 8,
-        gaugeValue: 14.5,
+        progressPct: 10,
+        gaugeValue: 0,
       },
     });
 
-    // Trigger real gateway ping in background if backend is online
-    const gwIp = state.activeInterface.gateway_ip || "127.0.0.1";
-    netpulseApi
-      .runPing({ targets: gwIp, count: 4, packet_size: 64, protocol: "auto" })
-      .then((res) => {
-        const first = res.results?.[0];
-        if (first && first.avg_latency_ms > 0) {
-          setState({
-            speedBenchmark: {
-              ...state.speedBenchmark,
-              pingMs: Math.max(1, Math.round(first.avg_latency_ms)),
-              jitterMs: Math.max(1, Math.round(first.jitter_ms || 2)),
-            },
-          });
-        }
-      })
-      .catch(() => {});
+    const targetHost =
+      state.activeInterface.gateway_ip && state.activeInterface.gateway_ip !== "--"
+        ? state.activeInterface.gateway_ip
+        : state.activeInterface.local_ip && state.activeInterface.local_ip !== "--"
+        ? state.activeInterface.local_ip
+        : "127.0.0.1";
+
+    let pingMsVal = 0;
+    let jitterMsVal = 0;
+    try {
+      const res = await netpulseApi.runPing({
+        targets: targetHost,
+        count: 4,
+        packet_size: 64,
+        protocol: "auto",
+      });
+      const first = res.results?.[0];
+      if (first && first.avg_latency_ms > 0) {
+        pingMsVal = Math.round(first.avg_latency_ms);
+        jitterMsVal = Math.round(first.jitter_ms || 0);
+      }
+    } catch {
+      // Keep real 0 or previous
+    }
 
     let tick = 0;
+    let maxDl = 0;
+    let maxUl = 0;
+
     benchmarkTimer = setInterval(() => {
       tick += 1;
-      const pct = Math.min(100, tick * 5);
+      const pct = Math.min(100, tick * 10);
+      const currentRxMbps = Number(((state.rxKbps || 0) / 1000).toFixed(2));
+      const currentTxMbps = Number(((state.txKbps || 0) / 1000).toFixed(2));
+      maxDl = Math.max(maxDl, currentRxMbps);
+      maxUl = Math.max(maxUl, currentTxMbps);
 
-      if (pct < 25) {
-        const val = Number((12 + Math.sin(tick) * 6 + tick * 1.8).toFixed(2));
+      if (pct <= 30) {
         setState({
           speedBenchmark: {
             ...state.speedBenchmark,
             isRunning: true,
             phase: "PING",
             progressPct: pct,
-            gaugeValue: val,
+            gaugeValue: pingMsVal,
+            pingMs: pingMsVal,
+            jitterMs: jitterMsVal,
           },
         });
-      } else if (pct < 65) {
-        const dl = Number((46.5 + Math.sin(tick * 0.9) * 9.4 + (tick - 5) * 0.85).toFixed(2));
+      } else if (pct <= 70) {
         setState({
           speedBenchmark: {
             ...state.speedBenchmark,
             isRunning: true,
             phase: "DOWNLOAD",
             progressPct: pct,
-            gaugeValue: dl,
-            downloadMbps: dl,
+            gaugeValue: currentRxMbps,
+            downloadMbps: maxDl,
           },
         });
       } else if (pct < 100) {
-        const ul = Number((44.2 + Math.cos(tick * 0.8) * 7.8 + (tick - 12) * 0.95).toFixed(2));
         setState({
           speedBenchmark: {
             ...state.speedBenchmark,
             isRunning: true,
             phase: "UPLOAD",
             progressPct: pct,
-            gaugeValue: ul,
-            uploadMbps: ul,
+            gaugeValue: currentTxMbps,
+            uploadMbps: maxUl,
           },
         });
       } else {
@@ -961,26 +557,26 @@ export function useNetPulseStore() {
           clearInterval(benchmarkTimer);
           benchmarkTimer = null;
         }
-        const finalDl = 54.28;
-        const finalUl = 52.24;
         setState({
           speedBenchmark: {
             ...state.speedBenchmark,
             isRunning: false,
             phase: "COMPLETE",
             progressPct: 100,
-            gaugeValue: finalDl,
-            downloadMbps: finalDl,
-            uploadMbps: finalUl,
+            gaugeValue: maxDl,
+            downloadMbps: maxDl,
+            uploadMbps: maxUl,
+            pingMs: pingMsVal,
+            jitterMs: jitterMsVal,
           },
         });
         postStatusNotice(
           "success",
           "Speed & QoS Benchmark Complete",
-          `Download: ${finalDl} Mbps · Upload: ${finalUl} Mbps · Ping: ${state.speedBenchmark.pingMs} ms`
+          `Throughput: ${maxDl} Mbps down / ${maxUl} Mbps up · Ping: ${pingMsVal} ms`
         );
       }
-    }, 180);
+    }, 200);
   }, []);
 
   const stopSpeedBenchmark = useCallback(() => {
@@ -1011,7 +607,6 @@ export function useNetPulseStore() {
     refreshAllNetworkData,
     selectInterface,
     triggerScan,
-    triggerSeedCampusLab,
     runSpeedBenchmark,
     stopSpeedBenchmark,
     clearPingStream,

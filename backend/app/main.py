@@ -10,16 +10,13 @@ from app.config import settings
 from app.database import get_database_status, get_engine, get_session, init_db, switch_database_mode
 from app.routers import connectivity, discovery, packets, reports, security
 from app.services.interface_detector import get_network_interfaces
-from app.services.packet_analyzer import ensure_demo_pcap
 from app.services.ws_manager import ws_manager
 
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
-    """Initialize SQLite/PostgreSQL tables, seed demo .pcap, and launch 2s telemetry task."""
+    """Initialize SQLite/PostgreSQL tables and launch 2s telemetry task."""
     init_db()
-    with Session(get_engine()) as session:
-        ensure_demo_pcap(session)
     await ws_manager.start_background_monitor()
     yield
     await ws_manager.stop_background_monitor()
@@ -118,6 +115,7 @@ async def seed_campus_lab_data(session: Session = Depends(get_session)) -> dict[
 
     scan_res = await run_subnet_discovery(session=session, scan_mode="simulation")
     sec_res = evaluate_network_security(session=session)
+    from app.services.packet_analyzer import ensure_demo_pcap
     ensure_demo_pcap(session=session)
     return {
         "status": "seeded",

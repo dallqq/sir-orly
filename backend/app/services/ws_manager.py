@@ -111,7 +111,7 @@ class WebSocketManager:
 
                         rtts = [s.avg_latency_ms for s in stats if s.avg_latency_ms > 0]
                         losses = [s.packet_loss_pct for s in stats]
-                        avg_rtt = round(sum(rtts) / len(rtts), 2) if rtts else 1.8
+                        avg_rtt = round(sum(rtts) / len(rtts), 2) if rtts else 0.0
                         avg_loss = round(sum(losses) / len(losses), 2) if losses else 0.0
 
                         for s in stats[:8]:

@@ -10,20 +10,18 @@ import React, { useState } from "react";
  * circular white-with-blue-border nodes, and floating blue pill callout badge!
  */
 export function LiveLatencyAreaChart({ data }: { data: TelemetryPoint[] }) {
-  const pts =
-    data.length > 2
-      ? data.slice(-7)
-      : [
-          { time: "Mon", avg_rtt_ms: 8.2, max_rtt_ms: 14.5, jitter_ms: 1.1, tx_kbps: 310, rx_kbps: 520 },
-          { time: "Tue", avg_rtt_ms: 6.8, max_rtt_ms: 13.8, jitter_ms: 0.9, tx_kbps: 380, rx_kbps: 610 },
-          { time: "Wed", avg_rtt_ms: 10.4, max_rtt_ms: 17.6, jitter_ms: 1.4, tx_kbps: 420, rx_kbps: 690 },
-          { time: "Thu", avg_rtt_ms: 7.9, max_rtt_ms: 18.8, jitter_ms: 1.2, tx_kbps: 510, rx_kbps: 840 },
-          { time: "Fri", avg_rtt_ms: 11.5, max_rtt_ms: 19.4, jitter_ms: 1.5, tx_kbps: 490, rx_kbps: 780 },
-          { time: "Sat", avg_rtt_ms: 14.2, max_rtt_ms: 23.0, jitter_ms: 1.8, tx_kbps: 540, rx_kbps: 920 },
-        ];
+  if (!data || data.length === 0) {
+    return (
+      <div className="w-full flex items-center justify-center h-56 bg-[#FAFBFD] rounded-2xl border border-slate-200/80 text-xs font-typewriter text-slate-400">
+        -- No latency telemetry stream recorded yet --
+      </div>
+    );
+  }
+
+  const pts = data.slice(-7);
 
   const [activeIndex, setActiveIndex] = useState<number>(
-    Math.min(3, Math.max(0, pts.length - 2))
+    Math.min(3, Math.max(0, pts.length - 1))
   );
   const safeActiveIdx = Math.min(activeIndex, pts.length - 1);
 
@@ -240,21 +238,17 @@ export function LiveLatencyAreaChart({ data }: { data: TelemetryPoint[] }) {
  * 2. Pill Bar Overview Chart with Hatched Tracks (from Screenshot 2 Right "Result / Overview")
  */
 export function BandwidthThroughputChart({ data }: { data: TelemetryPoint[] }) {
-  const days = ["Sat", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri"];
-  const pts =
-    data.length >= 7
-      ? data.slice(-7)
-      : [
-          { time: "Sat", avg_rtt_ms: 2, max_rtt_ms: 4, jitter_ms: 0.4, tx_kbps: 240, rx_kbps: 560 },
-          { time: "Sun", avg_rtt_ms: 2, max_rtt_ms: 5, jitter_ms: 0.5, tx_kbps: 190, rx_kbps: 410 },
-          { time: "Mon", avg_rtt_ms: 2, max_rtt_ms: 4, jitter_ms: 0.4, tx_kbps: 210, rx_kbps: 440 },
-          { time: "Tue", avg_rtt_ms: 3, max_rtt_ms: 6, jitter_ms: 0.6, tx_kbps: 320, rx_kbps: 680 },
-          { time: "Wed", avg_rtt_ms: 2, max_rtt_ms: 5, jitter_ms: 0.5, tx_kbps: 250, rx_kbps: 490 },
-          { time: "Thu", avg_rtt_ms: 3, max_rtt_ms: 6, jitter_ms: 0.6, tx_kbps: 340, rx_kbps: 640 },
-          { time: "Fri", avg_rtt_ms: 2, max_rtt_ms: 4, jitter_ms: 0.4, tx_kbps: 180, rx_kbps: 340 },
-        ];
+  if (!data || data.length === 0) {
+    return (
+      <div className="w-full flex items-center justify-center h-52 bg-[#FAFBFD] rounded-2xl border border-slate-200/80 text-xs font-typewriter text-slate-400">
+        -- No bandwidth throughput recorded yet --
+      </div>
+    );
+  }
 
-  const maxRx = Math.max(850, ...pts.map((p) => p.rx_kbps + p.tx_kbps));
+  const days = ["Sat", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri"];
+  const pts = data.slice(-7);
+  const maxRx = Math.max(100, ...pts.map((p) => p.rx_kbps + p.tx_kbps));
 
   return (
     <div className="w-full select-none">
@@ -386,6 +380,19 @@ export function InteractiveSubnetTopology({
 }) {
   const [selectedIp, setSelectedIp] = useState<string | null>(null);
 
+  if (!devices || devices.length === 0) {
+    return (
+      <div className="relative bg-white rounded-3xl border border-slate-200 p-12 text-center flex flex-col items-center justify-center min-h-[410px] space-y-2">
+        <div className="text-sm font-heading font-medium text-slate-700">
+          No Discovered Devices on Subnet Topology
+        </div>
+        <p className="text-xs text-slate-400 font-typewriter max-w-sm">
+          Run a subnet scan to visualize the Layer 2/3 topology nodes, gateway link, and inter-host latency.
+        </p>
+      </div>
+    );
+  }
+
   const width = 820;
   const height = 430;
   const cx = width / 2;
@@ -393,19 +400,19 @@ export function InteractiveSubnetTopology({
   const radius = 154;
 
   const gatewayNode = devices.find((d) => d.is_gateway) || {
-    ip_address: gatewayIp,
-    mac_address: "00:1A:2B:3C:4D:01",
-    hostname: "Default-Gateway-Router",
-    vendor: "Cisco / Gateway",
-    os_guess: "Router OS",
-    interface_name: "Wi-Fi",
-    subnet_cidr: "192.168.254.0/24",
+    ip_address: gatewayIp || "--",
+    mac_address: "--",
+    hostname: "Default-Gateway",
+    vendor: "--",
+    os_guess: "Gateway Router",
+    interface_name: "--",
+    subnet_cidr: "--",
     is_online: true,
     is_gateway: true,
     is_local_host: false,
     discovery_method: "GATEWAY_ROUTE",
-    last_rtt_ms: 1.4,
-    open_ports_summary: "53, 80, 443",
+    last_rtt_ms: null,
+    open_ports_summary: "",
   };
 
   const leafNodes = devices.filter(
@@ -454,12 +461,14 @@ export function InteractiveSubnetTopology({
             (idx / Math.max(1, leafNodes.length)) * 2 * Math.PI - Math.PI / 2;
           const nx = cx + Math.cos(angle) * radius * 1.38;
           const ny = cy + Math.sin(angle) * radius * 0.92;
-          const rtt = node.last_rtt_ms ?? 2.0;
+          const rtt = node.last_rtt_ms ?? 0;
           const strokeColor = !node.is_online
             ? "#EF4444"
             : rtt > 50
             ? "#F59E0B"
-            : "#1E6BFF";
+            : rtt > 0
+            ? "#1E6BFF"
+            : "#94A3B8";
 
           return (
             <g key={`edge-${node.ip_address}`}>
@@ -556,9 +565,11 @@ export function InteractiveSubnetTopology({
             ? "#EF4444"
             : isSel || isLocal
             ? "#1E6BFF"
-            : (node.last_rtt_ms ?? 2) > 50
+            : (node.last_rtt_ms ?? 0) > 50
             ? "#F59E0B"
-            : "#10B981";
+            : (node.last_rtt_ms ?? 0) > 0
+            ? "#10B981"
+            : "#94A3B8";
 
           return (
             <g
@@ -628,18 +639,25 @@ export function OsiProtocolDonutChart({
   protocolCounts?: Record<string, number>;
   title?: string;
 }) {
-  const defaultCounts: Record<string, number> = {
-    TCP: 48,
-    UDP: 22,
-    ICMP: 16,
-    ARP: 8,
-    DNS: 6,
-  };
+  const hasData =
+    protocolCounts &&
+    Object.keys(protocolCounts).length > 0 &&
+    Object.values(protocolCounts).some((v) => v > 0);
 
-  const raw =
-    protocolCounts && Object.keys(protocolCounts).length > 0
-      ? protocolCounts
-      : defaultCounts;
+  if (!hasData) {
+    return (
+      <div className="w-full flex flex-col items-center justify-center p-8 text-center bg-[#FAFBFD] rounded-2xl border border-slate-200/80 space-y-1.5">
+        <span className="text-xs font-heading font-medium text-slate-700">
+          {title}
+        </span>
+        <span className="text-xs font-typewriter text-slate-400">
+          -- No packet capture data recorded yet --
+        </span>
+      </div>
+    );
+  }
+
+  const raw = protocolCounts;
 
   const colorMap: Record<string, string> = {
     TCP: "#1E6BFF",

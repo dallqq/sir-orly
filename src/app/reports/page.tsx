@@ -12,12 +12,7 @@ import {
   SecurityAlert,
   netpulseApi,
 } from "@/lib/api";
-import {
-  FALLBACK_CAMPUS_DEVICES,
-  FALLBACK_QOS_STATS,
-  FALLBACK_SECURITY_ALERTS,
-  useNetPulseStore,
-} from "@/store/useNetPulseStore";
+import { useNetPulseStore } from "@/store/useNetPulseStore";
 import React, { useCallback, useEffect, useState } from "react";
 
 interface ReportPayload {
@@ -58,73 +53,12 @@ export default function DiagnosticReportsPage() {
     null
   );
   const [reportTitle, setReportTitle] = useState<string>(
-    "HyperPulse NOC — Official Network Diagnostic & Performance Audit"
+    "NetPulse NOC — Official Network Diagnostic & Performance Audit"
   );
   const [generating, setGenerating] = useState<boolean>(false);
   const [periodTab, setPeriodTab] = useState<
     "daily" | "weekly" | "monthly" | "yearly"
   >("weekly");
-
-  const buildLocalFallbackReport = useCallback(
-    (customTitle?: string): { report: DiagnosticReportMeta; payload: ReportPayload } => {
-      const devs = devices.length > 0 ? devices : FALLBACK_CAMPUS_DEVICES;
-      const stats = qosStats.length > 0 ? qosStats : FALLBACK_QOS_STATS;
-      const recs =
-        securityAlerts.length > 0 ? securityAlerts : FALLBACK_SECURITY_ALERTS;
-      const onlineCount = devs.filter((d) => d.is_online).length;
-      const nowIso = new Date().toISOString();
-
-      const reportMeta: DiagnosticReportMeta = {
-        id: 101,
-        created_at: nowIso,
-        title:
-          customTitle ||
-          "HyperPulse NOC — Official Network Diagnostic & Performance Audit",
-        interface_name: activeInterface.interface_name,
-        local_ip: activeInterface.local_ip,
-        subnet_cidr: activeInterface.subnet_cidr,
-        gateway_ip: activeInterface.gateway_ip,
-        total_devices: devs.length,
-        online_devices: onlineCount,
-        avg_subnet_latency_ms: 14.2,
-        max_subnet_latency_ms: 96.4,
-        overall_packet_loss_pct: 1.8,
-        health_score: securityScore || 88,
-        security_grade: securityGrade || "B",
-        summary_text: `Executive Audit across ${activeInterface.subnet_cidr} (${activeInterface.interface_name}): ${onlineCount} of ${devs.length} discovered hosts are online with an average RTT of 14.2 ms and ${recs.length} active security recommendations.`,
-        report_payload_json: "{}",
-        pdf_path: "backend/reports/NetPulse_Diagnostic_Report_101.pdf",
-      };
-
-      const payloadObj: ReportPayload = {
-        generated_at_readable: new Date().toUTCString(),
-        performance_summary: {
-          total_devices: devs.length,
-          online_devices: onlineCount,
-          offline_devices: devs.length - onlineCount,
-          avg_subnet_latency_ms: 14.2,
-          max_subnet_latency_ms: 96.4,
-          overall_packet_loss_pct: 1.8,
-          health_score: securityScore || 88,
-          security_grade: securityGrade || "B",
-          summary_text: reportMeta.summary_text,
-        },
-        devices_detected: devs,
-        ping_results: stats,
-        security_recommendations: recs,
-      };
-
-      return { report: reportMeta, payload: payloadObj };
-    },
-    [
-      activeInterface,
-      devices,
-      qosStats,
-      securityAlerts,
-      securityScore,
-      securityGrade,
-    ]
-  );
 
   const loadReportDetail = useCallback(async (id: number) => {
     try {
@@ -142,14 +76,10 @@ export default function DiagnosticReportsPage() {
       .getReports()
       .then((res) => {
         if (!active) return null;
+        setReports(res.reports);
         if (res.reports.length > 0) {
-          setReports(res.reports);
           return netpulseApi.getReportDetail(res.reports[0].id);
         }
-        const fallback = buildLocalFallbackReport();
-        setReports([fallback.report]);
-        setActiveReport(fallback.report);
-        setActivePayload(fallback.payload);
         return null;
       })
       .then((detail) => {
@@ -157,17 +87,11 @@ export default function DiagnosticReportsPage() {
         setActiveReport(detail.report);
         setActivePayload(detail.payload as ReportPayload);
       })
-      .catch(() => {
-        if (!active) return;
-        const fallback = buildLocalFallbackReport();
-        setReports([fallback.report]);
-        setActiveReport(fallback.report);
-        setActivePayload(fallback.payload);
-      });
+      .catch(() => {});
     return () => {
       active = false;
     };
-  }, [buildLocalFallbackReport]);
+  }, []);
 
   const handleGenerateReport = async () => {
     setGenerating(true);
@@ -182,18 +106,9 @@ export default function DiagnosticReportsPage() {
         "Diagnostic Report & PDF Built",
         `Generated Report #${res.report.id} with ReportLab PDF.`
       );
-    } catch {
-      await new Promise((r) => setTimeout(r, 450));
-      const fallback = buildLocalFallbackReport(reportTitle);
-      fallback.report.id = Math.floor(100 + Math.random() * 900);
-      setReports((prev) => [fallback.report, ...prev]);
-      setActiveReport(fallback.report);
-      setActivePayload(fallback.payload);
-      postStatusNotice(
-        "info",
-        "Diagnostic Snapshot Built (Local Mode)",
-        `Compiled Report #${fallback.report.id}. Use Export JSON/CSV or Print PDF below.`
-      );
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to compile diagnostic report.";
+      postStatusNotice("error", "Report Generation Failed", msg);
     } finally {
       setGenerating(false);
     }
@@ -208,7 +123,7 @@ export default function DiagnosticReportsPage() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `HyperPulse_Report_${activeReport.id}.json`;
+    a.download = `NetPulse_Report_${activeReport.id}.json`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -235,7 +150,7 @@ export default function DiagnosticReportsPage() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `HyperPulse_Report_${activeReport.id}.csv`;
+    a.download = `NetPulse_Report_${activeReport.id}.csv`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -249,11 +164,9 @@ export default function DiagnosticReportsPage() {
     }
   };
 
-  const detectedDevices =
-    activePayload?.devices_detected || FALLBACK_CAMPUS_DEVICES;
-  const pingResults = activePayload?.ping_results || FALLBACK_QOS_STATS;
-  const secRecs =
-    activePayload?.security_recommendations || FALLBACK_SECURITY_ALERTS;
+  const detectedDevices = activePayload?.devices_detected || [];
+  const pingResults = activePayload?.ping_results || [];
+  const secRecs = activePayload?.security_recommendations || [];
 
   return (
     <div className="space-y-6">
@@ -342,301 +255,336 @@ export default function DiagnosticReportsPage() {
         </div>
       </div>
 
-      {/* Screenshot 2 Right "Result — Overview & History" Visual Section */}
-      {activeReport && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* Left 7 Cols: Overview Pill Bar Chart (Exact match to Screenshot 2 Right) */}
-          <div className="lg:col-span-7 bg-white border border-slate-200 rounded-3xl p-5 sm:p-6 space-y-4">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <SegmentedPillControl
-                size="sm"
-                options={[
-                  { id: "daily", label: "Daily" },
-                  { id: "weekly", label: "Weekly" },
-                  { id: "monthly", label: "Monthly" },
-                  { id: "yearly", label: "Yearly" },
-                ]}
-                value={periodTab}
-                onChange={(v) => setPeriodTab(v)}
-              />
-              <span className="px-3.5 py-1.5 rounded-full bg-slate-50 border border-slate-200 text-xs font-heading font-medium text-slate-700">
-                ↓ Download &amp; QoS ⌄
-              </span>
-            </div>
-
-            <div className="pt-1">
-              <h2 className="text-xl sm:text-2xl font-heading font-semibold text-slate-900 mb-2">
-                Overview
-              </h2>
-              <BandwidthThroughputChart data={telemetrySeries} />
-            </div>
+      {/* Main Report Body / Empty State */}
+      {!activeReport ? (
+        <div className="bg-white border border-slate-200 rounded-3xl p-10 text-center space-y-2">
+          <div className="text-base font-extrabold text-slate-900">
+            No Diagnostic Reports Compiled Yet
           </div>
-
-          {/* Right 5 Cols: "History" Key-Value Sheet (Exact match to Screenshot 2 Right bottom sheet) */}
-          <div className="lg:col-span-5 bg-white border border-slate-200 rounded-3xl p-5 sm:p-6 space-y-4">
-            <div className="w-10 h-1 rounded-full bg-slate-300 mx-auto" />
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl sm:text-2xl font-heading font-semibold text-slate-900">History</h2>
-              <span className="text-xs font-typewriter font-medium text-slate-400">
-                Report #{activeReport.id}
-              </span>
-            </div>
-
-            <div className="divide-y divide-slate-100 text-xs sm:text-sm">
-              <div className="py-3 flex items-center justify-between">
-                <span className="text-slate-400 font-heading font-medium">Ping</span>
-                <span className="font-medium font-typewriter text-slate-900">
-                  {activeReport.avg_subnet_latency_ms}ms
-                </span>
-              </div>
-              <div className="py-3 flex items-center justify-between">
-                <span className="text-slate-400 font-heading font-medium">Ip-Address</span>
-                <span className="font-medium font-typewriter text-slate-900">
-                  {activeReport.local_ip}
-                </span>
-              </div>
-              <div className="py-3 flex items-center justify-between">
-                <span className="text-slate-400 font-heading font-medium">Subnet CIDR</span>
-                <span className="font-medium font-typewriter text-blue-600">
-                  {activeReport.subnet_cidr}
-                </span>
-              </div>
-              <div className="py-3 flex items-center justify-between">
-                <span className="text-slate-400 font-heading font-medium">Gateway</span>
-                <span className="font-medium font-typewriter text-slate-900">
-                  {activeReport.gateway_ip}
-                </span>
-              </div>
-              <div className="py-3 flex items-center justify-between">
-                <span className="text-slate-400 font-heading font-medium">Interface</span>
-                <span className="font-medium text-slate-900 font-heading">
-                  {activeReport.interface_name}
-                </span>
-              </div>
-              <div className="py-3 flex items-center justify-between">
-                <span className="text-slate-400 font-heading font-medium">
-                  Security Posture
-                </span>
-                <span className="font-semibold text-emerald-600 font-typewriter">
-                  {activeReport.health_score}/100 (Grade{" "}
-                  {activeReport.security_grade})
-                </span>
-              </div>
-            </div>
-          </div>
+          <p className="text-xs text-slate-400 max-w-md mx-auto">
+            Click &ldquo;Generate New Report Snapshot&rdquo; to build an executive audit report of discovered hosts, latency metrics, and security recommendations.
+          </p>
         </div>
-      )}
+      ) : (
+        <>
+          {/* Screenshot 2 Right "Result — Overview & History" Visual Section */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            {/* Left 7 Cols: Overview Pill Bar Chart (Exact match to Screenshot 2 Right) */}
+            <div className="lg:col-span-7 bg-white border border-slate-200 rounded-3xl p-5 sm:p-6 space-y-4">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <SegmentedPillControl
+                  size="sm"
+                  options={[
+                    { id: "daily", label: "Daily" },
+                    { id: "weekly", label: "Weekly" },
+                    { id: "monthly", label: "Monthly" },
+                    { id: "yearly", label: "Yearly" },
+                  ]}
+                  value={periodTab}
+                  onChange={(v) => setPeriodTab(v)}
+                />
+                <span className="px-3.5 py-1.5 rounded-full bg-slate-50 border border-slate-200 text-xs font-heading font-medium text-slate-700">
+                  ↓ Download &amp; QoS ⌄
+                </span>
+              </div>
 
-      {/* Full Interactive 4-Section Report Document */}
-      {activeReport && (
-        <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 space-y-6">
-          {/* 1. Date and Time & Interface Metadata */}
-          <div className="border-b border-slate-100 pb-5 flex flex-col md:flex-row md:items-center justify-between gap-3">
-            <div>
-              <span className="text-xs font-typewriter font-medium text-blue-600">
-                OFFICIAL DIAGNOSTIC REPORT #{activeReport.id}
-              </span>
-              <h2 className="text-xl sm:text-2xl font-heading font-semibold text-slate-900 mt-0.5">
-                {activeReport.title}
-              </h2>
-              <div className="text-xs font-typewriter text-slate-500 mt-1">
-                Date &amp; Time:{" "}
-                {activePayload?.generated_at_readable ||
-                  new Date(activeReport.created_at).toUTCString()}{" "}
-                | NIC: {activeReport.interface_name} | Local IP:{" "}
-                {activeReport.local_ip} | CIDR: {activeReport.subnet_cidr}
+              <div className="pt-1">
+                <h2 className="text-xl sm:text-2xl font-heading font-semibold text-slate-900 mb-2">
+                  Overview
+                </h2>
+                <BandwidthThroughputChart data={telemetrySeries} />
               </div>
             </div>
-            <div className="px-4 py-2.5 rounded-2xl bg-emerald-50 border border-emerald-200 font-typewriter text-right shrink-0">
-              <div className="text-[10px] font-medium text-emerald-700">
-                HEALTH &amp; SECURITY GRADE
+
+            {/* Right 5 Cols: "History" Key-Value Sheet (Exact match to Screenshot 2 Right bottom sheet) */}
+            <div className="lg:col-span-5 bg-white border border-slate-200 rounded-3xl p-5 sm:p-6 space-y-4">
+              <div className="w-10 h-1 rounded-full bg-slate-300 mx-auto" />
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl sm:text-2xl font-heading font-semibold text-slate-900">History</h2>
+                <span className="text-xs font-typewriter font-medium text-slate-400">
+                  Report #{activeReport.id}
+                </span>
               </div>
-              <div className="text-xl font-semibold text-emerald-700">
-                {activeReport.health_score}/100 ({activeReport.security_grade})
+
+              <div className="divide-y divide-slate-100 text-xs sm:text-sm">
+                <div className="py-3 flex items-center justify-between">
+                  <span className="text-slate-400 font-heading font-medium">Ping</span>
+                  <span className="font-medium font-typewriter text-slate-900">
+                    {activeReport.avg_subnet_latency_ms != null ? `${activeReport.avg_subnet_latency_ms}ms` : "--"}
+                  </span>
+                </div>
+                <div className="py-3 flex items-center justify-between">
+                  <span className="text-slate-400 font-heading font-medium">Ip-Address</span>
+                  <span className="font-medium font-typewriter text-slate-900">
+                    {activeReport.local_ip || "--"}
+                  </span>
+                </div>
+                <div className="py-3 flex items-center justify-between">
+                  <span className="text-slate-400 font-heading font-medium">Subnet CIDR</span>
+                  <span className="font-medium font-typewriter text-blue-600">
+                    {activeReport.subnet_cidr || "--"}
+                  </span>
+                </div>
+                <div className="py-3 flex items-center justify-between">
+                  <span className="text-slate-400 font-heading font-medium">Gateway</span>
+                  <span className="font-medium font-typewriter text-slate-900">
+                    {activeReport.gateway_ip || "--"}
+                  </span>
+                </div>
+                <div className="py-3 flex items-center justify-between">
+                  <span className="text-slate-400 font-heading font-medium">Interface</span>
+                  <span className="font-medium text-slate-900 font-heading">
+                    {activeReport.interface_name || "--"}
+                  </span>
+                </div>
+                <div className="py-3 flex items-center justify-between">
+                  <span className="text-slate-400 font-heading font-medium">
+                    Security Posture
+                  </span>
+                  <span className="font-semibold text-emerald-600 font-typewriter">
+                    {activeReport.health_score != null
+                      ? `${activeReport.health_score}/100 (Grade ${activeReport.security_grade})`
+                      : "--"}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* 2. Network Performance Summary */}
-          <div className="space-y-3">
-            <h3 className="text-xs font-typewriter font-medium text-blue-600 uppercase tracking-wider">
-              Section 1 — Executive Network Performance Summary
-            </h3>
-            <p className="text-xs sm:text-sm text-slate-700 leading-relaxed bg-[#F8FAFC] p-4 rounded-2xl border border-slate-200/80">
-              {activeReport.summary_text}
-            </p>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5 text-xs">
-              <div className="p-4 rounded-2xl bg-[#F8FAFC] border border-slate-200/80">
-                <div className="text-slate-400 font-heading font-medium text-[11px]">
-                  DEVICES DETECTED
-                </div>
-                <div className="text-xl sm:text-2xl font-semibold text-slate-900 mt-0.5 font-typewriter">
-                  {activeReport.online_devices} / {activeReport.total_devices} Online
-                </div>
-              </div>
-              <div className="p-4 rounded-2xl bg-[#F8FAFC] border border-slate-200/80">
-                <div className="text-slate-400 font-heading font-medium text-[11px]">
-                  AVERAGE LATENCY
-                </div>
-                <div className="text-xl sm:text-2xl font-semibold text-emerald-600 mt-0.5 font-typewriter">
-                  {activeReport.avg_subnet_latency_ms} ms
+          {/* Full Interactive 4-Section Report Document */}
+          <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 space-y-6">
+            {/* 1. Date and Time & Interface Metadata */}
+            <div className="border-b border-slate-100 pb-5 flex flex-col md:flex-row md:items-center justify-between gap-3">
+              <div>
+                <span className="text-xs font-typewriter font-medium text-blue-600">
+                  OFFICIAL DIAGNOSTIC REPORT #{activeReport.id}
+                </span>
+                <h2 className="text-xl sm:text-2xl font-heading font-semibold text-slate-900 mt-0.5">
+                  {activeReport.title}
+                </h2>
+                <div className="text-xs font-typewriter text-slate-500 mt-1">
+                  Date &amp; Time:{" "}
+                  {activePayload?.generated_at_readable ||
+                    new Date(activeReport.created_at).toUTCString()}{" "}
+                  | NIC: {activeReport.interface_name || "--"} | Local IP:{" "}
+                  {activeReport.local_ip || "--"} | CIDR: {activeReport.subnet_cidr || "--"}
                 </div>
               </div>
-              <div className="p-4 rounded-2xl bg-[#F8FAFC] border border-slate-200/80">
-                <div className="text-slate-400 font-heading font-medium text-[11px]">
-                  MAXIMUM LATENCY
+              <div className="px-4 py-2.5 rounded-2xl bg-emerald-50 border border-emerald-200 font-typewriter text-right shrink-0">
+                <div className="text-[10px] font-medium text-emerald-700">
+                  HEALTH &amp; SECURITY GRADE
                 </div>
-                <div className="text-xl sm:text-2xl font-semibold text-amber-600 mt-0.5 font-typewriter">
-                  {activeReport.max_subnet_latency_ms} ms
-                </div>
-              </div>
-              <div className="p-4 rounded-2xl bg-[#F8FAFC] border border-slate-200/80">
-                <div className="text-slate-400 font-heading font-medium text-[11px]">
-                  PACKET LOSS
-                </div>
-                <div className="text-xl sm:text-2xl font-semibold text-blue-600 mt-0.5 font-typewriter">
-                  {activeReport.overall_packet_loss_pct}%
+                <div className="text-xl font-semibold text-emerald-700">
+                  {activeReport.health_score != null
+                    ? `${activeReport.health_score}/100 (${activeReport.security_grade})`
+                    : "--"}
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* 3. Devices Detected Table */}
-          <div className="space-y-3">
-            <h3 className="text-xs font-typewriter font-medium text-blue-600 uppercase tracking-wider">
-              Section 2 — Devices Detected ({detectedDevices.length} Hosts)
-            </h3>
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse text-xs font-typewriter">
-                <thead>
-                  <tr className="border-b border-slate-200 text-slate-400 font-heading font-medium uppercase text-[11px] tracking-wider">
-                    <th className="py-2.5 px-2.5">IP Address</th>
-                    <th className="py-2.5 px-2.5">Hostname</th>
-                    <th className="py-2.5 px-2.5">MAC Address</th>
-                    <th className="py-2.5 px-2.5">Vendor (OUI)</th>
-                    <th className="py-2.5 px-2.5">Discovery Method</th>
-                    <th className="py-2.5 px-2.5">Status</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {detectedDevices.map((d) => (
-                    <tr key={d.ip_address} className="hover:bg-slate-50">
-                      <td className="py-2.5 px-2.5 text-blue-600 font-medium">
-                        {d.ip_address}
-                      </td>
-                      <td className="py-2.5 px-2.5 text-slate-900 font-heading font-medium">
-                        {d.hostname}
-                      </td>
-                      <td className="py-2.5 px-2.5 text-slate-600">
-                        {d.mac_address}
-                      </td>
-                      <td className="py-2.5 px-2.5 text-slate-700 font-heading font-medium">
-                        {d.vendor}
-                      </td>
-                      <td className="py-2.5 px-2.5 text-slate-500">
-                        {d.discovery_method}
-                      </td>
-                      <td className="py-2.5 px-2.5">
-                        <span
-                          className={
-                            d.is_online
-                              ? "text-emerald-600 font-medium"
-                              : "text-rose-600 font-medium"
-                          }
-                        >
-                          ● {d.is_online ? "ONLINE" : "OFFLINE"}
-                        </span>
-                      </td>
+            {/* 2. Network Performance Summary */}
+            <div className="space-y-3">
+              <h3 className="text-xs font-typewriter font-medium text-blue-600 uppercase tracking-wider">
+                Section 1 — Executive Network Performance Summary
+              </h3>
+              <p className="text-xs sm:text-sm text-slate-700 leading-relaxed bg-[#F8FAFC] p-4 rounded-2xl border border-slate-200/80">
+                {activeReport.summary_text || "No executive summary available."}
+              </p>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5 text-xs">
+                <div className="p-4 rounded-2xl bg-[#F8FAFC] border border-slate-200/80">
+                  <div className="text-slate-400 font-heading font-medium text-[11px]">
+                    DEVICES DETECTED
+                  </div>
+                  <div className="text-xl sm:text-2xl font-semibold text-slate-900 mt-0.5 font-typewriter">
+                    {activeReport.online_devices ?? 0} / {activeReport.total_devices ?? 0} Online
+                  </div>
+                </div>
+                <div className="p-4 rounded-2xl bg-[#F8FAFC] border border-slate-200/80">
+                  <div className="text-slate-400 font-heading font-medium text-[11px]">
+                    AVERAGE LATENCY
+                  </div>
+                  <div className="text-xl sm:text-2xl font-semibold text-emerald-600 mt-0.5 font-typewriter">
+                    {activeReport.avg_subnet_latency_ms != null ? `${activeReport.avg_subnet_latency_ms} ms` : "--"}
+                  </div>
+                </div>
+                <div className="p-4 rounded-2xl bg-[#F8FAFC] border border-slate-200/80">
+                  <div className="text-slate-400 font-heading font-medium text-[11px]">
+                    MAXIMUM LATENCY
+                  </div>
+                  <div className="text-xl sm:text-2xl font-semibold text-amber-600 mt-0.5 font-typewriter">
+                    {activeReport.max_subnet_latency_ms != null ? `${activeReport.max_subnet_latency_ms} ms` : "--"}
+                  </div>
+                </div>
+                <div className="p-4 rounded-2xl bg-[#F8FAFC] border border-slate-200/80">
+                  <div className="text-slate-400 font-heading font-medium text-[11px]">
+                    PACKET LOSS
+                  </div>
+                  <div className="text-xl sm:text-2xl font-semibold text-blue-600 mt-0.5 font-typewriter">
+                    {activeReport.overall_packet_loss_pct != null ? `${activeReport.overall_packet_loss_pct}%` : "--"}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 3. Devices Detected Table */}
+            <div className="space-y-3">
+              <h3 className="text-xs font-typewriter font-medium text-blue-600 uppercase tracking-wider">
+                Section 2 — Devices Detected ({detectedDevices.length} Hosts)
+              </h3>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse text-xs font-typewriter">
+                  <thead>
+                    <tr className="border-b border-slate-200 text-slate-400 font-heading font-medium uppercase text-[11px] tracking-wider">
+                      <th className="py-2.5 px-2.5">IP Address</th>
+                      <th className="py-2.5 px-2.5">Hostname</th>
+                      <th className="py-2.5 px-2.5">MAC Address</th>
+                      <th className="py-2.5 px-2.5">Vendor (OUI)</th>
+                      <th className="py-2.5 px-2.5">Discovery Method</th>
+                      <th className="py-2.5 px-2.5">Status</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {detectedDevices.length === 0 ? (
+                      <tr>
+                        <td colSpan={6} className="py-6 text-center text-slate-400 font-sans">
+                          No devices recorded in this report.
+                        </td>
+                      </tr>
+                    ) : (
+                      detectedDevices.map((d) => (
+                        <tr key={d.ip_address} className="hover:bg-slate-50">
+                          <td className="py-2.5 px-2.5 text-blue-600 font-medium">
+                            {d.ip_address || "--"}
+                          </td>
+                          <td className="py-2.5 px-2.5 text-slate-900 font-heading font-medium">
+                            {d.hostname || "--"}
+                          </td>
+                          <td className="py-2.5 px-2.5 text-slate-600">
+                            {d.mac_address || "--"}
+                          </td>
+                          <td className="py-2.5 px-2.5 text-slate-700 font-heading font-medium">
+                            {d.vendor || "--"}
+                          </td>
+                          <td className="py-2.5 px-2.5 text-slate-500">
+                            {d.discovery_method || "--"}
+                          </td>
+                          <td className="py-2.5 px-2.5">
+                            <span
+                              className={
+                                d.is_online
+                                  ? "text-emerald-600 font-medium"
+                                  : "text-rose-600 font-medium"
+                              }
+                            >
+                              ● {d.is_online ? "ONLINE" : "OFFLINE"}
+                            </span>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </div>
 
-          {/* 4. Ping Results & Network Statistics Table */}
-          <div className="space-y-3">
-            <h3 className="text-xs font-typewriter font-medium text-blue-600 uppercase tracking-wider">
-              Section 3 — Ping Results &amp; Network QoS Statistics (
-              {pingResults.length} Hosts)
-            </h3>
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse text-xs font-typewriter">
-                <thead>
-                  <tr className="border-b border-slate-200 text-slate-400 font-heading font-medium uppercase text-[11px] tracking-wider">
-                    <th className="py-2.5 px-2.5">Hostname</th>
-                    <th className="py-2.5 px-2.5">IP Address</th>
-                    <th className="py-2.5 px-2.5">Min Latency</th>
-                    <th className="py-2.5 px-2.5">Average Latency</th>
-                    <th className="py-2.5 px-2.5">Maximum Latency</th>
-                    <th className="py-2.5 px-2.5">Jitter</th>
-                    <th className="py-2.5 px-2.5">Packet Loss</th>
-                    <th className="py-2.5 px-2.5">Signal</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {pingResults.map((p) => (
-                    <tr key={p.ip_address} className="hover:bg-slate-50">
-                      <td className="py-2.5 px-2.5 text-slate-900 font-heading font-medium">
-                        {p.hostname}
-                      </td>
-                      <td className="py-2.5 px-2.5 text-blue-600 font-medium">
-                        {p.ip_address}
-                      </td>
-                      <td className="py-2.5 px-2.5 text-slate-600">
-                        {p.min_latency_ms} ms
-                      </td>
-                      <td className="py-2.5 px-2.5 text-emerald-600 font-medium">
-                        {p.avg_latency_ms} ms
-                      </td>
-                      <td className="py-2.5 px-2.5 text-amber-600 font-medium">
-                        {p.max_latency_ms} ms
-                      </td>
-                      <td className="py-2.5 px-2.5 text-slate-700">
-                        {p.jitter_ms} ms
-                      </td>
-                      <td className="py-2.5 px-2.5 font-medium text-slate-800">
-                        {p.packet_loss_pct}%
-                      </td>
-                      <td className="py-2.5 px-2.5">
-                        <SignalStrengthBars
-                          rttMs={p.avg_latency_ms}
-                          isOnline={p.packet_loss_pct < 100}
-                        />
-                      </td>
+            {/* 4. Ping Results & Network Statistics Table */}
+            <div className="space-y-3">
+              <h3 className="text-xs font-typewriter font-medium text-blue-600 uppercase tracking-wider">
+                Section 3 — Ping Results &amp; Network QoS Statistics (
+                {pingResults.length} Hosts)
+              </h3>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse text-xs font-typewriter">
+                  <thead>
+                    <tr className="border-b border-slate-200 text-slate-400 font-heading font-medium uppercase text-[11px] tracking-wider">
+                      <th className="py-2.5 px-2.5">Hostname</th>
+                      <th className="py-2.5 px-2.5">IP Address</th>
+                      <th className="py-2.5 px-2.5">Min Latency</th>
+                      <th className="py-2.5 px-2.5">Average Latency</th>
+                      <th className="py-2.5 px-2.5">Maximum Latency</th>
+                      <th className="py-2.5 px-2.5">Jitter</th>
+                      <th className="py-2.5 px-2.5">Packet Loss</th>
+                      <th className="py-2.5 px-2.5">Signal</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {pingResults.length === 0 ? (
+                      <tr>
+                        <td colSpan={8} className="py-6 text-center text-slate-400 font-sans">
+                          No QoS telemetry recorded in this report.
+                        </td>
+                      </tr>
+                    ) : (
+                      pingResults.map((p) => (
+                        <tr key={p.ip_address} className="hover:bg-slate-50">
+                          <td className="py-2.5 px-2.5 text-slate-900 font-heading font-medium">
+                            {p.hostname || "--"}
+                          </td>
+                          <td className="py-2.5 px-2.5 text-blue-600 font-medium">
+                            {p.ip_address || "--"}
+                          </td>
+                          <td className="py-2.5 px-2.5 text-slate-600">
+                            {p.min_latency_ms != null ? `${p.min_latency_ms} ms` : "--"}
+                          </td>
+                          <td className="py-2.5 px-2.5 text-emerald-600 font-medium">
+                            {p.avg_latency_ms != null ? `${p.avg_latency_ms} ms` : "--"}
+                          </td>
+                          <td className="py-2.5 px-2.5 text-amber-600 font-medium">
+                            {p.max_latency_ms != null ? `${p.max_latency_ms} ms` : "--"}
+                          </td>
+                          <td className="py-2.5 px-2.5 text-slate-700">
+                            {p.jitter_ms != null ? `${p.jitter_ms} ms` : "--"}
+                          </td>
+                          <td className="py-2.5 px-2.5 font-medium text-slate-800">
+                            {p.packet_loss_pct != null ? `${p.packet_loss_pct}%` : "--"}
+                          </td>
+                          <td className="py-2.5 px-2.5">
+                            <SignalStrengthBars
+                              rttMs={p.avg_latency_ms}
+                              isOnline={p.packet_loss_pct != null ? p.packet_loss_pct < 100 : false}
+                            />
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </div>
 
-          {/* 5. Open Ports & Security Recommendations Summary */}
-          <div className="space-y-3">
-            <h3 className="text-xs font-typewriter font-medium text-blue-600 uppercase tracking-wider">
-              Section 4 — Open Ports &amp; Security Recommendations (
-              {secRecs.length} Advisories)
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-              {secRecs.map((s, idx) => (
-                <div
-                  key={idx}
-                  className="p-4 rounded-2xl bg-[#F8FAFC] border border-slate-200/80 text-xs space-y-1.5"
-                >
-                  <div className="font-typewriter text-[10px] text-blue-600 font-medium">
-                    [{s.severity} · {s.category}] Target: {s.target_ip}
-                  </div>
-                  <div className="font-heading font-semibold text-slate-900 text-sm">
-                    {s.title}
-                  </div>
-                  <div className="text-slate-600 leading-relaxed font-sans">
-                    {s.recommendation}
-                  </div>
+            {/* 5. Open Ports & Security Recommendations Summary */}
+            <div className="space-y-3">
+              <h3 className="text-xs font-typewriter font-medium text-blue-600 uppercase tracking-wider">
+                Section 4 — Open Ports &amp; Security Recommendations (
+                {secRecs.length} Advisories)
+              </h3>
+              {secRecs.length === 0 ? (
+                <div className="p-6 text-center text-xs text-slate-400 bg-[#F8FAFC] rounded-2xl border border-slate-200/80">
+                  No active security advisories recorded in this report.
                 </div>
-              ))}
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                  {secRecs.map((s, idx) => (
+                    <div
+                      key={idx}
+                      className="p-4 rounded-2xl bg-[#F8FAFC] border border-slate-200/80 text-xs space-y-1.5"
+                    >
+                      <div className="font-typewriter text-[10px] text-blue-600 font-medium">
+                        [{s.severity || "--"} · {s.category || "--"}] Target: {s.target_ip || "--"}
+                      </div>
+                      <div className="font-heading font-semibold text-slate-900 text-sm">
+                        {s.title || "--"}
+                      </div>
+                      <div className="text-slate-600 leading-relaxed font-sans">
+                        {s.recommendation || "--"}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
-        </div>
+        </>
       )}
     </div>
   );

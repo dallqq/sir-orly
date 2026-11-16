@@ -286,10 +286,10 @@ export function Sidebar({
                 className={`text-[9px] font-typewriter font-medium px-1.5 py-0.5 rounded-full ${
                   apiOnline
                     ? "bg-emerald-100 text-emerald-700"
-                    : "bg-amber-100 text-amber-800"
+                    : "bg-slate-100 text-slate-600"
                 }`}
               >
-                {apiOnline ? "CONNECTED" : "SIMULATION"}
+                {apiOnline ? "CONNECTED" : "OFFLINE"}
               </span>
             </div>
 
@@ -308,10 +308,10 @@ export function Sidebar({
                 <span className="text-slate-400 text-[9px] leading-tight">FastAPI</span>
                 <span
                   className={`font-medium leading-tight truncate ${
-                    apiOnline ? "text-blue-600" : "text-amber-600"
+                    apiOnline ? "text-blue-600" : "text-slate-500"
                   }`}
                 >
-                  ● {apiOnline ? "Port 8000" : "Sim"}
+                  ● {apiOnline ? "Port 8000" : "Offline"}
                 </span>
               </div>
               <div className="flex flex-col min-w-0">
@@ -329,13 +329,13 @@ export function Sidebar({
               <div className="flex flex-col min-w-0">
                 <span className="text-slate-400 text-[9px] leading-tight">Hosts</span>
                 <span className="font-medium text-emerald-600 leading-tight truncate">
-                  {onlineCount}/{totalDevices} Up
+                  {totalDevices > 0 ? `${onlineCount}/${totalDevices} Up` : "--"}
                 </span>
               </div>
               <div className="flex flex-col min-w-0">
                 <span className="text-slate-400 text-[9px] leading-tight">Security</span>
                 <span className="font-medium text-blue-600 leading-tight truncate">
-                  {securityScore}/100 ({securityGrade})
+                  {securityScore > 0 ? `${securityScore}/100 (${securityGrade})` : "--"}
                 </span>
               </div>
             </div>
@@ -353,9 +353,9 @@ export function Sidebar({
           <div className="p-2 rounded-xl bg-[#F8FAFC] border border-slate-200 flex flex-col items-center gap-1.5 shrink-0 mt-auto">
             <div
               className={`w-2.5 h-2.5 rounded-full ${
-                apiOnline ? "bg-emerald-500 animate-pulse" : "bg-amber-500"
+                apiOnline ? "bg-emerald-500 animate-pulse" : "bg-slate-400"
               }`}
-              title={`Engine: ${apiOnline ? "Online" : "Simulation"} | ${onlineCount}/${totalDevices} hosts`}
+              title={`Engine: ${apiOnline ? "Online" : "Offline"} | ${onlineCount}/${totalDevices} hosts`}
             />
             <button
               type="button"

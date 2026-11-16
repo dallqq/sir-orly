@@ -33,7 +33,6 @@ export default function NocOverviewPage() {
     speedBenchmark,
     isScanning,
     triggerScan,
-    triggerSeedCampusLab,
     runSpeedBenchmark,
     stopSpeedBenchmark,
     postStatusNotice,
@@ -57,7 +56,7 @@ export default function NocOverviewPage() {
             validRtts.length
           ).toFixed(1)
         )
-      : speedBenchmark.pingMs;
+      : null;
 
   const avgJitter =
     validRtts.length > 0
@@ -67,10 +66,10 @@ export default function NocOverviewPage() {
             validRtts.length
           ).toFixed(1)
         )
-      : speedBenchmark.jitterMs;
+      : null;
 
-  const downloadGb = Number((totalMbRecv / 1024).toFixed(1));
-  const uploadGb = Number((totalMbSent / 1024).toFixed(1));
+  const downloadGb = totalMbRecv > 0 ? Number((totalMbRecv / 1024).toFixed(1)) : 0;
+  const uploadGb = totalMbSent > 0 ? Number((totalMbSent / 1024).toFixed(1)) : 0;
 
   const handleQuickReport = async () => {
     setGeneratingPdf(true);
@@ -95,10 +94,10 @@ export default function NocOverviewPage() {
   };
 
   // Build dynamic sparkline arrays from telemetrySeries
-  const rxSpark = telemetrySeries.map((p) => p.rx_kbps || 480);
-  const txSpark = telemetrySeries.map((p) => p.tx_kbps || 240);
-  const rttSpark = telemetrySeries.map((p) => p.avg_rtt_ms || 12);
-  const jitterSpark = telemetrySeries.map((p) => p.jitter_ms || 1.5);
+  const rxSpark = telemetrySeries.map((p) => p.rx_kbps);
+  const txSpark = telemetrySeries.map((p) => p.tx_kbps);
+  const rttSpark = telemetrySeries.map((p) => p.avg_rtt_ms);
+  const jitterSpark = telemetrySeries.map((p) => p.jitter_ms);
 
   // Determine what value to display on the main gauge based on user card selection
   const activeGaugeValue =
@@ -109,8 +108,8 @@ export default function NocOverviewPage() {
       : selectedFeatureMetric === "upload"
       ? speedBenchmark.uploadMbps
       : selectedFeatureMetric === "ping"
-      ? avgLatency
-      : avgJitter;
+      ? (avgLatency ?? 0)
+      : (avgJitter ?? 0);
 
   const activeGaugeUnit =
     selectedFeatureMetric === "ping" || selectedFeatureMetric === "jitter"
@@ -153,7 +152,9 @@ export default function NocOverviewPage() {
                 <div className="min-w-0">
                   <div className="text-[11px] text-slate-400">Server / NIC</div>
                   <div className="text-xs font-heading font-medium text-slate-900 truncate">
-                    HYPERNET · {activeInterface.interface_name}
+                    {activeInterface.interface_name !== "--"
+                      ? `HYPERNET · ${activeInterface.interface_name}`
+                      : "--"}
                   </div>
                 </div>
               </div>
@@ -168,7 +169,7 @@ export default function NocOverviewPage() {
                 <div className="min-w-0">
                   <div className="text-[11px] text-slate-400">Local IP / CIDR</div>
                   <div className="text-xs font-typewriter font-medium text-slate-900 truncate">
-                    {activeInterface.local_ip}
+                    {activeInterface.local_ip !== "--" ? activeInterface.local_ip : "--"}
                   </div>
                 </div>
               </div>
@@ -179,7 +180,11 @@ export default function NocOverviewPage() {
               <HyperSpeedGauge
                 value={activeGaugeValue}
                 label={activeGaugeUnit}
-                sublabel={`Gateway ${activeInterface.gateway_ip} · ${activeInterface.subnet_cidr}`}
+                sublabel={
+                  activeInterface.gateway_ip !== "--"
+                    ? `Gateway ${activeInterface.gateway_ip} · ${activeInterface.subnet_cidr}`
+                    : "Gateway -- · --"
+                }
                 isRunning={speedBenchmark.isRunning}
                 phase={speedBenchmark.phase}
               />
@@ -192,7 +197,7 @@ export default function NocOverviewPage() {
                   <span className="text-blue-600 font-medium">↓</span> Download Volume
                 </div>
                 <div className="text-2xl sm:text-3xl font-semibold font-typewriter text-slate-900 mt-0.5">
-                  {downloadGb} GB
+                  {downloadGb > 0 ? `${downloadGb} GB` : "--"}
                 </div>
               </div>
               <div className="border-l border-slate-100">
@@ -200,7 +205,7 @@ export default function NocOverviewPage() {
                   <span className="text-blue-600 font-medium">↑</span> Upload Volume
                 </div>
                 <div className="text-2xl sm:text-3xl font-semibold font-typewriter text-slate-900 mt-0.5">
-                  {uploadGb} GB
+                  {uploadGb > 0 ? `${uploadGb} GB` : "--"}
                 </div>
               </div>
             </div>
@@ -229,7 +234,7 @@ export default function NocOverviewPage() {
           <div className="grid grid-cols-2 gap-4">
             <MetricWaveCard
               title="Download"
-              value={speedBenchmark.downloadMbps}
+              value={speedBenchmark.downloadMbps > 0 ? speedBenchmark.downloadMbps : "--"}
               unit="mbps"
               icon="↓"
               featured={selectedFeatureMetric === "download"}
@@ -238,7 +243,7 @@ export default function NocOverviewPage() {
             />
             <MetricWaveCard
               title="Upload"
-              value={speedBenchmark.uploadMbps}
+              value={speedBenchmark.uploadMbps > 0 ? speedBenchmark.uploadMbps : "--"}
               unit="mbps"
               icon="↑"
               featured={selectedFeatureMetric === "upload"}
@@ -247,7 +252,7 @@ export default function NocOverviewPage() {
             />
             <MetricWaveCard
               title="Ping"
-              value={avgLatency}
+              value={avgLatency !== null ? avgLatency : "--"}
               unit="ms"
               subtitle="RTT"
               featured={selectedFeatureMetric === "ping"}
@@ -256,7 +261,7 @@ export default function NocOverviewPage() {
             />
             <MetricWaveCard
               title="Jitter"
-              value={avgJitter}
+              value={avgJitter !== null ? avgJitter : "--"}
               unit="ms"
               subtitle="QoS"
               featured={selectedFeatureMetric === "jitter"}
@@ -418,25 +423,45 @@ export default function NocOverviewPage() {
                 <div className="py-3 flex flex-wrap items-center justify-between gap-3">
                   <span className="text-slate-500 font-medium">Average Subnet Ping</span>
                   <span className="font-semibold font-typewriter text-slate-900 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-200/60">
-                    {avgLatency} ms
+                    {avgLatency !== null ? `${avgLatency} ms` : "--"}
                   </span>
                 </div>
                 <div className="py-3 flex flex-wrap items-center justify-between gap-3">
                   <span className="text-slate-500 font-medium">Local IPv4 &amp; Subnet CIDR</span>
                   <span className="font-semibold font-typewriter text-blue-600 bg-blue-50/60 px-2.5 py-1 rounded-lg border border-blue-200/50">
-                    {activeInterface.local_ip} <span className="text-blue-400 font-normal">({activeInterface.subnet_cidr})</span>
+                    {activeInterface.local_ip !== "--" ? (
+                      <>
+                        {activeInterface.local_ip}{" "}
+                        <span className="text-blue-400 font-normal">({activeInterface.subnet_cidr})</span>
+                      </>
+                    ) : (
+                      "--"
+                    )}
                   </span>
                 </div>
                 <div className="py-3 flex flex-wrap items-center justify-between gap-3">
                   <span className="text-slate-500 font-medium">Default Gateway &amp; MAC</span>
                   <span className="font-semibold font-typewriter text-slate-800 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-200/60">
-                    {activeInterface.gateway_ip} <span className="text-slate-400 font-normal">· {activeInterface.mac_address}</span>
+                    {activeInterface.gateway_ip !== "--" ? (
+                      <>
+                        {activeInterface.gateway_ip}{" "}
+                        <span className="text-slate-400 font-normal">· {activeInterface.mac_address}</span>
+                      </>
+                    ) : (
+                      "--"
+                    )}
                   </span>
                 </div>
                 <div className="py-3 flex flex-wrap items-center justify-between gap-3">
                   <span className="text-slate-500 font-medium">Active LAN Devices &amp; Security</span>
                   <span className="font-semibold font-typewriter text-emerald-600 bg-emerald-50/60 px-2.5 py-1 rounded-lg border border-emerald-200/50">
-                    {onlineDevices.length}/{devices.length} Online <span className="text-slate-300 mx-1">|</span> Score {securityScore}/100 ({securityGrade})
+                    {devices.length > 0 ? (
+                      <>
+                        {onlineDevices.length}/{devices.length} Online <span className="text-slate-300 mx-1">|</span> Score {securityScore}/100 ({securityGrade})
+                      </>
+                    ) : (
+                      "-- / -- Online | Score --/100 (--)"
+                    )}
                   </span>
                 </div>
               </div>
@@ -473,42 +498,48 @@ export default function NocOverviewPage() {
             </div>
 
             <div className="divide-y divide-slate-100 rounded-2xl border border-slate-100 overflow-hidden">
-              {devices.slice(0, 5).map((dev) => (
-                <PingTargetRow
-                  key={dev.ip_address}
-                  ip={dev.ip_address}
-                  hostname={dev.hostname}
-                  subtitle={dev.vendor}
-                  rttMs={dev.last_rtt_ms}
-                  isOnline={dev.is_online}
-                  rightActions={
-                    <div className="hidden sm:flex items-center gap-1">
-                      <Link
-                        href={`/connectivity?target=${encodeURIComponent(
-                          dev.ip_address
-                        )}&autostart=ping`}
-                        className="px-2.5 py-1 rounded-full bg-blue-50 hover:bg-blue-100 text-blue-600 text-[11px] font-heading font-medium"
-                      >
-                        Ping
-                      </Link>
-                      <Link
-                        href={`/connectivity?target=${encodeURIComponent(
-                          dev.ip_address
-                        )}&tab=ports&autostart=scan`}
-                        className="px-2.5 py-1 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-heading font-medium"
-                      >
-                        Ports
-                      </Link>
-                    </div>
-                  }
-                />
-              ))}
+              {devices.length === 0 ? (
+                <div className="p-8 text-center text-xs text-slate-400 font-typewriter">
+                  No discovered devices yet. Click &ldquo;Scan Subnet&rdquo; to detect active hosts.
+                </div>
+              ) : (
+                devices.slice(0, 5).map((dev) => (
+                  <PingTargetRow
+                    key={dev.ip_address}
+                    ip={dev.ip_address}
+                    hostname={dev.hostname}
+                    subtitle={dev.vendor}
+                    rttMs={dev.last_rtt_ms}
+                    isOnline={dev.is_online}
+                    rightActions={
+                      <div className="hidden sm:flex items-center gap-1">
+                        <Link
+                          href={`/connectivity?target=${encodeURIComponent(
+                            dev.ip_address
+                          )}&autostart=ping`}
+                          className="px-2.5 py-1 rounded-full bg-blue-50 hover:bg-blue-100 text-blue-600 text-[11px] font-heading font-medium"
+                        >
+                          Ping
+                        </Link>
+                        <Link
+                          href={`/connectivity?target=${encodeURIComponent(
+                            dev.ip_address
+                          )}&tab=ports&autostart=scan`}
+                          className="px-2.5 py-1 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-heading font-medium"
+                        >
+                          Ports
+                        </Link>
+                      </div>
+                    }
+                  />
+                ))
+              )}
             </div>
           </div>
         </div>
       </div>
 
-      {/* Bottom Section: Featured LAN Device Cards (Screenshot 2 Middle "Lan — Found X devices") + Security Advisories */}
+      {/* Bottom Section: Featured LAN Device Cards + Security Advisories */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left 8 Cols: LAN Device Cards */}
         <div className="lg:col-span-8 space-y-4">
@@ -525,13 +556,6 @@ export default function NocOverviewPage() {
               </p>
             </div>
             <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => triggerSeedCampusLab()}
-                className="px-3.5 py-1.5 rounded-full bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-heading font-medium cursor-pointer transition-colors duration-200"
-              >
-                Seed Campus Lab
-              </button>
               <Link
                 href="/discovery"
                 className="px-4 py-1.5 rounded-full hyper-hero-gradient text-white text-xs font-heading font-medium transition-all duration-200 ease-out hover:brightness-105"
@@ -542,13 +566,19 @@ export default function NocOverviewPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {devices.slice(0, 4).map((dev, index) => (
-              <LanDeviceCard
-                key={dev.ip_address}
-                device={dev}
-                featured={index === 0}
-              />
-            ))}
+            {devices.length === 0 ? (
+              <div className="col-span-2 p-8 text-center text-xs text-slate-400 font-typewriter bg-[#F8FAFC] rounded-2xl border border-dashed border-slate-200">
+                No LAN devices discovered yet. Click &ldquo;Scan Subnet&rdquo; to discover network devices.
+              </div>
+            ) : (
+              devices.slice(0, 4).map((dev, index) => (
+                <LanDeviceCard
+                  key={dev.ip_address}
+                  device={dev}
+                  featured={index === 0}
+                />
+              ))
+            )}
           </div>
         </div>
 
@@ -566,43 +596,51 @@ export default function NocOverviewPage() {
               </div>
               <div className="px-3 py-1.5 rounded-2xl bg-blue-50 border border-blue-100 text-right font-typewriter">
                 <div className="text-sm font-semibold text-blue-600">
-                  {securityScore}/100 ({securityGrade})
+                  {securityAlerts.length > 0 || securityScore > 0
+                    ? `${securityScore}/100 (${securityGrade})`
+                    : "--/100 (--)"}
                 </div>
               </div>
             </div>
 
             <div className="space-y-3">
-              {securityAlerts.slice(0, 3).map((alert, idx) => {
-                const badgeCls =
-                  alert.severity === "CRITICAL"
-                    ? "bg-rose-50 text-rose-600 border-rose-200"
-                    : alert.severity === "HIGH"
-                    ? "bg-amber-50 text-amber-700 border-amber-200"
-                    : "bg-blue-50 text-blue-600 border-blue-200";
-                return (
-                  <div
-                    key={alert.id || idx}
-                    className="p-3.5 rounded-2xl bg-[#F8FAFC] border border-slate-200/80 space-y-1.5"
-                  >
-                    <div className="flex items-center justify-between gap-2">
-                      <span
-                        className={`text-[10px] font-typewriter font-medium px-2 py-0.5 rounded-full border ${badgeCls}`}
-                      >
-                        {alert.severity} · {alert.category}
-                      </span>
-                      <span className="text-[11px] font-typewriter font-medium text-slate-500">
-                        {alert.target_ip}
-                      </span>
+              {securityAlerts.length === 0 ? (
+                <div className="p-6 text-center text-xs text-slate-400 font-typewriter bg-[#F8FAFC] rounded-2xl border border-slate-200/80">
+                  No active security advisories recorded yet. Run a subnet scan or security evaluation.
+                </div>
+              ) : (
+                securityAlerts.slice(0, 3).map((alert, idx) => {
+                  const badgeCls =
+                    alert.severity === "CRITICAL"
+                      ? "bg-rose-50 text-rose-600 border-rose-200"
+                      : alert.severity === "HIGH"
+                      ? "bg-amber-50 text-amber-700 border-amber-200"
+                      : "bg-blue-50 text-blue-600 border-blue-200";
+                  return (
+                    <div
+                      key={alert.id || idx}
+                      className="p-3.5 rounded-2xl bg-[#F8FAFC] border border-slate-200/80 space-y-1.5"
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <span
+                          className={`text-[10px] font-typewriter font-medium px-2 py-0.5 rounded-full border ${badgeCls}`}
+                        >
+                          {alert.severity} · {alert.category}
+                        </span>
+                        <span className="text-[11px] font-typewriter font-medium text-slate-500">
+                          {alert.target_ip}
+                        </span>
+                      </div>
+                      <div className="text-xs font-heading font-medium text-slate-900">
+                        {alert.title}
+                      </div>
+                      <p className="text-[11px] text-slate-500 line-clamp-2">
+                        {alert.recommendation}
+                      </p>
                     </div>
-                    <div className="text-xs font-heading font-medium text-slate-900">
-                      {alert.title}
-                    </div>
-                    <p className="text-[11px] text-slate-500 line-clamp-2">
-                      {alert.recommendation}
-                    </p>
-                  </div>
-                );
-              })}
+                  );
+                })
+              )}
             </div>
           </div>
 

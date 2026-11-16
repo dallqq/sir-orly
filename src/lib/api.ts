@@ -256,16 +256,6 @@ export const netpulseApi = {
       }
     ),
 
-  seedCampusLab: () =>
-    apiFetch<{
-      status: string;
-      devices_count: number;
-      security_score: number;
-      security_grade: string;
-    }>("/system/seed-lab", {
-      method: "POST",
-    }),
-
   getInterfaces: (interfaceName?: string) =>
     apiFetch<{
       active_interface: NetworkInterfaceInfo;
