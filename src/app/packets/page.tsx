@@ -81,7 +81,7 @@ function PacketsWorkspace() {
         setProtocolBreakdown(detail.protocol_breakdown);
         setSelectedPacket(detail.packets[0] || null);
       })
-      .catch(() => {});
+      .catch(() => { });
     return () => {
       active = false;
     };
@@ -135,8 +135,7 @@ function PacketsWorkspace() {
       setSessions(listRes.sessions);
     } catch (err) {
       setStatusBanner(
-        `Upload warning: ${
-          err instanceof Error ? err.message : "Backend offline"
+        `Upload warning: ${err instanceof Error ? err.message : "Backend offline"
         }`
       );
     }
@@ -244,11 +243,10 @@ function PacketsWorkspace() {
                   key={chip}
                   type="button"
                   onClick={() => setBpfFilter(chip)}
-                  className={`px-3 py-1 rounded-full text-[11px] font-typewriter font-medium transition-colors duration-200 cursor-pointer ${
-                    bpfFilter === chip
-                      ? "bg-[#141B2D] text-white"
-                      : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                  }`}
+                  className={`px-3 py-1 rounded-full text-[11px] font-typewriter font-medium transition-colors duration-200 cursor-pointer ${bpfFilter === chip
+                    ? "bg-[#141B2D] text-white"
+                    : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                    }`}
                 >
                   {chip}
                 </button>
@@ -369,64 +367,56 @@ function PacketsWorkspace() {
                     <tr
                       key={pkt.index}
                       onClick={() => setSelectedPacket(pkt)}
-                      className={`cursor-pointer transition ${
-                        isSelected
-                          ? "bg-blue-600 text-white"
-                          : "hover:bg-blue-50/60 text-slate-800"
-                      }`}
+                      className={`cursor-pointer transition ${isSelected
+                        ? "bg-blue-600 text-white"
+                        : "hover:bg-blue-50/60 text-slate-800"
+                        }`}
                     >
                       <td
-                        className={`py-2 px-3 font-medium ${
-                          isSelected ? "text-blue-100" : "text-slate-400"
-                        }`}
+                        className={`py-2 px-3 font-medium ${isSelected ? "text-blue-100" : "text-slate-400"
+                          }`}
                       >
                         {pkt.index}
                       </td>
                       <td
-                        className={`py-2 px-3 ${
-                          isSelected ? "text-blue-100" : "text-slate-500"
-                        }`}
+                        className={`py-2 px-3 ${isSelected ? "text-blue-100" : "text-slate-500"
+                          }`}
                       >
                         {pkt.timestamp}
                       </td>
                       <td
-                        className={`py-2 px-3 font-medium ${
-                          isSelected ? "text-white" : "text-blue-600"
-                        }`}
+                        className={`py-2 px-3 font-medium ${isSelected ? "text-white" : "text-blue-600"
+                          }`}
                       >
                         {pkt.src_ip}
                         {pkt.src_port ? `:${pkt.src_port}` : ""}
                       </td>
                       <td
-                        className={`py-2 px-3 font-medium ${
-                          isSelected ? "text-white" : "text-emerald-600"
-                        }`}
+                        className={`py-2 px-3 font-medium ${isSelected ? "text-white" : "text-emerald-600"
+                          }`}
                       >
                         {pkt.dst_ip}
                         {pkt.dst_port ? `:${pkt.dst_port}` : ""}
                       </td>
                       <td className="py-2 px-3">
                         <span
-                          className={`px-2 py-0.5 rounded-full border text-[10px] font-medium ${
-                            isSelected
-                              ? "bg-white/20 text-white border-white/30"
-                              : getProtocolBadgeClass(pkt.protocol)
-                          }`}
+                          className={`px-2 py-0.5 rounded-full border text-[10px] font-medium ${isSelected
+                            ? "bg-white/20 text-white border-white/30"
+                            : getProtocolBadgeClass(pkt.protocol)
+                            }`}
                         >
                           {pkt.protocol}
                         </span>
                       </td>
                       <td
-                        className={`py-2 px-3 ${
-                          isSelected ? "text-blue-100" : "text-slate-600"
-                        }`}
+                        className={`py-2 px-3 ${isSelected ? "text-blue-100" : "text-slate-600"
+                          }`}
                       >
                         {pkt.length} B
                       </td>
                       <td
-                        className={`py-2 px-3 truncate max-w-md font-sans ${
-                          isSelected ? "text-white font-medium" : "text-slate-600"
-                        }`}
+                        className={`py-2 px-3 truncate max-w-md font-sans ${isSelected ? "text-white font-medium" : "text-slate-600"
+                          }`}
                       >
                         {pkt.info}
                       </td>

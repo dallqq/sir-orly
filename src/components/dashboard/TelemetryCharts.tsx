@@ -10,6 +10,12 @@ import React, { useState } from "react";
  * circular white-with-blue-border nodes, and floating blue pill callout badge!
  */
 export function LiveLatencyAreaChart({ data }: { data: TelemetryPoint[] }) {
+  const pts = (data || []).slice(-7);
+
+  const [activeIndex, setActiveIndex] = useState<number>(
+    Math.min(3, Math.max(0, pts.length - 1))
+  );
+
   if (!data || data.length === 0) {
     return (
       <div className="w-full flex items-center justify-center h-56 bg-[#FAFBFD] rounded-2xl border border-slate-200/80 text-xs font-typewriter text-slate-400">
@@ -18,11 +24,6 @@ export function LiveLatencyAreaChart({ data }: { data: TelemetryPoint[] }) {
     );
   }
 
-  const pts = data.slice(-7);
-
-  const [activeIndex, setActiveIndex] = useState<number>(
-    Math.min(3, Math.max(0, pts.length - 1))
-  );
   const safeActiveIdx = Math.min(activeIndex, pts.length - 1);
 
   const width = 640;
@@ -329,8 +330,8 @@ export function HostLatencyBarChart({ stats }: { stats: HostQoSStats[] }) {
         const barColor = isLoss
           ? "bg-rose-500"
           : s.avg_latency_ms > 80
-          ? "bg-amber-500"
-          : "hyper-hero-gradient";
+            ? "bg-amber-500"
+            : "hyper-hero-gradient";
 
         return (
           <div key={s.ip_address} className="space-y-1.5">
@@ -465,10 +466,10 @@ export function InteractiveSubnetTopology({
           const strokeColor = !node.is_online
             ? "#EF4444"
             : rtt > 50
-            ? "#F59E0B"
-            : rtt > 0
-            ? "#1E6BFF"
-            : "#94A3B8";
+              ? "#F59E0B"
+              : rtt > 0
+                ? "#1E6BFF"
+                : "#94A3B8";
 
           return (
             <g key={`edge-${node.ip_address}`}>
@@ -564,12 +565,12 @@ export function InteractiveSubnetTopology({
           const borderCol = !node.is_online
             ? "#EF4444"
             : isSel || isLocal
-            ? "#1E6BFF"
-            : (node.last_rtt_ms ?? 0) > 50
-            ? "#F59E0B"
-            : (node.last_rtt_ms ?? 0) > 0
-            ? "#10B981"
-            : "#94A3B8";
+              ? "#1E6BFF"
+              : (node.last_rtt_ms ?? 0) > 50
+                ? "#F59E0B"
+                : (node.last_rtt_ms ?? 0) > 0
+                  ? "#10B981"
+                  : "#94A3B8";
 
           return (
             <g

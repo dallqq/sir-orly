@@ -1,4 +1,4 @@
-# ⚡ NetPulse NOC — Network Monitoring & Performance Analysis System
+# Network Monitoring & Performance Analysis System
 
 > **Course:** CCS 234 — Communications and Networking (West Visayas State University — CICT)  
 > **Final Project Codename:** `NetPulse NOC` (`sir-orly`)  
@@ -6,7 +6,7 @@
 
 ---
 
-## 📋 Executive Overview
+## Executive Overview
 
 **NetPulse NOC** is an industry-grade, full-stack **Network Monitoring, Traffic Inspection, and Security Diagnostic Platform** engineered to satisfy 100% of the **CCS 234 Final Project** specifications and all 8 innovation bonus features.
 
@@ -36,7 +36,7 @@ Designed with an **offline-first and multi-environment architecture**, NetPulse 
 
 ---
 
-## 🌟 Feature Traceability Matrix
+## Feature Traceability Matrix
 
 Every feature is fully implemented and mapped to the CCS 234 syllabus and grading rubric:
 
@@ -91,7 +91,7 @@ Every feature is fully implemented and mapped to the CCS 234 syllabus and gradin
 
 ---
 
-## 📁 Repository Structure
+## Repository Structure
 
 ```
 sir-orly/
@@ -145,7 +145,7 @@ sir-orly/
 
 ---
 
-## 🚀 Quick Start Guide
+## Quick Start Guide
 
 ### Prerequisites
 - **Operating System:** Windows 10/11 (or Linux/macOS)
@@ -237,7 +237,7 @@ npm run build
 
 ---
 
-## 🛡️ Edge-Case Resilience
+## Edge-Case Resilience
 
 To prevent failures during grading or live demonstrations, NetPulse NOC incorporates specialized safeguards:
 
@@ -254,7 +254,7 @@ To prevent failures during grading or live demonstrations, NetPulse NOC incorpor
 
 ---
 
-## 📄 License & Academic Integrity
+## License & Academic Integrity
 
 Developed for **CCS 234 — Communications and Networking** at the **College of Information and Communications Technology (CICT), West Visayas State University (WVSU)**.  
 Submitted for final project evaluation covering Python Network Programming, Socket Programming, OSI/TCP-IP Protocols, and Wireshark Packet Analysis.
